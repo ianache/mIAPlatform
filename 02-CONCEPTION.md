@@ -8,6 +8,7 @@
 
 # Frameworks
 
+- uv (for python package and app management)
 - Vue 3 (web)
 - NodeJS (para bff)
 - FastAPI (api, mcp)
