@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Agent Configuration | Orchestra</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-surface": "#d9e3f6",
+              "on-tertiary-fixed-variant": "#723600",
+              "on-primary-fixed": "#001a42",
+              "on-primary": "#002e6a",
+              "surface-container-lowest": "#050f1c",
+              "on-tertiary": "#502400",
+              "on-primary-container": "#00285d",
+              "error": "#ffb4ab",
+              "secondary-fixed": "#d8e2ff",
+              "primary-container": "#4d8eff",
+              "on-secondary": "#182f59",
+              "surface-tint": "#adc6ff",
+              "primary": "#adc6ff",
+              "outline": "#8c909f",
+              "surface-container": "#16202e",
+              "surface-dim": "#091421",
+              "on-error-container": "#ffdad6",
+              "secondary-fixed-dim": "#b1c6f9",
+              "on-tertiary-fixed": "#311400",
+              "on-secondary-fixed-variant": "#304671",
+              "secondary-container": "#304671",
+              "tertiary": "#ffb786",
+              "primary-fixed-dim": "#adc6ff",
+              "on-tertiary-container": "#461f00",
+              "on-background": "#d9e3f6",
+              "primary-fixed": "#d8e2ff",
+              "on-error": "#690005",
+              "on-primary-fixed-variant": "#004395",
+              "tertiary-fixed-dim": "#ffb786",
+              "on-surface-variant": "#c2c6d6",
+              "inverse-primary": "#005ac2",
+              "background": "#091421",
+              "surface": "#091421",
+              "tertiary-container": "#df7412",
+              "surface-container-high": "#212b39",
+              "outline-variant": "#424754",
+              "inverse-on-surface": "#27313f",
+              "inverse-surface": "#d9e3f6",
+              "surface-container-low": "#121c2a",
+              "on-secondary-container": "#9fb5e7",
+              "surface-container-highest": "#2b3544",
+              "secondary": "#b1c6f9",
+              "surface-variant": "#2b3544",
+              "surface-bright": "#303a48",
+              "on-secondary-fixed": "#001a42",
+              "error-container": "#93000a",
+              "tertiary-fixed": "#ffdcc6"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(48, 58, 72, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #ADC6FF 0%, #4D8EFF 100%);
+        }
+        body {
+            background-color: #050f1c; /* surface-container-lowest */
+            color: #d9e3f6; /* on-surface */
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-primary selection:text-on-primary">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col bg-slate-900/50 dark:bg-[#121C2A] h-screen w-64 border-r border-transparent z-50">
+<div class="px-6 py-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg primary-gradient flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-xl" style="font-variation-settings: 'FILL' 1;">cloud_sync</span>
+</div>
+<div>
+<h1 class="text-xl font-bold text-[#ADC6FF] tracking-tighter font-headline">Orchestra</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-label">Multi-Agent System</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-2 mt-4 font-['Space_Grotesk'] text-sm tracking-wide">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-100 transition-colors hover:bg-[#2B3544] rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span>Workspace</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-100 transition-colors hover:bg-[#2B3544] rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span>Agents</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-100 transition-colors hover:bg-[#2B3544] rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">book_2</span>
+<span>Library</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-100 transition-colors hover:bg-[#2B3544] rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#ADC6FF] font-bold border-l-2 border-[#3B82F6] bg-slate-800/40 rounded-r-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="p-6">
+<button class="w-full primary-gradient text-on-primary font-headline font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined">add</span>
+                New Mission
+            </button>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed left-64 top-0 right-0 h-16 flex justify-between items-center px-8 w-[calc(100%-16rem)] bg-slate-900 dark:bg-[#091421] border-b border-transparent z-40">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-surface-container border-none rounded-full py-2 pl-10 pr-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/50 placeholder:text-slate-500 font-body" placeholder="Search parameters, logs, or agents..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-slate-400">
+<button class="hover:text-white transition-opacity"><span class="material-symbols-outlined">notifications</span></button>
+<button class="hover:text-white transition-opacity"><span class="material-symbols-outlined">history</span></button>
+<button class="hover:text-white transition-opacity"><span class="material-symbols-outlined">help</span></button>
+</div>
+<div class="h-6 w-[1px] bg-outline-variant/30"></div>
+<div class="flex items-center gap-4">
+<button class="text-slate-400 hover:text-white font-label text-sm uppercase tracking-widest">Support</button>
+<button class="px-6 py-2 border border-primary/30 rounded-lg text-primary hover:bg-primary/10 transition-all font-headline font-semibold text-sm">Deploy</button>
+<img alt="User profile" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="Close up portrait of a young professional man with short dark hair and a neutral expression, soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYmbEu6YO0FkW59bR0_x9JulQPlZDDU_O03i-R1a8kxkeHcickgf6WvS8qQ4Pp4dIFd7AU2VInrAK4uhK-Sle_bfQEgOJzNuRI_u99FwDnpc3xap9QHXpWjDWI7hY6gUuNcPaGDzvM-p3YqJmu0-uF9GI8MGTck1DOXBFm5J9XnG_xRwc6ect03Jem3HipwZn3a1EePWUzyQj4fOKDwPLt25-8RBiXBL53DGGOhI0mJMhD8Oaa-o3UnV7stCw80oGuvC0zhBxSHqU"/>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-64 pt-24 pb-12 px-12 min-h-screen">
+<div class="max-w-6xl mx-auto">
+<!-- Header Section -->
+<div class="mb-12">
+<h2 class="text-4xl font-headline font-bold text-on-surface tracking-tight mb-2">Agent Settings</h2>
+<p class="text-on-surface-variant font-body max-w-2xl leading-relaxed">Configure your autonomous multi-agent swarm. Manage individual persona logic and secure your provider-level authentication keys.</p>
+</div>
+<!-- Bento Layout Content -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Agent Management Section (Left Column) -->
+<div class="col-span-12 lg:col-span-7 space-y-6">
+<div class="flex items-center justify-between mb-2">
+<h3 class="font-headline text-xl font-semibold text-primary">Active Entities</h3>
+<span class="px-3 py-1 bg-surface-container-highest rounded-full text-[10px] font-label text-on-surface-variant uppercase tracking-widest">3 Active</span>
+</div>
+<div class="space-y-4">
+<!-- Agent Card 1 -->
+<div class="group bg-surface-container hover:bg-surface-container-high p-6 rounded-2xl flex items-center justify-between transition-all duration-300 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center gap-5">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">data_thresholding</span>
+</div>
+<div>
+<h4 class="font-headline text-lg font-bold">Data Weaver v4</h4>
+<p class="text-xs text-on-surface-variant font-label uppercase tracking-tighter">Vector Analysis Specialist</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="text-xs font-label text-emerald-500">Ready</span>
+</div>
+<button class="p-2 rounded-lg bg-surface-container-highest text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xl">edit</span>
+</button>
+</div>
+</div>
+<!-- Agent Card 2 -->
+<div class="group bg-surface-container hover:bg-surface-container-high p-6 rounded-2xl flex items-center justify-between transition-all duration-300 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center gap-5">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">insights</span>
+</div>
+<div>
+<h4 class="font-headline text-lg font-bold">The Strategist</h4>
+<p class="text-xs text-on-surface-variant font-label uppercase tracking-tighter">Heuristic Decision Engine</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="text-xs font-label text-emerald-500">Ready</span>
+</div>
+<button class="p-2 rounded-lg bg-surface-container-highest text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xl">edit</span>
+</button>
+</div>
+</div>
+<!-- Agent Card 3 -->
+<div class="group bg-surface-container hover:bg-surface-container-high p-6 rounded-2xl flex items-center justify-between transition-all duration-300 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center gap-5">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">architecture</span>
+</div>
+<div>
+<h4 class="font-headline text-lg font-bold">Architect AI</h4>
+<p class="text-xs text-on-surface-variant font-label uppercase tracking-tighter">System Schema Generator</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<span class="text-xs font-label text-amber-500">Calibrating</span>
+</div>
+<button class="p-2 rounded-lg bg-surface-container-highest text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xl">edit</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- API Keys Section (Right Column) -->
+<div class="col-span-12 lg:col-span-5">
+<div class="glass-panel p-8 rounded-[2rem] border border-outline-variant/10 shadow-2xl">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary text-3xl">key</span>
+<h3 class="font-headline text-xl font-bold">LLM Provider Keys</h3>
+</div>
+<form class="space-y-6">
+<!-- OpenAI -->
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<label class="text-[10px] font-label uppercase tracking-widest text-on-surface-variant">OpenAI API</label>
+<span class="text-[10px] font-label text-emerald-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">check_circle</span> 
+                                        Connected
+                                    </span>
+</div>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm font-mono text-primary placeholder:text-slate-600 focus:ring-1 focus:ring-primary/40" type="password" value="sk-proj-762hsa721hsad821shaxxxxxxxxx"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white" type="button">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+</div>
+<!-- Anthropic -->
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<label class="text-[10px] font-label uppercase tracking-widest text-on-surface-variant">Anthropic Claude</label>
+<span class="text-[10px] font-label text-slate-500">Last used: 2h ago</span>
+</div>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm font-mono text-primary placeholder:text-slate-600 focus:ring-1 focus:ring-primary/40" placeholder="ant-api-key-..." type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white" type="button">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+</div>
+<!-- Google Gemini -->
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<label class="text-[10px] font-label uppercase tracking-widest text-on-surface-variant">Google Gemini</label>
+<span class="text-[10px] font-label text-error flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">error</span> 
+                                        Invalid Key
+                                    </span>
+</div>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm font-mono text-primary placeholder:text-slate-600 focus:ring-1 focus:ring-primary/40 border-r-2 border-error" type="password" value="gemini-prod-xxxx-xxxx"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white" type="button">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+</div>
+<button class="w-full primary-gradient text-on-primary font-headline font-bold py-4 rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all mt-4" type="submit">
+                                Save Secure Keys
+                            </button>
+<p class="text-center text-[10px] text-slate-500 font-label uppercase tracking-widest pt-2">
+<span class="material-symbols-outlined text-[12px] align-middle mr-1">lock</span>
+                                AES-256 Encrypted Storage
+                            </p>
+</form>
+</div>
+</div>
+</div>
+<!-- Footer Stats Grid -->
+<div class="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="p-6 rounded-2xl bg-surface-container/50 border border-outline-variant/5">
+<p class="text-[10px] uppercase font-label tracking-widest text-on-surface-variant mb-2">Total Tokens</p>
+<p class="text-2xl font-headline font-bold">4.2M</p>
+</div>
+<div class="p-6 rounded-2xl bg-surface-container/50 border border-outline-variant/5">
+<p class="text-[10px] uppercase font-label tracking-widest text-on-surface-variant mb-2">Avg Latency</p>
+<p class="text-2xl font-headline font-bold">142ms</p>
+</div>
+<div class="p-6 rounded-2xl bg-surface-container/50 border border-outline-variant/5">
+<p class="text-[10px] uppercase font-label tracking-widest text-on-surface-variant mb-2">Success Rate</p>
+<p class="text-2xl font-headline font-bold text-emerald-400">99.8%</p>
+</div>
+<div class="p-6 rounded-2xl bg-surface-container/50 border border-outline-variant/5">
+<p class="text-[10px] uppercase font-label tracking-widest text-on-surface-variant mb-2">Current Spend</p>
+<p class="text-2xl font-headline font-bold">$12.40</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-4 right-8 z-10 w-full py-4 bg-transparent flex justify-end">
+<div class="flex items-center gap-8 px-8">
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest text-slate-500">© 2024 Orchestrated Intelligence</span>
+<div class="flex gap-6">
+<a class="font-['Inter'] text-[10px] uppercase tracking-widest text-slate-600 hover:text-slate-100 transition-all" href="#">Documentation</a>
+<a class="font-['Inter'] text-[10px] uppercase tracking-widest text-slate-600 hover:text-slate-100 transition-all" href="#">API Status</a>
+<a class="font-['Inter'] text-[10px] uppercase tracking-widest text-slate-600 hover:text-slate-100 transition-all" href="#">Privacy</a>
+</div>
+</div>
+</footer>
+</body></html>

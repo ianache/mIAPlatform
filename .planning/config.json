@@ -1,0 +1,14 @@
+{
+  "auto": true,
+  "workflow": "new-project",
+  "phases": [
+    "research",
+    "requirements",
+    "roadmap"
+  ],
+  "preferences": {
+    "documentation": "md",
+    "commitStrategy": "atomic",
+    "approvalRequired": false
+  }
+}

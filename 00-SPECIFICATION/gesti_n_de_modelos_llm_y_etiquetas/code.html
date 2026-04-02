@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Model Registry | Aether Orchestrator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#adc6ff",
+              "inverse-primary": "#005ac2",
+              "on-primary-fixed-variant": "#004395",
+              "on-tertiary-container": "#461f00",
+              "on-surface-variant": "#c2c6d6",
+              "outline": "#8c909f",
+              "surface-tint": "#adc6ff",
+              "on-tertiary-fixed": "#311400",
+              "surface-container": "#16202e",
+              "on-tertiary": "#502400",
+              "on-secondary-fixed-variant": "#304671",
+              "on-error-container": "#ffdad6",
+              "on-primary-container": "#00285d",
+              "on-primary": "#002e6a",
+              "background": "#091421",
+              "secondary-container": "#304671",
+              "error-container": "#93000a",
+              "primary-fixed": "#d8e2ff",
+              "on-surface": "#d9e3f6",
+              "secondary-fixed": "#d8e2ff",
+              "surface-container-low": "#121c2a",
+              "tertiary-fixed-dim": "#ffb786",
+              "surface-variant": "#2b3544",
+              "surface-bright": "#303a48",
+              "on-secondary-container": "#9fb5e7",
+              "error": "#ffb4ab",
+              "primary-fixed-dim": "#adc6ff",
+              "on-error": "#690005",
+              "tertiary-fixed": "#ffdcc6",
+              "surface": "#091421",
+              "secondary-fixed-dim": "#b1c6f9",
+              "secondary": "#b1c6f9",
+              "surface-container-high": "#212b39",
+              "inverse-surface": "#d9e3f6",
+              "surface-dim": "#091421",
+              "surface-container-highest": "#2b3544",
+              "on-secondary-fixed": "#001a42",
+              "on-background": "#d9e3f6",
+              "surface-container-lowest": "#050f1c",
+              "tertiary": "#ffb786",
+              "inverse-on-surface": "#27313f",
+              "tertiary-container": "#df7412",
+              "on-tertiary-fixed-variant": "#723600",
+              "on-secondary": "#182f59",
+              "outline-variant": "#424754",
+              "primary-container": "#4d8eff",
+              "on-primary-fixed": "#001a42"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      body { font-family: 'Manrope', sans-serif; background-color: #091421; color: #d9e3f6; }
+      .glass-effect { background: rgba(48, 58, 72, 0.6); backdrop-filter: blur(12px); }
+      .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+      .headline-font { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="flex min-h-screen bg-surface">
+<!-- SideNavBar (Authority: JSON + Design System) -->
+<aside class="hidden md:flex flex-col h-screen w-64 bg-[#121C2A] py-8 gap-y-6 sticky top-0 font-['Manrope'] text-sm font-medium">
+<div class="px-6 mb-4">
+<div class="text-blue-100 font-bold tracking-widest uppercase text-xs mb-1">Aether AI</div>
+<div class="text-slate-500 text-[10px]">v2.4.0-alpha</div>
+</div>
+<nav class="flex-1 flex flex-col gap-y-1">
+<a class="flex items-center px-6 py-3 text-slate-500 hover:bg-[#16202E] hover:text-slate-200 transition-all group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg" data-icon="hub">hub</span>
+                Orchestrator
+            </a>
+<a class="flex items-center px-6 py-3 text-slate-500 hover:bg-[#16202E] hover:text-slate-200 transition-all group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg" data-icon="psychology">psychology</span>
+                Agent Lab
+            </a>
+<!-- Active Navigation Logic: Model Registry is active -->
+<a class="flex items-center px-6 py-3 text-blue-300 border-l-2 border-blue-400 bg-blue-500/5 transition-all translate-x-1" href="#">
+<span class="material-symbols-outlined mr-3 text-lg" data-icon="database">database</span>
+                Model Registry
+            </a>
+<a class="flex items-center px-6 py-3 text-slate-500 hover:bg-[#16202E] hover:text-slate-200 transition-all group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg" data-icon="terminal">terminal</span>
+                Log Stream
+            </a>
+<a class="flex items-center px-6 py-3 text-slate-500 hover:bg-[#16202E] hover:text-slate-200 transition-all group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg" data-icon="settings">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-bold text-xs uppercase py-3 rounded-md transition-transform active:scale-95">
+                Deploy Agent
+            </button>
+</div>
+<div class="mt-4 border-t border-slate-800/50 pt-4 flex flex-col gap-y-1">
+<a class="flex items-center px-6 py-2 text-slate-500 hover:bg-[#16202E] hover:text-slate-200 text-xs transition-all" href="#">
+<span class="material-symbols-outlined mr-3 text-sm" data-icon="menu_book">menu_book</span>
+                Documentation
+            </a>
+<a class="flex items-center px-6 py-2 text-slate-500 hover:bg-[#16202E] hover:text-slate-200 text-xs transition-all" href="#">
+<span class="material-symbols-outlined mr-3 text-sm" data-icon="help_outline">help_outline</span>
+                Support
+            </a>
+</div>
+</aside>
+<!-- Main View Container -->
+<main class="flex-1 flex flex-col min-w-0">
+<!-- TopNavBar (Authority: JSON + Design System) -->
+<header class="bg-[#091421] flex justify-between items-center px-8 py-4 w-full sticky top-0 z-10">
+<div class="font-['Space_Grotesk'] tracking-tighter text-xl font-bold text-slate-100">
+                Aether Orchestrator
+            </div>
+<div class="flex items-center gap-x-6">
+<div class="hidden lg:flex items-center gap-x-8">
+<a class="text-blue-400 font-semibold font-['Space_Grotesk'] tracking-tight" href="#">Registry</a>
+<a class="text-slate-400 hover:text-blue-300 transition-colors duration-300 font-['Space_Grotesk'] tracking-tight" href="#">Analytics</a>
+<a class="text-slate-400 hover:text-blue-300 transition-colors duration-300 font-['Space_Grotesk'] tracking-tight" href="#">Billing</a>
+</div>
+<div class="h-8 w-px bg-slate-800 mx-2"></div>
+<div class="flex items-center gap-x-4">
+<button class="text-blue-300 material-symbols-outlined hover:text-blue-400 transition-colors" data-icon="account_tree">account_tree</button>
+<button class="text-blue-300 material-symbols-outlined hover:text-blue-400 transition-colors" data-icon="tune">tune</button>
+<div class="relative group">
+<img alt="User profile" class="w-8 h-8 rounded-full border border-primary/20" data-alt="Close-up professional portrait of a tech executive in a modern studio with soft blue neon ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOm6ZvSSO5a_9oKAX0BkH22Ia75X6Rfc_Q5cELkI8Q58WcRhVpzUCtHNc5HB3SrNk7akYKygVQbvj-7EdwB5gB3xOe2v6N0wRlHLdeURmB3dXjq6Nm4Xs76SRgIo3gqHJrvDOVQFTykmYW7gDTJ5S2Dvty1pynNZ0TRJB0MsNoipyPzEHEMjcFXNxCYqW6bjMpCa42rC93bYVuOOhCJU7wSy5Egl9N-BAMvwT0HMeOC6463nUTL47pnkEbNg3XHFr-8pQKZUwdPFQ"/>
+<div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-[#091421] rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 bg-gradient-to-b from-[#121C2A] to-transparent h-px w-full"></div>
+</header>
+<!-- Page Content -->
+<div class="p-8 lg:p-12 overflow-y-auto space-y-12 bg-surface-container-lowest flex-1">
+<!-- Global Stats Section -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="bg-surface-container rounded-xl p-6 border border-outline-variant/10">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-label text-xs uppercase tracking-widest">Avg. Latency</span>
+<span class="material-symbols-outlined text-primary" data-icon="speed">speed</span>
+</div>
+<div class="text-3xl font-headline font-bold text-on-surface">342<span class="text-primary text-sm ml-1">ms</span></div>
+<div class="mt-2 flex items-center text-xs text-green-400">
+<span class="material-symbols-outlined text-xs mr-1" data-icon="trending_down">trending_down</span>
+                        12% from last week
+                    </div>
+</div>
+<div class="bg-surface-container rounded-xl p-6 border border-outline-variant/10">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-label text-xs uppercase tracking-widest">Cost / 1k Tokens</span>
+<span class="material-symbols-outlined text-tertiary" data-icon="payments">payments</span>
+</div>
+<div class="text-3xl font-headline font-bold text-on-surface">$0.0084</div>
+<div class="mt-2 flex items-center text-xs text-slate-500">
+                        Optimized across 5 providers
+                    </div>
+</div>
+<div class="bg-surface-container rounded-xl p-6 border border-outline-variant/10">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-label text-xs uppercase tracking-widest">Active Tokens</span>
+<span class="material-symbols-outlined text-secondary" data-icon="toll">toll</span>
+</div>
+<div class="text-3xl font-headline font-bold text-on-surface">1.2M</div>
+<div class="mt-2 flex items-center text-xs text-slate-500">
+                        Current monthly usage
+                    </div>
+</div>
+<div class="bg-surface-container rounded-xl p-6 border border-outline-variant/10">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-label text-xs uppercase tracking-widest">Registry Health</span>
+<span class="material-symbols-outlined text-green-400" data-icon="verified_user">verified_user</span>
+</div>
+<div class="text-3xl font-headline font-bold text-on-surface">99.9%</div>
+<div class="mt-2 flex items-center text-xs text-green-400">
+                        All endpoints connected
+                    </div>
+</div>
+</section>
+<!-- Main Layout Grid -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Registered Models List (Left/Main Stage) -->
+<div class="col-span-12 xl:col-span-8 space-y-6">
+<div class="flex justify-between items-end mb-4">
+<div>
+<h2 class="text-2xl font-headline font-bold text-on-surface">Registered Models</h2>
+<p class="text-on-surface-variant text-sm mt-1">Manage core intelligence endpoints and specialized agents.</p>
+</div>
+<button class="bg-primary/10 hover:bg-primary/20 text-primary px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                            Register New Model
+                        </button>
+</div>
+<!-- Model Cards -->
+<div class="space-y-4">
+<!-- Model Card 1 -->
+<div class="bg-surface-container hover:bg-surface-container-high transition-colors p-6 rounded-xl group border border-outline-variant/5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-x-4">
+<div class="w-12 h-12 rounded-lg bg-[#000] flex items-center justify-center p-2 border border-slate-700">
+<img alt="OpenAI Logo" class="w-full h-full object-contain" data-alt="Abstract minimalist white logo symbol on a deep solid black square background representing artificial intelligence" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBW-8aKJlAQ6pV0kOx6g3wQAM47XrOBQ6zl0mFbFCDCe8IIIcNMQAgUvl76S_uqw0jTO6uwdtyM_mYZfewe8735MlswrpfU2x9TXDuNjqnYqkb9n2WDi6pwaemesh3CfDIJsSJqroYdpr0tB_BiKoPocEOyULtUashwyiq7SYsVcg8WHHFZBTHl2DWYpEOgkazy6lYInMo5H8sobkEq9hyRTsuyYAXi7zfYMMVDDxLC_MnWPHcGXDc6TcbUGOOML-ezedk6-BEwwRc"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg text-on-surface">GPT-4o</h3>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="flex items-center text-[10px] text-green-400 font-label uppercase font-bold tracking-tighter">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
+                                                Connected
+                                            </span>
+<span class="text-slate-600 px-1">•</span>
+<span class="text-on-surface-variant text-[11px] font-label">OpenAI</span>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap justify-end gap-2 max-w-sm">
+<span class="px-3 py-1 rounded-full bg-primary-container/20 text-primary text-[10px] font-bold uppercase tracking-wider">Creative Writing</span>
+<span class="px-3 py-1 rounded-full bg-primary-container/20 text-primary text-[10px] font-bold uppercase tracking-wider">Reasoning</span>
+<span class="px-3 py-1 rounded-full bg-primary-container/20 text-primary text-[10px] font-bold uppercase tracking-wider">Multi-Modal</span>
+</div>
+</div>
+</div>
+<!-- Model Card 2 -->
+<div class="bg-surface-container hover:bg-surface-container-high transition-colors p-6 rounded-xl group border border-outline-variant/5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-x-4">
+<div class="w-12 h-12 rounded-lg bg-[#5436DA] flex items-center justify-center p-2 border border-slate-700">
+<img alt="Anthropic Logo" class="w-full h-full object-contain" data-alt="Geometric purple abstract shape design representing innovative technology and advanced neural networks" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuiYyNIj_br1njQOwApL2aS2a3mV-pph0w8wrRa-3VeSrB32OpCWFLeT5EwgVtxgOAMMmgzkREuEtWybvqrBFm4BA2cdtgIrYX1HhIeo4GawlCKXLYyDyxTQ68-MwyRC3AyrNi5cjS8CfiT3isB75M4Ah53gu23JG23hob2VsIu3RCVsib33Dki00QjTWxJkqXolXb2J_J1PymIPZ3tbiat5Z2z0PIdzLGsfkxfXHaSJaSnpwm3klwLll9vWc0iQVU2Lmfg2EcX3c"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg text-on-surface">Claude 3.5 Sonnet</h3>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="flex items-center text-[10px] text-green-400 font-label uppercase font-bold tracking-tighter">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
+                                                Connected
+                                            </span>
+<span class="text-slate-600 px-1">•</span>
+<span class="text-on-surface-variant text-[11px] font-label">Anthropic</span>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap justify-end gap-2 max-w-sm">
+<span class="px-3 py-1 rounded-full bg-secondary-container/20 text-secondary text-[10px] font-bold uppercase tracking-wider">Code Optim.</span>
+<span class="px-3 py-1 rounded-full bg-secondary-container/20 text-secondary text-[10px] font-bold uppercase tracking-wider">Data Analysis</span>
+<span class="px-3 py-1 rounded-full bg-secondary-container/20 text-secondary text-[10px] font-bold uppercase tracking-wider">Fast Response</span>
+</div>
+</div>
+</div>
+<!-- Model Card 3 -->
+<div class="bg-surface-container hover:bg-surface-container-high transition-colors p-6 rounded-xl group border border-outline-variant/5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-x-4">
+<div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center p-2 border border-slate-700">
+<img alt="Google Logo" class="w-full h-full object-contain" data-alt="Colorful abstract flowing energy shapes in primary colors representing high-speed data and modern tech infrastructure" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTE6fgjf-yuCwgtNnDA9K8_zljXVLOZ-ylsoNdEdPuTxV5vAT2jnZxKgm3RTnQfVRppIhPZnzJ-dFypaRPDgjz12QgQOkIl6zogp2AnRs3cwjxFVCQ61VuU_G2OIUvVehIRxKjk5E4dQoPrjTQunR0E5DuXzWNJBbxa82g_xXE7T0nun8vANFXXrMCVNF1TQXuVpMM1amvu868T1L3HmklTtqZ1gdk8xTcfLyRFH25C7I1qA7w1kT6kB2VOW73OIV_JeJe190Y7a4"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg text-on-surface">Gemini 1.5 Pro</h3>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="flex items-center text-[10px] text-error font-label uppercase font-bold tracking-tighter">
+<span class="w-1.5 h-1.5 rounded-full bg-error mr-1.5"></span>
+                                                Invalid Key
+                                            </span>
+<span class="text-slate-600 px-1">•</span>
+<span class="text-on-surface-variant text-[11px] font-label">Google</span>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap justify-end gap-2 max-w-sm">
+<span class="px-3 py-1 rounded-full bg-tertiary-container/10 text-tertiary text-[10px] font-bold uppercase tracking-wider">Long Context</span>
+<span class="px-3 py-1 rounded-full bg-tertiary-container/10 text-tertiary text-[10px] font-bold uppercase tracking-wider">Summarization</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Feature-to-Model Mapping (Right Sidebar/Focus Panel) -->
+<div class="col-span-12 xl:col-span-4">
+<div class="bg-surface-container-high rounded-2xl p-8 border border-outline-variant/10 h-full">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="route">route</span>
+<h2 class="text-xl font-headline font-bold text-on-surface leading-tight">Feature-to-Model Mapping</h2>
+</div>
+<div class="space-y-8">
+<!-- Mapping Entry 1 -->
+<div class="space-y-3">
+<label class="text-xs font-label font-bold uppercase tracking-widest text-on-surface-variant flex items-center">
+                                    Core Chat Agent
+                                    <span class="material-symbols-outlined text-[14px] ml-2 cursor-help text-slate-500" title="Primary interface for users">info</span>
+</label>
+<div class="relative">
+<select class="w-full bg-surface-bright border-none text-on-surface rounded-xl py-3.5 px-4 font-body appearance-none focus:ring-2 focus:ring-primary/40 transition-all cursor-pointer">
+<option selected="">GPT-4o</option>
+<option>Claude 3.5 Sonnet</option>
+<option>Gemini 1.5 Pro</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- Mapping Entry 2 -->
+<div class="space-y-3">
+<label class="text-xs font-label font-bold uppercase tracking-widest text-on-surface-variant flex items-center">
+                                    Report Generator
+                                    <span class="material-symbols-outlined text-[14px] ml-2 cursor-help text-slate-500" title="Generates weekly data summaries">info</span>
+</label>
+<div class="relative">
+<select class="w-full bg-surface-bright border-none text-on-surface rounded-xl py-3.5 px-4 font-body appearance-none focus:ring-2 focus:ring-primary/40 transition-all cursor-pointer">
+<option>GPT-4o</option>
+<option selected="">Claude 3.5 Sonnet</option>
+<option>Gemini 1.5 Pro</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- Mapping Entry 3 -->
+<div class="space-y-3">
+<label class="text-xs font-label font-bold uppercase tracking-widest text-on-surface-variant flex items-center">
+                                    Web Search Assistant
+                                    <span class="material-symbols-outlined text-[14px] ml-2 cursor-help text-slate-500" title="Live retrieval and ranking agent">info</span>
+</label>
+<div class="relative">
+<select class="w-full bg-surface-bright border-none text-on-surface rounded-xl py-3.5 px-4 font-body appearance-none focus:ring-2 focus:ring-primary/40 transition-all cursor-pointer">
+<option>GPT-4o</option>
+<option>Claude 3.5 Sonnet</option>
+<option selected="">Gemini 1.5 Pro</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<div class="pt-6">
+<button class="w-full py-4 rounded-xl font-bold text-sm bg-gradient-to-br from-primary to-primary-container text-on-primary-container shadow-lg shadow-primary/10 hover:opacity-90 transition-opacity active:scale-[0.98]">
+                                    Apply Configuration
+                                </button>
+<p class="text-[11px] text-center text-slate-500 mt-4 font-label">Changes take effect immediately across all active agent instances.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Contextual Dashboard Section: Recent Events -->
+<section class="space-y-6">
+<h2 class="text-xl font-headline font-bold text-on-surface">Registry Activity</h2>
+<div class="bg-surface-container rounded-2xl overflow-hidden border border-outline-variant/10">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high/50 text-xs font-label uppercase tracking-widest text-on-surface-variant">
+<th class="px-8 py-4 font-semibold">Event</th>
+<th class="px-8 py-4 font-semibold">Model</th>
+<th class="px-8 py-4 font-semibold">Timestamp</th>
+<th class="px-8 py-4 font-semibold">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="hover:bg-surface-bright/20 transition-colors">
+<td class="px-8 py-4 text-sm font-body">API Key Rotation</td>
+<td class="px-8 py-4 text-sm font-body text-primary">Claude 3.5 Sonnet</td>
+<td class="px-8 py-4 text-xs font-label text-on-surface-variant">2 mins ago</td>
+<td class="px-8 py-4">
+<span class="text-[10px] font-bold text-green-400 bg-green-400/10 px-2 py-0.5 rounded">SUCCESS</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright/20 transition-colors">
+<td class="px-8 py-4 text-sm font-body">Mapping Changed</td>
+<td class="px-8 py-4 text-sm font-body text-primary">GPT-4o</td>
+<td class="px-8 py-4 text-xs font-label text-on-surface-variant">14 mins ago</td>
+<td class="px-8 py-4">
+<span class="text-[10px] font-bold text-green-400 bg-green-400/10 px-2 py-0.5 rounded">SUCCESS</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright/20 transition-colors">
+<td class="px-8 py-4 text-sm font-body">Connection Timeout</td>
+<td class="px-8 py-4 text-sm font-body text-primary">Gemini 1.5 Pro</td>
+<td class="px-8 py-4 text-xs font-label text-on-surface-variant">1 hour ago</td>
+<td class="px-8 py-4">
+<span class="text-[10px] font-bold text-error bg-error/10 px-2 py-0.5 rounded">FAILED</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<!-- Floating Action Button (FAB) Suppression check: Settings/Registry context usually suppress FAB to focus on management -->
+</main>
+<!-- Mobile Bottom Navigation Shell -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 glass-effect border-t border-outline-variant/10 flex justify-around items-center py-4 px-2 z-50">
+<button class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+<span class="text-[10px] font-label">Orchestrator</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="text-[10px] font-label">Lab</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" data-icon="database" style="font-variation-settings: 'FILL' 1;">database</span>
+<span class="text-[10px] font-label">Registry</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="text-[10px] font-label">Logs</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[10px] font-label">Settings</span>
+</button>
+</nav>
+</body></html>

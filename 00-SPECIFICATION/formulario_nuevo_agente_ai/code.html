@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "secondary-fixed-dim": "#b1c6f9",
+                "on-tertiary-container": "#461f00",
+                "surface-dim": "#091421",
+                "surface-container-low": "#121c2a",
+                "tertiary-fixed-dim": "#ffb786",
+                "on-primary-fixed": "#001a42",
+                "surface-container-lowest": "#050f1c",
+                "tertiary-fixed": "#ffdcc6",
+                "secondary-container": "#304671",
+                "primary": "#adc6ff",
+                "on-tertiary-fixed": "#311400",
+                "tertiary": "#ffb786",
+                "background": "#091421",
+                "on-secondary": "#182f59",
+                "surface-tint": "#adc6ff",
+                "primary-fixed": "#d8e2ff",
+                "outline": "#8c909f",
+                "surface-container-highest": "#2b3544",
+                "on-surface": "#d9e3f6",
+                "error-container": "#93000a",
+                "surface-variant": "#2b3544",
+                "primary-fixed-dim": "#adc6ff",
+                "on-primary-fixed-variant": "#004395",
+                "secondary": "#b1c6f9",
+                "error": "#ffb4ab",
+                "secondary-fixed": "#d8e2ff",
+                "primary-container": "#4d8eff",
+                "on-surface-variant": "#c2c6d6",
+                "tertiary-container": "#df7412",
+                "on-error-container": "#ffdad6",
+                "on-primary-container": "#00285d",
+                "on-secondary-fixed": "#001a42",
+                "on-background": "#d9e3f6",
+                "on-secondary-container": "#9fb5e7",
+                "inverse-surface": "#d9e3f6",
+                "surface-container": "#16202e",
+                "on-tertiary": "#502400",
+                "on-primary": "#002e6a",
+                "inverse-primary": "#005ac2",
+                "surface-container-high": "#212b39",
+                "surface-bright": "#303a48",
+                "outline-variant": "#424754",
+                "inverse-on-surface": "#27313f",
+                "on-secondary-fixed-variant": "#304671",
+                "on-error": "#690005",
+                "surface": "#091421",
+                "on-tertiary-fixed-variant": "#723600"
+              },
+              fontFamily: {
+                "headline": ["Space Grotesk"],
+                "body": ["Manrope"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(48, 58, 72, 0.6);
+            backdrop-filter: blur(12px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #2b3544;
+            height: 4px;
+            border-radius: 2px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -6px;
+            background-color: #adc6ff;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body min-h-screen flex">
+<!-- SideNavBar -->
+<aside class="bg-[#121C2A] fixed left-0 top-0 h-screen w-64 flex flex-col py-8 px-4 space-y-6 z-40 hidden md:flex">
+<div class="flex items-center gap-3 px-2 mb-4">
+<div class="w-8 h-8 bg-gradient-to-br from-primary to-primary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-sm" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<div>
+<p class="font-headline font-bold text-primary tracking-tight">Synthetix</p>
+<p class="text-[10px] font-label text-outline uppercase tracking-widest">Multi-Agent OS</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#94A3B8] font-['Manrope'] text-sm font-medium hover:bg-[#2B3544] hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Workspace
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#ADC6FF] border-l-2 border-[#ADC6FF] bg-gradient-to-r from-[#ADC6FF]/10 to-transparent font-['Manrope'] text-sm font-medium scale-x-[1.02] duration-300" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+                Agents
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#94A3B8] font-['Manrope'] text-sm font-medium hover:bg-[#2B3544] hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">book</span>
+                Library
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#94A3B8] font-['Manrope'] text-sm font-medium hover:bg-[#2B3544] hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#94A3B8] font-['Manrope'] text-sm font-medium hover:bg-[#2B3544] hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="pt-6 mt-auto border-t border-outline-variant/10 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#94A3B8] font-['Manrope'] text-sm font-medium hover:bg-[#2B3544] hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+                Account
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#94A3B8] font-['Manrope'] text-sm font-medium hover:bg-[#2B3544] hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Logout
+            </a>
+</div>
+</aside>
+<div class="flex-1 md:ml-64 flex flex-col min-w-0">
+<!-- TopNavBar -->
+<header class="bg-[#091421]/60 backdrop-blur-xl docked full-width top-0 sticky z-50 flex justify-between items-center w-full px-8 h-16 shadow-[0_32px_48px_-4px_rgba(0,0,0,0.06)]">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold bg-gradient-to-r from-[#ADC6FF] to-[#4D8EFF] bg-clip-text text-transparent font-['Space_Grotesk'] tracking-tight">Synthetix</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden sm:flex items-center bg-surface-container rounded-full px-4 py-1.5 border border-outline-variant/10">
+<span class="material-symbols-outlined text-outline text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm text-on-surface-variant placeholder:text-outline/50 w-48" placeholder="Search agents..." type="text"/>
+</div>
+<div class="flex items-center gap-4 text-[#6B7280]">
+<button class="hover:text-white transition-colors duration-200 material-symbols-outlined">notifications</button>
+<button class="hover:text-white transition-colors duration-200 material-symbols-outlined">help</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-primary/20">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="professional avatar of a person with stylish glasses and modern haircut in a minimalistic digital style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqWnnXbvqedAR1wrfi4cKIEDiO9Yl6emaLWMAwER_9sN-_P-zToULfPPam04Tb6zU-_Vjl9I8-MGCnciUzzjIYIPJG1BOEKSa_g-o9mYeAp1g_E3aGQ65jY-lmAVX_eLLFLOj178JwVfnLMb_r3F719TSR5aD8LoitvqxGvVqtHJBG19fZ28swRKcwSL5ReQ1G2YlUEe9SWxWQ99Bxyd2ImKQEGNGxB7HUbJgDZK873mEHUIBh8_WkhhQ9VihDTq20c21DZfNcSII"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 p-8 lg:p-12 max-w-5xl mx-auto w-full">
+<header class="mb-12">
+<div class="flex items-center gap-2 text-primary font-label text-sm mb-2">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+<span class="uppercase tracking-widest font-semibold">Back to Agents</span>
+</div>
+<h1 class="text-4xl font-headline font-bold text-on-surface tracking-tight mb-2">Crear Nuevo Agente</h1>
+<p class="text-on-surface-variant max-w-2xl">Configure su nueva entidad de inteligencia artificial. Defina su identidad, capacidades y el motor que impulsará su razonamiento.</p>
+</header>
+<form class="space-y-12 pb-24">
+<!-- Section 1: Identidad del Agente -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-4">
+<h2 class="text-xl font-headline font-semibold text-primary mb-2">Identidad del Agente</h2>
+<p class="text-sm text-on-surface-variant">Cómo se presentará el agente en el ecosistema de Synthetix.</p>
+</div>
+<div class="md:col-span-8 bg-surface-container rounded-xl p-8 space-y-6">
+<div class="flex flex-col md:flex-row gap-8 items-start">
+<div class="relative group">
+<div class="w-24 h-24 rounded-2xl bg-surface-container-highest flex items-center justify-center border-2 border-dashed border-outline-variant/30 group-hover:border-primary/50 transition-colors">
+<span class="material-symbols-outlined text-4xl text-outline/50">add_a_photo</span>
+</div>
+<button class="absolute -bottom-2 -right-2 bg-primary text-on-primary p-1.5 rounded-lg shadow-lg" type="button">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+<div class="flex-1 w-full space-y-4">
+<div class="space-y-1.5">
+<label class="font-label text-xs font-semibold text-outline uppercase tracking-wider">Nombre del Agente</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/30 px-4 py-3" placeholder="Ej. Analista de Mercado" type="text"/>
+</div>
+<div class="space-y-1.5">
+<label class="font-label text-xs font-semibold text-outline uppercase tracking-wider">Descripción corta</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/30 px-4 py-3" placeholder="Especialista en análisis de tendencias y predicciones" type="text"/>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Configuración del Modelo -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-4">
+<h2 class="text-xl font-headline font-semibold text-primary mb-2">Configuración del Modelo</h2>
+<p class="text-sm text-on-surface-variant">Seleccione el cerebro computacional y ajuste los parámetros de respuesta.</p>
+</div>
+<div class="md:col-span-8 bg-surface-container rounded-xl p-8 space-y-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<div class="space-y-1.5">
+<label class="font-label text-xs font-semibold text-outline uppercase tracking-wider">Proveedor LLM</label>
+<select class="w-full bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-on-surface px-4 py-3 appearance-none">
+<option>OpenAI</option>
+<option>Anthropic</option>
+<option>Google Gemini</option>
+</select>
+</div>
+<div class="space-y-1.5">
+<label class="font-label text-xs font-semibold text-outline uppercase tracking-wider">Modelo</label>
+<select class="w-full bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-on-surface px-4 py-3 appearance-none">
+<option>GPT-4o</option>
+<option>Claude 3.5 Sonnet</option>
+<option>Gemini 1.5 Pro</option>
+</select>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<label class="font-label text-xs font-semibold text-outline uppercase tracking-wider">Temperatura</label>
+<span class="text-xs font-mono text-primary font-bold bg-primary/10 px-2 py-0.5 rounded">0.7</span>
+</div>
+<input class="w-full h-1 bg-surface-container-low rounded-lg appearance-none cursor-pointer" max="1" min="0" step="0.1" type="range" value="0.7"/>
+<div class="flex justify-between text-[10px] text-outline font-label uppercase">
+<span>Precisión</span>
+<span>Creatividad</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Definición de Rol -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-4">
+<h2 class="text-xl font-headline font-semibold text-primary mb-2">Definición de Rol</h2>
+<p class="text-sm text-on-surface-variant">Instrucciones fundamentales que guían el comportamiento del agente.</p>
+</div>
+<div class="md:col-span-8 bg-surface-container rounded-xl p-8">
+<div class="space-y-1.5">
+<label class="font-label text-xs font-semibold text-outline uppercase tracking-wider">System Prompt</label>
+<textarea class="w-full bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/30 px-4 py-4 resize-none" placeholder="Eres un experto en análisis de datos financieros con 20 años de experiencia..." rows="8"></textarea>
+</div>
+</div>
+</section>
+<!-- Section 4: Capacidades -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-4">
+<h2 class="text-xl font-headline font-semibold text-primary mb-2">Capacidades y Herramientas</h2>
+<p class="text-sm text-on-surface-variant">Active funciones adicionales para expandir el alcance del agente.</p>
+</div>
+<div class="md:col-span-8 grid grid-cols-1 gap-4">
+<!-- Toggle Row 1 -->
+<div class="flex items-center justify-between p-4 bg-surface-container rounded-xl border border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">language</span>
+</div>
+<div>
+<p class="font-medium text-on-surface">Acceso a Búsqueda Web</p>
+<p class="text-xs text-outline">Permitir que el agente consulte información en tiempo real.</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-on-surface-variant after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<!-- Toggle Row 2 -->
+<div class="flex items-center justify-between p-4 bg-surface-container rounded-xl border border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">description</span>
+</div>
+<div>
+<p class="font-medium text-on-surface">Análisis de Archivos</p>
+<p class="text-xs text-outline">Capacidad para leer y procesar documentos subidos.</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-on-surface-variant after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<!-- Toggle Row 3 -->
+<div class="flex items-center justify-between p-4 bg-surface-container rounded-xl border border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">terminal</span>
+</div>
+<div>
+<p class="font-medium text-on-surface">Ejecución de Código (Sandbox)</p>
+<p class="text-xs text-outline">Entorno seguro para ejecutar Python y scripts de análisis.</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-on-surface-variant after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+</div>
+</section>
+<!-- Actions -->
+<div class="flex items-center justify-end gap-6 pt-12 border-t border-outline-variant/10">
+<button class="px-8 py-3 rounded-lg font-label font-bold text-outline uppercase tracking-wider hover:text-on-surface transition-colors" type="button">
+                        Cancelar
+                    </button>
+<button class="px-10 py-3 rounded-lg bg-gradient-to-r from-primary to-primary-container font-label font-bold text-on-primary-container uppercase tracking-wider shadow-[0_8px_20px_-4px_rgba(77,142,255,0.4)] hover:shadow-[0_12px_24px_-4px_rgba(77,142,255,0.6)] transition-all transform active:scale-95" type="submit">
+                        Crear Agente
+                    </button>
+</div>
+</form>
+</main>
+</div>
+<!-- Floating Prompt Bar (Decorative Context) -->
+<div class="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-2xl px-6 z-50">
+<div class="glass-panel rounded-xl p-2 flex items-center gap-3 shadow-[0_32px_48px_-4px_rgba(0,0,0,0.4)] border border-outline-variant/10">
+<div class="flex-1 px-4 text-outline/50 text-sm italic">Define los parámetros arriba para empezar...</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg text-primary hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined">mic</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-on-primary shadow-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

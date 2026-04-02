@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Analíticas de Costos | Orchestra AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-fixed-variant": "#304671",
+                        "surface-variant": "#2b3544",
+                        "on-tertiary-container": "#461f00",
+                        "background": "#091421",
+                        "secondary-fixed": "#d8e2ff",
+                        "tertiary-fixed": "#ffdcc6",
+                        "on-tertiary": "#502400",
+                        "on-surface": "#d9e3f6",
+                        "outline": "#8c909f",
+                        "on-surface-variant": "#c2c6d6",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-tertiary-fixed": "#311400",
+                        "surface-container-lowest": "#050f1c",
+                        "surface-container-highest": "#2b3544",
+                        "surface-container": "#16202e",
+                        "tertiary": "#ffb786",
+                        "surface-tint": "#adc6ff",
+                        "on-primary": "#002e6a",
+                        "inverse-surface": "#d9e3f6",
+                        "inverse-primary": "#005ac2",
+                        "inverse-on-surface": "#27313f",
+                        "on-primary-container": "#00285d",
+                        "surface": "#091421",
+                        "on-primary-fixed": "#001a42",
+                        "on-secondary-fixed": "#001a42",
+                        "tertiary-container": "#df7412",
+                        "surface-bright": "#303a48",
+                        "primary-container": "#4d8eff",
+                        "outline-variant": "#424754",
+                        "on-secondary": "#182f59",
+                        "secondary-container": "#304671",
+                        "on-background": "#d9e3f6",
+                        "surface-container-low": "#121c2a",
+                        "secondary-fixed-dim": "#b1c6f9",
+                        "primary": "#adc6ff",
+                        "surface-dim": "#091421",
+                        "primary-fixed": "#d8e2ff",
+                        "surface-container-high": "#212b39",
+                        "on-secondary-container": "#9fb5e7",
+                        "on-error": "#690005",
+                        "tertiary-fixed-dim": "#ffb786",
+                        "on-tertiary-fixed-variant": "#723600",
+                        "on-error-container": "#ffdad6",
+                        "secondary": "#b1c6f9",
+                        "on-primary-fixed-variant": "#004395",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-card {
+            background: rgba(43, 53, 68, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(140, 144, 159, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-8 h-16 bg-slate-950/60 backdrop-blur-xl no-line tonal-transition bg-slate-900/40 shadow-[0_32px_48px_-4px_rgba(0,0,0,0.06)]">
+<div class="flex items-center gap-8">
+<h1 class="text-xl font-bold text-slate-50 tracking-tighter font-['Space_Grotesk']">Orchestra AI</h1>
+<nav class="hidden md:flex gap-6 items-center">
+<a class="text-slate-400 font-['Space_Grotesk'] text-sm font-medium hover:text-blue-300 transition-colors" href="#">Workspace</a>
+<a class="text-slate-400 font-['Space_Grotesk'] text-sm font-medium hover:text-blue-300 transition-colors" href="#">Agents</a>
+<a class="text-slate-400 font-['Space_Grotesk'] text-sm font-medium hover:text-blue-300 transition-colors" href="#">Library</a>
+<a class="text-blue-400 font-semibold font-['Space_Grotesk'] text-sm font-medium" href="#">Analytics</a>
+<a class="text-slate-400 font-['Space_Grotesk'] text-sm font-medium hover:text-blue-300 transition-colors" href="#">Settings</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-400 hover:text-blue-300 transition-colors"><span class="material-symbols-outlined">notifications</span></button>
+<button class="text-slate-400 hover:text-blue-300 transition-colors"><span class="material-symbols-outlined">help_outline</span></button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional male user with sharp focus and cinematic lighting against a dark neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2cupbrmfImckEShu7duS0Ct197StJQzj3RJw8WCWfG7czoBkvAT_xzkca5Ptz5DHQE7Yb6LclAqLD5x3o475b9ljn7wPPeml_1G64fiT_OwSyjqMG-mo_Oprg1pL2CPlHl9nglUB2mjj1Cz1-zL3uNKqmArrTyvRcQYJ_r2jhdfV4b-ZXPniSAAccit1F_fZZUfOhdb0SVQdVEDVorowCW2Goe0sHLMB6S_Fv9uFZk7mMtY8Qr1QPVpNw_ubq6dpYFRYVVBV3LCw"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Collapsed/Left Anchor) -->
+<aside class="fixed left-0 top-0 h-full flex flex-col pt-20 pb-8 px-4 bg-slate-950 docked left-0 h-screen w-64 tonal-shift bg-slate-900 flat no shadows hidden lg:flex">
+<div class="mb-8 px-4">
+<span class="text-blue-500 font-black font-['Space_Grotesk'] tracking-widest text-xs uppercase">Command Center</span>
+<p class="text-slate-500 text-[10px] uppercase tracking-tighter">Active Ops</p>
+</div>
+<nav class="space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-800/50 hover:text-slate-200 transition-all duration-300 ease-in-out font-['Space_Grotesk'] text-sm font-medium" href="#">
+<span class="material-symbols-outlined">dashboard</span> Workspace
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-800/50 hover:text-slate-200 transition-all duration-300 ease-in-out font-['Space_Grotesk'] text-sm font-medium" href="#">
+<span class="material-symbols-outlined">smart_toy</span> Agents
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-800/50 hover:text-slate-200 transition-all duration-300 ease-in-out font-['Space_Grotesk'] text-sm font-medium" href="#">
+<span class="material-symbols-outlined">book_5</span> Library
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-blue-400 border-l-2 border-blue-500 bg-blue-500/5 transition-all duration-300 ease-in-out font-['Space_Grotesk'] text-sm font-medium" href="#">
+<span class="material-symbols-outlined">insights</span> Analytics
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-800/50 hover:text-slate-200 transition-all duration-300 ease-in-out font-['Space_Grotesk'] text-sm font-medium" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="lg:ml-64 pt-24 pb-12 px-8">
+<div class="max-w-7xl mx-auto space-y-10">
+<!-- Header & Filters -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h2 class="font-headline text-4xl font-bold tracking-tight text-on-surface">Analíticas de Costos</h2>
+<p class="font-body text-on-surface-variant mt-2">Monitoreo en tiempo real de consumo por modelo y agente.</p>
+</div>
+<div class="flex flex-wrap items-center gap-4">
+<div class="bg-surface-container-high rounded-lg flex items-center px-4 py-2 border border-outline-variant/20">
+<span class="material-symbols-outlined text-sm mr-2 text-primary">calendar_today</span>
+<select class="bg-transparent border-none text-sm font-medium focus:ring-0 p-0 text-on-surface">
+<option>Últimos 30 días</option>
+<option>Este Mes</option>
+<option>Último Trimestre</option>
+</select>
+</div>
+<div class="bg-surface-container-high rounded-lg flex items-center px-4 py-2 border border-outline-variant/20">
+<span class="material-symbols-outlined text-sm mr-2 text-primary">smart_toy</span>
+<select class="bg-transparent border-none text-sm font-medium focus:ring-0 p-0 text-on-surface">
+<option>Todos los Agentes</option>
+<option>Data Analyst Pro</option>
+<option>Search Assistant</option>
+</select>
+</div>
+<button class="bg-gradient-to-br from-primary to-primary-container px-6 py-2 rounded-lg font-headline font-bold text-xs uppercase text-on-primary tracking-wider shadow-lg shadow-primary/20">Descargar Reporte</button>
+</div>
+</section>
+<!-- Resumen de Costos (Hero Cards) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="glass-card rounded-xl p-8 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-6xl text-primary">payments</span>
+</div>
+<p class="text-xs uppercase tracking-widest font-headline font-bold text-primary mb-2">Gasto Total del Mes</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-4xl font-headline font-bold text-on-surface">$1,284.42</h3>
+<span class="text-xs font-label text-green-400 flex items-center"><span class="material-symbols-outlined text-xs">arrow_drop_up</span> 12%</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-4 font-label">Presupuesto restante: $715.58</p>
+</div>
+<div class="glass-card rounded-xl p-8 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-6xl text-primary">token</span>
+</div>
+<p class="text-xs uppercase tracking-widest font-headline font-bold text-primary mb-2">Costo Promedio / 1M Tokens</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-4xl font-headline font-bold text-on-surface">$2.45</h3>
+<span class="text-xs font-label text-red-400 flex items-center"><span class="material-symbols-outlined text-xs">arrow_drop_up</span> 4%</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-4 font-label">Optimizado desde $2.80 el mes pasado</p>
+</div>
+<div class="glass-card rounded-xl p-8 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-6xl text-primary">auto_awesome</span>
+</div>
+<p class="text-xs uppercase tracking-widest font-headline font-bold text-primary mb-2">Ahorro por Optimización</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-4xl font-headline font-bold text-on-surface">$342.10</h3>
+<span class="text-xs font-label text-green-400">GPT-3.5 Fallbacks</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-4 font-label">Basado en reglas de enrutamiento inteligente</p>
+</div>
+</section>
+<!-- Charts Section -->
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+<!-- Tendencias (Line/Area Chart Placeholder) -->
+<div class="xl:col-span-8 bg-surface-container rounded-xl p-8 border border-outline-variant/10">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h4 class="font-headline text-xl font-bold">Gasto Diario Acumulado</h4>
+<p class="text-sm text-on-surface-variant">Comparativa por proveedor de IA</p>
+</div>
+<div class="flex gap-3">
+<span class="flex items-center gap-1.5 text-xs text-on-surface-variant font-label"><div class="w-2 h-2 rounded-full bg-blue-500"></div> OpenAI</span>
+<span class="flex items-center gap-1.5 text-xs text-on-surface-variant font-label"><div class="w-2 h-2 rounded-full bg-purple-500"></div> Anthropic</span>
+<span class="flex items-center gap-1.5 text-xs text-on-surface-variant font-label"><div class="w-2 h-2 rounded-full bg-orange-400"></div> Google</span>
+</div>
+</div>
+<!-- Fake Chart Viz -->
+<div class="h-64 flex items-end gap-1 px-2 relative">
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
+<div class="border-t border-outline"></div>
+<div class="border-t border-outline"></div>
+<div class="border-t border-outline"></div>
+<div class="border-t border-outline"></div>
+</div>
+<!-- Simple visual bars to represent data points -->
+<div class="flex-1 bg-blue-500/20 h-1/4 rounded-t-sm border-t border-blue-500 relative group">
+<div class="absolute hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-2 bg-surface-bright px-2 py-1 rounded text-[10px] whitespace-nowrap">$12.50</div>
+</div>
+<div class="flex-1 bg-blue-500/20 h-1/3 rounded-t-sm border-t border-blue-500"></div>
+<div class="flex-1 bg-blue-500/20 h-1/2 rounded-t-sm border-t border-blue-500"></div>
+<div class="flex-1 bg-purple-500/20 h-[45%] rounded-t-sm border-t border-purple-500"></div>
+<div class="flex-1 bg-blue-500/20 h-2/3 rounded-t-sm border-t border-blue-500"></div>
+<div class="flex-1 bg-blue-500/20 h-[60%] rounded-t-sm border-t border-blue-500"></div>
+<div class="flex-1 bg-orange-400/20 h-3/4 rounded-t-sm border-t border-orange-400"></div>
+<div class="flex-1 bg-blue-500/20 h-[85%] rounded-t-sm border-t border-blue-500"></div>
+<div class="flex-1 bg-blue-500/20 h-[70%] rounded-t-sm border-t border-blue-500"></div>
+<div class="flex-1 bg-purple-500/20 h-[90%] rounded-t-sm border-t border-purple-500"></div>
+<div class="flex-1 bg-blue-500/20 h-full rounded-t-sm border-t border-blue-500"></div>
+</div>
+</div>
+<!-- Distribución & Alerts (Sidebar Column) -->
+<div class="xl:col-span-4 space-y-8">
+<!-- Donut Chart Card -->
+<div class="bg-surface-container rounded-xl p-8 border border-outline-variant/10">
+<h4 class="font-headline text-xl font-bold mb-6">Distribución por Modelo</h4>
+<div class="flex justify-center mb-6">
+<!-- SVG Donut -->
+<div class="relative w-40 h-40">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 36 36">
+<circle class="stroke-surface-container-highest" cx="18" cy="18" fill="none" r="15.915" stroke-width="3"></circle>
+<circle cx="18" cy="18" fill="none" r="15.915" stroke="#adc6ff" stroke-dasharray="60 40" stroke-width="3"></circle>
+<circle cx="18" cy="18" fill="none" r="15.915" stroke="#df7412" stroke-dasharray="25 75" stroke-dashoffset="-60" stroke-width="3"></circle>
+<circle cx="18" cy="18" fill="none" r="15.915" stroke="#b1c6f9" stroke-dasharray="15 85" stroke-dashoffset="-85" stroke-width="3"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-xs text-on-surface-variant font-label">Total</span>
+<span class="text-lg font-bold">100%</span>
+</div>
+</div>
+</div>
+<ul class="space-y-3">
+<li class="flex justify-between items-center">
+<span class="flex items-center gap-2 text-sm text-on-surface-variant font-label"><div class="w-2 h-2 rounded-full bg-primary"></div> GPT-4o</span>
+<span class="font-bold text-sm">60%</span>
+</li>
+<li class="flex justify-between items-center">
+<span class="flex items-center gap-2 text-sm text-on-surface-variant font-label"><div class="w-2 h-2 rounded-full bg-tertiary-container"></div> Claude 3.5</span>
+<span class="font-bold text-sm">25%</span>
+</li>
+<li class="flex justify-between items-center">
+<span class="flex items-center gap-2 text-sm text-on-surface-variant font-label"><div class="w-2 h-2 rounded-full bg-secondary-fixed-dim"></div> Gemini 1.5</span>
+<span class="font-bold text-sm">15%</span>
+</li>
+</ul>
+</div>
+<!-- Budget Alerts -->
+<div class="bg-surface-container-high rounded-xl p-8 border border-outline-variant/20">
+<div class="flex justify-between items-start mb-6">
+<h4 class="font-headline text-lg font-bold">Límite Mensual</h4>
+<span class="material-symbols-outlined text-primary">warning</span>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between text-xs font-label text-on-surface-variant">
+<span>Gasto: $1,284.42</span>
+<span>Meta: $2,000.00</span>
+</div>
+<div class="w-full h-3 bg-surface rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-[64%] rounded-full"></div>
+</div>
+<div class="flex items-center gap-3 bg-surface p-3 rounded-lg border border-outline-variant/10">
+<div class="flex-1">
+<p class="text-xs font-bold text-on-surface">Alerta al 80%</p>
+<p class="text-[10px] text-on-surface-variant">Email y Webhook activo</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Tabla de Desglose Detallado -->
+<section class="bg-surface-container rounded-xl overflow-hidden border border-outline-variant/10">
+<div class="p-8 border-b border-outline-variant/10 flex justify-between items-center">
+<h4 class="font-headline text-xl font-bold">Desglose por Ejecución</h4>
+<button class="text-primary text-sm font-headline font-bold flex items-center gap-2 hover:opacity-80">
+                        VER TODOS <span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-8 py-4 text-xs font-headline font-bold uppercase tracking-widest text-on-surface-variant">Modelo</th>
+<th class="px-8 py-4 text-xs font-headline font-bold uppercase tracking-widest text-on-surface-variant">Funcionalidad</th>
+<th class="px-8 py-4 text-xs font-headline font-bold uppercase tracking-widest text-on-surface-variant">Tokens Entrada</th>
+<th class="px-8 py-4 text-xs font-headline font-bold uppercase tracking-widest text-on-surface-variant">Tokens Salida</th>
+<th class="px-8 py-4 text-xs font-headline font-bold uppercase tracking-widest text-on-surface-variant">Costo Total</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="hover:bg-surface-container-high/50 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-blue-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-blue-400 text-lg">psychology</span>
+</div>
+<span class="font-bold text-sm">GPT-4o</span>
+</div>
+</td>
+<td class="px-8 py-5 text-sm">Análisis de Mercado</td>
+<td class="px-8 py-5 text-sm font-label text-on-surface-variant">42,500</td>
+<td class="px-8 py-5 text-sm font-label text-on-surface-variant">12,100</td>
+<td class="px-8 py-5 text-sm font-bold text-primary">$1.64</td>
+</tr>
+<tr class="hover:bg-surface-container-high/50 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-purple-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-purple-400 text-lg">chat_bubble</span>
+</div>
+<span class="font-bold text-sm">Claude 3.5 Sonnet</span>
+</div>
+</td>
+<td class="px-8 py-5 text-sm">Chat SOP Support</td>
+<td class="px-8 py-5 text-sm font-label text-on-surface-variant">15,200</td>
+<td class="px-8 py-5 text-sm font-label text-on-surface-variant">32,800</td>
+<td class="px-8 py-5 text-sm font-bold text-primary">$0.82</td>
+</tr>
+<tr class="hover:bg-surface-container-high/50 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-orange-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-orange-400 text-lg">search</span>
+</div>
+<span class="font-bold text-sm">Gemini 1.5 Pro</span>
+</div>
+</td>
+<td class="px-8 py-5 text-sm">Búsqueda Web</td>
+<td class="px-8 py-5 text-sm font-label text-on-surface-variant">112,000</td>
+<td class="px-8 py-5 text-sm font-label text-on-surface-variant">4,500</td>
+<td class="px-8 py-5 text-sm font-bold text-primary">$0.45</td>
+</tr>
+<tr class="hover:bg-surface-container-high/50 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-blue-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-blue-400 text-lg">code</span>
+</div>
+<span class="font-bold text-sm">GPT-4o</span>
+</div>
+</td>
+<td class="px-8 py-5 text-sm">Generación de Código</td>
+<td class="px-8 py-5 text-sm font-label text-on-surface-variant">5,400</td>
+<td class="px-8 py-5 text-sm font-label text-on-surface-variant">8,200</td>
+<td class="px-8 py-5 text-sm font-bold text-primary">$0.32</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+<!-- Floating Action Button (Contextual) -->
+<div class="fixed bottom-8 right-8 z-40">
+<button class="h-14 w-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+</div>
+</body></html>

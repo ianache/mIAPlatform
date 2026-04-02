@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orchestra AI | Multi-Agent Command Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(48, 58, 72, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2b3544;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary-container": "#4d8eff",
+                "inverse-surface": "#d9e3f6",
+                "on-error-container": "#ffdad6",
+                "tertiary-fixed-dim": "#ffb786",
+                "on-tertiary-fixed": "#311400",
+                "primary-fixed": "#d8e2ff",
+                "tertiary": "#ffb786",
+                "surface-container-highest": "#2b3544",
+                "on-surface": "#d9e3f6",
+                "on-tertiary-container": "#461f00",
+                "error": "#ffb4ab",
+                "secondary-fixed": "#d8e2ff",
+                "inverse-primary": "#005ac2",
+                "surface-variant": "#2b3544",
+                "on-secondary": "#182f59",
+                "surface-container": "#16202e",
+                "outline": "#8c909f",
+                "on-primary-fixed-variant": "#004395",
+                "background": "#091421",
+                "surface-container-high": "#212b39",
+                "on-primary-container": "#00285d",
+                "on-tertiary": "#502400",
+                "tertiary-fixed": "#ffdcc6",
+                "primary-fixed-dim": "#adc6ff",
+                "surface-bright": "#303a48",
+                "inverse-on-surface": "#27313f",
+                "on-background": "#d9e3f6",
+                "tertiary-container": "#df7412",
+                "on-secondary-fixed-variant": "#304671",
+                "outline-variant": "#424754",
+                "on-secondary-container": "#9fb5e7",
+                "surface": "#091421",
+                "on-error": "#690005",
+                "on-secondary-fixed": "#001a42",
+                "on-primary-fixed": "#001a42",
+                "surface-tint": "#adc6ff",
+                "surface-dim": "#091421",
+                "secondary": "#b1c6f9",
+                "on-primary": "#002e6a",
+                "on-surface-variant": "#c2c6d6",
+                "secondary-fixed-dim": "#b1c6f9",
+                "secondary-container": "#304671",
+                "primary": "#adc6ff",
+                "surface-container-low": "#121c2a",
+                "surface-container-lowest": "#050f1c",
+                "error-container": "#93000a",
+                "on-tertiary-fixed-variant": "#723600"
+              },
+              fontFamily: {
+                "headline": ["Space Grotesk"],
+                "body": ["Manrope"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body selection:bg-primary/30">
+<!-- SideNavBar (Left) -->
+<aside class="fixed left-0 top-0 h-full w-64 flex flex-col bg-slate-900/50 dark:bg-[#121C2A] z-50">
+<div class="p-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container font-bold">grid_view</span>
+</div>
+<div>
+<h1 class="text-xl font-bold text-[#ADC6FF] tracking-tighter font-headline">Orchestra</h1>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest font-label">Multi-Agent System</p>
+</div>
+</div>
+<div class="px-4 mb-4">
+<button class="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-bold rounded-xl text-sm shadow-lg shadow-primary/10 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                New Mission
+            </button>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<p class="px-4 py-2 text-[10px] font-label font-bold text-slate-500 uppercase tracking-widest">Menu Bar</p>
+<a class="flex items-center gap-3 px-4 py-3 text-[#ADC6FF] font-bold border-l-2 border-[#3B82F6] bg-slate-800/40 rounded-r-lg transition-all" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-headline text-sm tracking-wide">Workspace</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-100 hover:bg-[#2B3544] transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-headline text-sm tracking-wide">Agents</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-100 hover:bg-[#2B3544] transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">book_2</span>
+<span class="font-headline text-sm tracking-wide">Library</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-100 hover:bg-[#2B3544] transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-headline text-sm tracking-wide">Analytics</span>
+</a>
+</nav>
+<div class="p-4 mt-auto">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-100 hover:bg-[#2B3544] transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-headline text-sm tracking-wide">Settings</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed left-64 top-0 right-0 h-16 bg-slate-900 dark:bg-[#091421] z-40 flex items-center justify-between px-8">
+<div class="flex items-center gap-6">
+<button class="text-slate-400 hover:text-white transition-opacity">
+<span class="material-symbols-outlined">menu_open</span>
+</button>
+<div class="flex items-center gap-4">
+<span class="text-lg font-black text-white font-headline">Orchestra AI</span>
+<nav class="hidden md:flex items-center gap-6 ml-4">
+<a class="text-[#ADC6FF] border-b-2 border-[#ADC6FF] pb-1 text-sm font-label uppercase tracking-wider" href="#">Navigation Bay</a>
+<a class="text-slate-400 hover:text-white transition-opacity text-sm font-label uppercase tracking-wider" href="#">Missions</a>
+<a class="text-slate-400 hover:text-white transition-opacity text-sm font-label uppercase tracking-wider" href="#">Deploy</a>
+</nav>
+</div>
+</div>
+<div class="flex-1 max-w-xl px-12">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container border-none rounded-full py-2 pl-10 pr-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/50 placeholder:text-slate-600 transition-all" placeholder="Search knowledge base..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 mr-4">
+<button class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-opacity">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-opacity">
+<span class="material-symbols-outlined">person</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-opacity">
+<span class="material-symbols-outlined">history</span>
+</button>
+</div>
+<button class="px-4 py-1.5 rounded-lg border border-primary/30 text-primary text-xs font-bold font-label uppercase tracking-widest hover:bg-primary/10 transition-all">Support</button>
+<button class="px-5 py-1.5 rounded-lg bg-primary text-on-primary text-xs font-bold font-label uppercase tracking-widest hover:opacity-80 transition-all">Deploy</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 h-screen flex flex-col relative overflow-hidden">
+<div class="flex flex-1 overflow-hidden p-8 gap-8">
+<!-- Working Area (Show Final Results) -->
+<section class="flex-1 flex flex-col bg-surface-container rounded-3xl p-8 overflow-y-auto custom-scrollbar relative">
+<div class="flex justify-between items-center mb-10">
+<div>
+<h2 class="text-3xl font-headline font-bold text-white mb-2">Market Intelligence Analysis</h2>
+<p class="text-slate-400 font-body">Synthetic summary of global energy trends and competitor positioning.</p>
+</div>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg bg-surface-container-highest text-slate-300 hover:text-white"><span class="material-symbols-outlined">download</span></button>
+<button class="p-2 rounded-lg bg-surface-container-highest text-slate-300 hover:text-white"><span class="material-symbols-outlined">share</span></button>
+</div>
+</div>
+<!-- Editorial Content Area -->
+<article class="max-w-3xl space-y-8">
+<div class="aspect-video w-full rounded-2xl overflow-hidden mb-12">
+<img class="w-full h-full object-cover" data-alt="abstract digital data visualization of global networks with glowing blue lines and data points on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXOVWoyWJ07Ctl_GdpaC323XDn6Plbwtt6TlA1dV91qRzduAqSmnPiMs2zC8FJOdp27_axZ1oKLQUb1CcYv342OBpL847L0xoLQ8MK0hr36Pd9p_lYSsBOvWEfqULJmI3SW55Cjb0MnRmMkarsvVl4dVrCyRaEkkvdk3sB8lwzzsFBME7PPVluZdWQU0b6C9be-IYUgCb3WWvybeHyZAnHu1Jc3Enn1QYaCrYfbAA-9HdxqyEBOxcY9A4JG9Q1OiBTiRVfIYKiG5U"/>
+</div>
+<div class="grid grid-cols-2 gap-8 mb-12">
+<div class="p-6 rounded-2xl bg-surface-container-high">
+<span class="text-[10px] font-label text-primary uppercase tracking-[0.2em] block mb-2">Primary Trend</span>
+<h3 class="text-xl font-headline font-bold text-on-surface">Renewable Surge</h3>
+<p class="text-sm text-slate-400 mt-2 leading-relaxed">Agent 01 detected a 42% increase in decentralized grid investments across Nordic territories.</p>
+</div>
+<div class="p-6 rounded-2xl bg-surface-container-high">
+<span class="text-[10px] font-label text-tertiary uppercase tracking-[0.2em] block mb-2">Risk Factor</span>
+<h3 class="text-xl font-headline font-bold text-on-surface">Supply Constraint</h3>
+<p class="text-sm text-slate-400 mt-2 leading-relaxed">Agent 03 flagged potential mineral shortages affecting battery production timelines.</p>
+</div>
+</div>
+<div class="space-y-6">
+<h4 class="text-lg font-headline font-semibold text-white">Executive Synthesis</h4>
+<p class="text-slate-300 leading-relaxed font-body">
+                            The following data represents a multi-agent orchestration focused on the Q4 energy outlook. By synthesizing real-time financial logs, geopolitical risk factors, and technological patent filings, our agents have constructed a predictive model for the next 18 months.
+                        </p>
+<p class="text-slate-300 leading-relaxed font-body">
+                            Key findings suggest an accelerated shift towards small modular reactors (SMRs) in heavy industry sectors, specifically within the smelting and chemical processing corridors of Central Europe.
+                        </p>
+</div>
+</article>
+<!-- Spacer for floating prompt bar -->
+<div class="h-32"></div>
+</section>
+<!-- Zona del Agente (Right Side) -->
+<aside class="w-96 flex flex-col gap-6">
+<!-- Agent Turnos/Process Area -->
+<div class="flex-1 bg-surface-dim rounded-3xl p-6 border border-outline-variant/10 flex flex-col overflow-hidden">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline font-bold text-sm tracking-widest uppercase text-slate-500">Agent Activity Zone</h3>
+<span class="flex items-center gap-2 px-3 py-1 rounded-full bg-tertiary-container/20 text-tertiary text-[10px] font-label font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                            Thinking
+                        </span>
+</div>
+<div class="flex-1 space-y-6 overflow-y-auto custom-scrollbar pr-2">
+<!-- Agent Card 1 -->
+<div class="space-y-3">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-secondary">database</span>
+</div>
+<span class="text-sm font-headline font-bold text-on-surface">Data Weaver v4</span>
+<span class="ml-auto text-[10px] font-label text-slate-500">4s ago</span>
+</div>
+<div class="pl-11">
+<div class="p-3 rounded-xl bg-surface-container-high border-l-2 border-primary">
+<p class="text-xs text-slate-300 italic mb-2">"Thinking: Analyzing 14,000 regulatory documents for ESG compliance patterns..."</p>
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-label text-primary uppercase">Action:</span>
+<span class="text-[10px] font-label text-slate-500">Indexing_Vector_DB</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Agent Card 2 -->
+<div class="space-y-3 opacity-60">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-tertiary">analytics</span>
+</div>
+<span class="text-sm font-headline font-bold text-on-surface">The Strategist</span>
+<span class="ml-auto text-[10px] font-label text-slate-500">12s ago</span>
+</div>
+<div class="pl-11">
+<div class="p-3 rounded-xl bg-surface-container-high">
+<p class="text-xs text-slate-300">Strategy synthesized. Cross-referencing with historical market crashes (2008, 2020).</p>
+<div class="flex gap-2 mt-3">
+<button class="px-2 py-1 rounded bg-primary/20 text-primary text-[10px] font-bold">Approve</button>
+<button class="px-2 py-1 rounded bg-error/20 text-error text-[10px] font-bold">Reject</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Agent Card 3 -->
+<div class="space-y-3">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-slate-300">draw</span>
+</div>
+<span class="text-sm font-headline font-bold text-on-surface">Architect AI</span>
+<span class="ml-auto text-[10px] font-label text-slate-500">Just now</span>
+</div>
+<div class="pl-11">
+<div class="p-3 rounded-xl bg-surface-container-high border-l-2 border-tertiary">
+<p class="text-xs text-slate-300 mb-2">Generating visual hierarchy for the final report. Requesting user feedback on color palette.</p>
+<button class="flex items-center gap-2 text-[10px] font-label text-tertiary font-bold uppercase hover:underline">
+<span class="material-symbols-outlined text-[14px]">feedback</span>
+                                        Provide Feedback
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Stats -->
+<div class="bg-surface-container p-6 rounded-3xl flex items-center justify-between">
+<div>
+<p class="text-[10px] font-label text-slate-500 uppercase tracking-widest">Active Agents</p>
+<p class="text-2xl font-headline font-bold text-white">04</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-label text-slate-500 uppercase tracking-widest">Tokens Used</p>
+<p class="text-2xl font-headline font-bold text-primary">12.8k</p>
+</div>
+</div>
+</aside>
+</div>
+<!-- Floating Prompt Bar (Bottom Center) -->
+<div class="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-4xl px-8 z-50">
+<div class="glass-panel rounded-full p-2 pl-6 pr-3 flex items-center gap-4 shadow-[0_32px_48px_-4px_rgba(0,0,0,0.4)] border border-white/5">
+<span class="material-symbols-outlined text-slate-400">psychology_alt</span>
+<input class="flex-1 bg-transparent border-none text-on-surface placeholder:text-slate-500 focus:ring-0 font-body text-base" placeholder="Orchestrate your next mission..." type="text"/>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-primary transition-all">
+<span class="material-symbols-outlined">mic</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-primary transition-all">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<button class="h-12 px-6 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary-container font-bold flex items-center gap-3 hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/20">
+<span class="font-headline tracking-wide">Play Prompt</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="fixed bottom-4 right-8 z-10 flex items-center gap-6">
+<div class="flex gap-4">
+<a class="text-slate-600 text-[10px] uppercase tracking-widest font-label hover:text-slate-100 transition-all" href="#">Documentation</a>
+<a class="text-slate-600 text-[10px] uppercase tracking-widest font-label hover:text-slate-100 transition-all" href="#">API Status</a>
+<a class="text-slate-600 text-[10px] uppercase tracking-widest font-label hover:text-slate-100 transition-all" href="#">Privacy</a>
+</div>
+<span class="text-slate-500 text-[10px] uppercase tracking-widest font-label">© 2024 Orchestrated Intelligence</span>
+</footer>
+</main>
+</body></html>
