@@ -1,5 +1,5 @@
 
-<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/1eee1a87-1f08-4177-94d2-c51bde741bed" />
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/5dd86eb0-0f49-41b7-a728-31d3149ffc9e" />
 
 
 # Instalar GSD
