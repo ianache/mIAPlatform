@@ -1,6 +1,8 @@
 {
   "auto": true,
-  "workflow": "new-project",
+  "workflow": {
+    "_auto_chain_active": false
+  },
   "phases": [
     "research",
     "requirements",

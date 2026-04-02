@@ -39,11 +39,23 @@
 6. Implement capability toggles
 7. Create agent list management UI
 8. Build settings page with API key management
+9. Configurar Keycloak v26 en oauth2.qa.comsatel.com.pe (Realm: Apps, Client ID: miaplatform)
+10. Migrar gestión de paquetes Python a uv (pyproject.toml)
 
 **Deliverables:**
 - Agent creation UI matching spec
 - Agent management interface
 - Settings page with LLM keys
+- Keycloak v26 configurado y funcional
+- Gestión de paquetes Python con uv
+
+**Plans:** 6 plans
+- [ ] 02-01-PLAN.md — Agent schema + CRUD API (backend)
+- [ ] 02-02-PLAN.md — Vue 3 app scaffold, routing, layout shell
+- [ ] 02-03-PLAN.md — Agent creation form UI (4 sections)
+- [ ] 02-04-PLAN.md — Agent management list + settings with API keys
+- [ ] 02-05-PLAN.md — Model registry UI
+- [ ] 02-06-PLAN.md — Keycloak v26 config + uv migration
 
 ## Phase 3: Workspace & Multi-Agent Orchestration (8-10 weeks)
 

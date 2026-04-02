@@ -120,6 +120,8 @@ Configuration for market intelligence agents.
 - Agent management UI
 - Settings page with LLM keys
 - Model registry UI
+- Configurar Keycloak v26 en oauth2.qa.comsatel.com.pe (Realm: Apps, Client ID: miaplatform)
+- Gestionar paquetes Python con uv (migrar de requirements.txt a pyproject.toml)
 
 ### Phase 3: Workspace & Multi-Agent (8-10 weeks)
 - Main dashboard with agent activity
