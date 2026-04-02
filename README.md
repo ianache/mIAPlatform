@@ -1,8 +1,8 @@
+# Multi Intelligent Agent Platform (mIAPlatform)
 
-<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/5dd86eb0-0f49-41b7-a728-31d3149ffc9e" />
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/0c293250-67bd-45d9-bd56-a38116412a26" />
 
-
-# Instalar GSD
+## Instalar GSD
 
 ```
 npx get-shit-done-cc@latest
@@ -10,7 +10,7 @@ npx get-shit-done-cc@latest
 
 > Seleccionar ClaudeCode, Gemini y OpenCode
 
-# Metodologia
+## Metodologia
 
 The SDK provides a standalone CLI for autonomous execution:
 - gsd-sdk init @prd.md    Bootstrap a project from a PRD
