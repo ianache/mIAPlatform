@@ -4,8 +4,15 @@
 
 - **Created:** 2026-04-02
 - **Updated:** 2026-04-02
-- **Phase:** Planning Complete
+- **Phase:** 01-foundation (Complete)
 - **Mode:** Automatic
+- **Current Plan:** 02
+
+## Decisions Made
+
+- Used in-memory tenant store (to be replaced with PostgreSQL in later phase)
+- JWT tokens expire in 30 minutes, using HS256 algorithm
+- LiteLLM configured for 100+ parallel requests, 60s timeout
 
 ## Artifacts Created
 
