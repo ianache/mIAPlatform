@@ -21,6 +21,10 @@
 - Unified LLM gateway
 - Design system token configuration
 
+**Plans:**
+- [x] 01-foundation-01-PLAN.md — Project structure and design tokens
+- [x] 01-foundation-02-PLAN.md — FastAPI core with LiteLLM gateway
+
 ## Phase 2: Agent Core & UI (6-8 weeks)
 
 **Goal:** Enable user-defined agent creation and UI foundation
