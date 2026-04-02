@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from src.backend.api import health
 from src.backend.llm import routes as llm_router
-from src.backend.api import tenants
+from src.backend.api import tenants, agents
 
 
 @asynccontextmanager
@@ -39,6 +39,7 @@ app.add_middleware(
 app.include_router(health.router, prefix="/api/v1")
 app.include_router(llm_router.router, prefix="/api/v1/llm")
 app.include_router(tenants.router, prefix="/api/v1")
+app.include_router(agents.router, prefix="/api/v1")
 
 
 @app.get("/")
