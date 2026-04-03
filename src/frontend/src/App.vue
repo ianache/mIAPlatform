@@ -18,6 +18,8 @@ onMounted(async () => {
     // Clean URL after token exchange
     window.history.replaceState({}, document.title, '/')
     router.push('/agents')
+  } else if (!auth.isAuthenticated) {
+    await auth.login()
   }
 })
 </script>
