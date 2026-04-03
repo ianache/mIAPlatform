@@ -3,7 +3,7 @@ from typing import List, Optional
 from uuid import UUID, uuid4
 from sqlalchemy import Column, String, Text, Float, DateTime, JSON
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 

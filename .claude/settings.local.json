@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node \"D:/02-PERSONAL/01-PROJECTS/22-mIAPlatform/.claude/get-shit-done/bin/gsd-tools.cjs\" state advance-plan)",
+      "Bash(node \"D:/02-PERSONAL/01-PROJECTS/22-mIAPlatform/.claude/get-shit-done/bin/gsd-tools.cjs\" state update-progress)",
+      "Bash(node \"D:/02-PERSONAL/01-PROJECTS/22-mIAPlatform/.claude/get-shit-done/bin/gsd-tools.cjs\" state record-metric --phase \"02\" --plan \"06\" --duration \"30\" --tasks \"4\" --files \"8\")",
+      "Bash(node \"D:/02-PERSONAL/01-PROJECTS/22-mIAPlatform/.claude/get-shit-done/bin/gsd-tools.cjs\" state add-decision --phase \"02\" --summary \"PKCE Authorization Code Flow chosen over confidential client — Keycloak client is public, no client secret needed for SPA\")",
+      "Bash(node \"D:/02-PERSONAL/01-PROJECTS/22-mIAPlatform/.claude/get-shit-done/bin/gsd-tools.cjs\" state add-decision --phase \"02\" --summary \"Redirect URI is root / — App.vue handles callback on mount, no separate /callback route needed\")",
+      "Bash(node \"D:/02-PERSONAL/01-PROJECTS/22-mIAPlatform/.claude/get-shit-done/bin/gsd-tools.cjs\" state record-session --stopped-at \"Completed 02-06-PLAN.md\")",
+      "Bash(node \"D:/02-PERSONAL/01-PROJECTS/22-mIAPlatform/.claude/get-shit-done/bin/gsd-tools.cjs\" roadmap update-plan-progress \"02\")",
+      "Bash(node \"D:/02-PERSONAL/01-PROJECTS/22-mIAPlatform/.claude/get-shit-done/bin/gsd-tools.cjs\" requirements mark-complete KEYCLOAK-01 UV-01)",
+      "Bash(git checkout:*)",
+      "Bash(node:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npx vue-tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(ls src/frontend/src/components/A*)",
+      "Bash(ls src/frontend/src/components/S*)"
+    ]
+  }
+}

@@ -11,7 +11,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 }
 
 const getHeaders = () => {
-  const token = localStorage.getItem('orchestra_token');
+  const token = localStorage.getItem('mia_access_token');
   return {
     'Content-Type': 'application/json',
     ...(token ? { 'Authorization': `Bearer ${token}` } : {})

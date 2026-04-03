@@ -14,8 +14,8 @@ export const useAgentStore = defineStore('agents', {
       this.loading = true;
       this.error = null;
       try {
-        const response = await apiClient.get<ApiResponse<Agent[]>>('/api/v1/agents');
-        this.agents = response.data;
+        const response = await apiClient.get<{items: Agent[], total: number}>('/api/v1/agents');
+        this.agents = response.items;
       } catch (err: any) {
         this.error = err?.detail ?? 'Failed to fetch agents';
       } finally {

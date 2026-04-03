@@ -6,6 +6,7 @@ const navItems = [
     { name: 'Workspace', path: '/' },
     { name: 'Agents', path: '/agents' },
     { name: 'Library', path: '/library' },
+    { name: 'Model Registry', path: '/model-registry' },
     { name: 'Analytics', path: '/analytics' },
     { name: 'Settings', path: '/settings' },
 ];

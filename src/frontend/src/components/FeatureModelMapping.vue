@@ -66,7 +66,16 @@ const features = ref<FeatureRow[]>([
   { id: 'web-search', name: 'Web Search Assistant', selectedModel: 'gemini-1.5-pro', saved: false },
 ]);
 
-const availableModels = agentStore.availableModels;
+const availableModels = [
+  { id: 'gpt-4o', label: 'GPT-4o' },
+  { id: 'gpt-4o-mini', label: 'GPT-4o Mini' },
+  { id: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
+  { id: 'claude-3-5-sonnet', label: 'Claude 3.5 Sonnet' },
+  { id: 'claude-3-opus', label: 'Claude 3 Opus' },
+  { id: 'claude-3-haiku', label: 'Claude 3 Haiku' },
+  { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
+  { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
+];
 
 function handleChange(feature: FeatureRow) {
   feature.saved = false;

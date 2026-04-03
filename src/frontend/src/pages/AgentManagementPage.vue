@@ -15,7 +15,7 @@
     <StatsRow />
 
     <!-- Loading state: skeleton cards -->
-    <div v-if="agentStore.isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div v-if="agentStore.loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div
         v-for="n in 6"
         :key="n"

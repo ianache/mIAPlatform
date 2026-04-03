@@ -33,8 +33,7 @@ async def chat(
     credentials=Depends(security),
 ):
     """Send chat request to LLM via LiteLLM gateway."""
-    # Verify token
-    token_data = verify_token(credentials)
+    token_data = await verify_token(credentials)
 
     # Validate model
     if not await llm_gateway.validate_model(request.model):
@@ -68,5 +67,5 @@ async def chat(
 @router.get("/models")
 async def list_models(credentials=Depends(security)):
     """List available LLM models."""
-    verify_token(credentials)
+    await verify_token(credentials)
     return {"models": llm_gateway.list_models()}

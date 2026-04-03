@@ -1,5 +1,23 @@
 /// <reference types="D:/02-PERSONAL/01-PROJECTS/22-mIAPlatform/node_modules/@vue/language-core/types/template-helpers.d.ts" />
 /// <reference types="D:/02-PERSONAL/01-PROJECTS/22-mIAPlatform/node_modules/@vue/language-core/types/props-fallback.d.ts" />
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from './stores/auth';
+const router = useRouter();
+const auth = useAuthStore();
+onMounted(async () => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+        await auth.handleCallback(code);
+        // Clean URL after token exchange
+        window.history.replaceState({}, document.title, '/');
+        router.push('/agents');
+    }
+    else if (!auth.isAuthenticated) {
+        await auth.login();
+    }
+});
 const __VLS_ctx = {};
 let __VLS_components;
 let __VLS_intrinsics;

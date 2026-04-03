@@ -41,7 +41,7 @@ async def create_tenant(
     db: AsyncSession = Depends(get_db),
 ):
     """Create a new tenant."""
-    token_data = verify_token(credentials)
+    token_data = await verify_token(credentials)
 
     # Check slug uniqueness
     for existing in tenants_db.values():
@@ -71,7 +71,7 @@ async def get_tenant(
     credentials=Depends(security),
 ):
     """Get tenant by ID."""
-    verify_token(credentials)
+    await verify_token(credentials)
 
     if tenant_id not in tenants_db:
         raise HTTPException(status_code=404, detail="Tenant not found")
@@ -84,7 +84,7 @@ async def list_tenants(
     credentials=Depends(security),
 ):
     """List all tenants (admin only)."""
-    verify_token(credentials)
+    await verify_token(credentials)
     return [TenantResponse(**t) for t in tenants_db.values()]
 
 
@@ -95,7 +95,7 @@ async def update_tenant(
     credentials=Depends(security),
 ):
     """Update tenant settings."""
-    verify_token(credentials)
+    await verify_token(credentials)
 
     if tenant_id not in tenants_db:
         raise HTTPException(status_code=404, detail="Tenant not found")

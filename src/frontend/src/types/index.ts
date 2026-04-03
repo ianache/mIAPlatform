@@ -9,7 +9,7 @@ export interface Agent {
   temperature: number;
   system_prompt?: string;
   capabilities: string[];
-  status: 'active' | 'inactive' | 'archived';
+  status: string;
   created_at: string;
   updated_at: string;
 }
