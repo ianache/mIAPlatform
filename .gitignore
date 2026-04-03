@@ -1,2 +1,4 @@
+node_modules/
 node-modules/**
 .ruff_cache/**
+src/frontend/dist/
