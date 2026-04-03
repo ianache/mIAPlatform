@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_plan: 1
-status: unknown
-last_updated: "2026-04-02T23:37:50.697Z"
+current_plan: 2
+status: in-progress
+last_updated: "2026-04-02T20:27:04Z"
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 8
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # State: Orchestra / Synthetix
@@ -18,15 +18,18 @@ progress:
 
 - **Created:** 2026-04-02
 - **Updated:** 2026-04-02
-- **Phase:** 01-foundation (Complete)
+- **Phase:** 02-agent-core-ui-6-8-weeks (In Progress, 2/6 plans complete)
 - **Mode:** Automatic
-- **Current Plan:** 1
+- **Current Plan:** 2
 
 ## Decisions Made
 
 - Used in-memory tenant store (to be replaced with PostgreSQL in later phase)
 - JWT tokens expire in 30 minutes, using HS256 algorithm
 - LiteLLM configured for 100+ parallel requests, 60s timeout
+- Used fetch instead of axios for API client (no extra dependency, native browser support)
+- Token stored in localStorage with key 'orchestra_token' (to be replaced with httpOnly cookies)
+- Route placeholders use inline templates (proper page components in Plans 03-06)
 
 ## Artifacts Created
 
