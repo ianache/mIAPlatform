@@ -13,8 +13,9 @@ class Settings(BaseSettings):
 
     # Database
     POSTGRES_URL: str = (
-        "postgresql+asyncpg://miaplatform:changeme@localhost:5432/miaplatform"
+        "postgresql+asyncpg://miaplatform:changeme@192.168.100.254:5432/miaplatform"
     )
+    POSTGRES_SCHEMA: str = "mia"
     MONGO_URL: str = "mongodb://miaplatform:changeme@localhost:27017"
     NEO4J_URL: str = "bolt://localhost:7687"
     NEO4J_USER: str = "neo4j"

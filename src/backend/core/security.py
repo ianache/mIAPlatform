@@ -3,8 +3,9 @@
 import httpx
 from datetime import datetime, timedelta
 from typing import Optional
-from jose import JWTError, jwt, jwk
-from jose.exceptions import JWKError
+import jwt
+from jwt.algorithms import RSAAlgorithm
+from jwt.exceptions import PyJWTError as JWTError
 from fastapi import HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import logging
@@ -25,16 +26,17 @@ _jwks_cache = None
 
 async def get_jwks():
     global _jwks_cache
-    if _jwks_cache is None:
-        settings = get_settings()
-        jwks_url = settings.KEYCLOAK_JWKS_URL
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.get(jwks_url)
-                _jwks_cache = response.json()
-            except Exception as e:
-                logger.error(f"Failed to fetch JWKS: {e}")
-                raise HTTPException(status_code=500, detail="Failed to fetch JWKS")
+    settings = get_settings()
+    jwks_url = settings.KEYCLOAK_JWKS_URL
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(jwks_url)
+            response.raise_for_status()
+            _jwks_cache = response.json()
+    except Exception as e:
+        logger.error(f"Failed to fetch JWKS from {jwks_url}: {e}")
+        if _jwks_cache is None:
+            raise HTTPException(status_code=503, detail="Keycloak JWKS unavailable")
     return _jwks_cache
 
 
@@ -50,7 +52,7 @@ def get_signing_key(token: str, jwks: dict):
 
     for key in jwks.get("keys", []):
         if key.get("kid") == kid:
-            return jwk.construct(key)
+            return RSAAlgorithm.from_jwk(key)
 
     raise HTTPException(status_code=401, detail="Signing key not found")
 
@@ -74,16 +76,25 @@ async def verify_token(credentials: HTTPAuthorizationCredentials) -> dict:
     token = credentials.credentials
 
     try:
+        logger.info(f"Verifying token from {credentials.scheme}")
+        
         jwks = await get_jwks()
+        logger.info(f"JWKS keys count: {len(jwks.get('keys', []))}")
+        
         signing_key = get_signing_key(token, jwks)
+        logger.info(f"Signing key type: {type(signing_key)}")
 
         payload = jwt.decode(
             token,
             signing_key,
             algorithms=["RS256"],
-            audience=settings.KEYCLOAK_CLIENT_ID,
+            options={"verify_aud": False},
             issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
         )
+        azp = payload.get("azp")
+        if azp and azp != settings.KEYCLOAK_CLIENT_ID:
+            raise HTTPException(status_code=401, detail="Token not issued for this client")
+        logger.info(f"Token verified successfully, sub={payload.get('sub')}")
         return payload
     except JWTError as e:
         logger.error(f"JWT Error: {e}")

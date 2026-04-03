@@ -3,13 +3,12 @@ from typing import List, Optional
 from uuid import UUID, uuid4
 from sqlalchemy import Column, String, Text, Float, DateTime, JSON
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
-from sqlalchemy.orm import declarative_base
-
-Base = declarative_base()
+from src.backend.models.base import Base
 
 
 class Agent(Base):
     __tablename__ = "agents"
+    __table_args__ = {"schema": "mia"}
 
     id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid4)
     tenant_id = Column(String, index=True, nullable=False)

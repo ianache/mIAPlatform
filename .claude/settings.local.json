@@ -16,7 +16,8 @@
       "Bash(npx vue-tsc:*)",
       "Bash(npm run:*)",
       "Bash(ls src/frontend/src/components/A*)",
-      "Bash(ls src/frontend/src/components/S*)"
+      "Bash(ls src/frontend/src/components/S*)",
+      "Bash(find:*)"
     ]
   }
 }

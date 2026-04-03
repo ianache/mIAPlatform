@@ -24,6 +24,7 @@ app = FastAPI(
     description="Multi-Agent AI Platform - Foundation Phase",
     version="1.0.0",
     lifespan=lifespan,
+    redirect_slashes=False,
 )
 
 # CORS middleware

@@ -1,8 +1,14 @@
 import { ApiError } from '../types';
+import { useAuthStore } from '../stores/auth';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 async function handleResponse<T>(response: Response): Promise<T> {
+  if (response.status === 401 || response.status === 403) {
+    const auth = useAuthStore();
+    await auth.login();
+    throw { detail: 'Authentication required', status_code: response.status } as ApiError;
+  }
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ detail: 'An unexpected error occurred' }));
     throw { detail: errorData.detail, status_code: response.status } as ApiError;

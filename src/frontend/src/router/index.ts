@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import DashboardLayout from '../layouts/DashboardLayout.vue';
 import AgentCreationPage from '../pages/AgentCreationPage.vue';
+import AgentEditPage from '../pages/AgentEditPage.vue';
 import AgentManagementPage from '../pages/AgentManagementPage.vue';
 import ModelRegistryPage from '../pages/ModelRegistryPage.vue';
 import SettingsPage from '../pages/SettingsPage.vue';
@@ -14,7 +15,7 @@ const routes = [
       { path: '', name: 'Workspace', component: { template: '<div class="text-onSurface">Workspace</div>' } },
       { path: 'agents', name: 'Agents', component: AgentManagementPage },
       { path: 'agents/new', name: 'AgentCreate', component: AgentCreationPage },
-      { path: 'agents/:id/edit', name: 'AgentEdit', component: { template: '<div class="text-onSurface">Agent Edit</div>' } },
+      { path: 'agents/:id/edit', name: 'AgentEdit', component: AgentEditPage },
       { path: 'library', name: 'Library', component: { template: '<div class="text-onSurface">Library</div>' } },
       { path: 'model-registry', name: 'ModelRegistry', component: ModelRegistryPage },
       { path: 'analytics', name: 'Analytics', component: { template: '<div class="text-onSurface">Analytics</div>' } },
@@ -30,12 +31,11 @@ export const router = createRouter({
 
 // Navigation guard: redirect unauthenticated users to Keycloak login
 // '/' is public so the PKCE callback can land and exchange the code
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to) => {
   const auth = useAuthStore();
   const publicRoutes = ['/'];
   if (!auth.isAuthenticated && !publicRoutes.includes(to.path)) {
-    auth.login();
-  } else {
-    next();
+    await auth.login();
+    return false;
   }
 });

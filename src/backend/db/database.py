@@ -2,7 +2,7 @@
 
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import declarative_base
+from src.backend.models.base import Base  # noqa: F401 — re-exported for convenience
 from motor.motor_asyncio import AsyncIOMotorClient
 from neo4j import AsyncGraphDatabase
 
@@ -12,8 +12,6 @@ def get_settings():
 
     return _get_settings()
 
-
-Base = declarative_base()
 
 _engine = None
 _async_session_maker = None

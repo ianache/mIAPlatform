@@ -38,6 +38,12 @@ export const useAgentStore = defineStore('agents', {
       }
     },
 
+    async fetchAgentById(id: string): Promise<Agent> {
+      const cached = this.agents.find((a) => a.id === id);
+      if (cached) return cached;
+      return apiClient.get<Agent>(`/api/v1/agents/${id}`);
+    },
+
     async updateAgent(id: string, data: Partial<AgentCreate>): Promise<Agent> {
       this.loading = true;
       this.error = null;

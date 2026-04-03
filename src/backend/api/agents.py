@@ -38,7 +38,7 @@ async def get_current_tenant(request: Request, credentials=Depends(security)):
         raise HTTPException(status_code=401, detail="Authentication required")
 
 
-@router.post("/", response_model=AgentResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=AgentResponse, status_code=status.HTTP_201_CREATED)
 async def create_agent(
     request: Request,
     agent_in: AgentCreate,
@@ -63,7 +63,7 @@ async def create_agent(
     return agent
 
 
-@router.get("/", response_model=AgentListResponse)
+@router.get("", response_model=AgentListResponse)
 async def list_agents(
     request: Request,
     db: AsyncSession = Depends(get_db),
