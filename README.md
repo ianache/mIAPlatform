@@ -6,6 +6,7 @@
 
 ```
 npx get-shit-done-cc@latest
+npm install -g @gsd-build/sdk@latest
 ```
 
 > Seleccionar ClaudeCode, Gemini y OpenCode
