@@ -52,7 +52,7 @@
 **Plans:** 6 plans
 - [x] 02-01-PLAN.md — Agent schema + CRUD API (backend)
 - [x] 02-02-PLAN.md — Vue 3 app scaffold, routing, layout shell
-- [ ] 02-03-PLAN.md — Agent creation form UI (4 sections)
+- [x] 02-03-PLAN.md — Agent creation form UI (4 sections)
 - [ ] 02-04-PLAN.md — Agent management list + settings with API keys
 - [ ] 02-05-PLAN.md — Model registry UI
 - [x] 02-06-PLAN.md — Keycloak v26 config + uv migration
