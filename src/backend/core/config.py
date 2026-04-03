@@ -24,10 +24,14 @@ class Settings(BaseSettings):
     VAULT_URL: str = "http://localhost:8200"
     VAULT_TOKEN: str = "changeme"
 
-    # Keycloak
-    KEYCLOAK_URL: str = "http://localhost:8080"
-    KEYCLOAK_REALM: str = "miaplatform"
+    # Keycloak (public client — PKCE, no client secret required)
+    KEYCLOAK_URL: str = "https://oauth2.qa.comsatel.com.pe"
+    KEYCLOAK_REALM: str = "Apps"
     KEYCLOAK_CLIENT_ID: str = "miaplatform"
+
+    @property
+    def KEYCLOAK_JWKS_URL(self) -> str:
+        return f"{self.KEYCLOAK_URL}/realms/{self.KEYCLOAK_REALM}/protocol/openid-connect/certs"
 
     # JWT
     JWT_SECRET_KEY: str = "changeme-dev-secret-key-replace-in-production"

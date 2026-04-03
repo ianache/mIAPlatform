@@ -39,13 +39,24 @@ services:
       VAULT_ADDR: http://localhost:8200
     command: server -dev
 
+  # Keycloak v26 — for local development only.
+  # Production uses the external host: https://oauth2.qa.comsatel.com.pe
   keycloak:
-    image: quay.io/keycloak/keycloak:26
-    ports:
-      - "8080:8080"
+    image: quay.io/keycloak/keycloak:26.0
+    command: start-dev --import-realm
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD:-changeme}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-miaplatform}
+      KC_DB_USERNAME: ${POSTGRES_USER:-miaplatform}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak/realm-import:/opt/keycloak/data/import
+    depends_on:
+      - postgres
 
 volumes:
   postgres_data:

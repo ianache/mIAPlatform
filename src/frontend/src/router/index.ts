@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import DashboardLayout from '../layouts/DashboardLayout.vue';
+import { useAuthStore } from '../stores/auth';
 
 const routes = [
   {
@@ -20,4 +21,16 @@ const routes = [
 export const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+// Navigation guard: redirect unauthenticated users to Keycloak login
+// '/' is public so the PKCE callback can land and exchange the code
+router.beforeEach((to, _from, next) => {
+  const auth = useAuthStore();
+  const publicRoutes = ['/'];
+  if (!auth.isAuthenticated && !publicRoutes.includes(to.path)) {
+    auth.login();
+  } else {
+    next();
+  }
 });

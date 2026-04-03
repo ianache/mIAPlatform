@@ -55,7 +55,7 @@
 - [ ] 02-03-PLAN.md — Agent creation form UI (4 sections)
 - [ ] 02-04-PLAN.md — Agent management list + settings with API keys
 - [ ] 02-05-PLAN.md — Model registry UI
-- [ ] 02-06-PLAN.md — Keycloak v26 config + uv migration
+- [x] 02-06-PLAN.md — Keycloak v26 config + uv migration
 
 ## Phase 3: Workspace & Multi-Agent Orchestration (8-10 weeks)
 
