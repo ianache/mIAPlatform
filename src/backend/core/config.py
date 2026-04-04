@@ -21,6 +21,12 @@ class Settings(BaseSettings):
     NEO4J_USER: str = "neo4j"
     NEO4J_PASSWORD: str = "changeme"
 
+    # Redis
+    REDIS_URL: str = "redis://192.168.100.254:6379"
+    REDIS_PASSWORD: str = "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81"
+    REDIS_TTL: int = 60       # seconds — default for lists/single items
+    REDIS_TTL_LONG: int = 300  # seconds — for slow-changing data (registry models)
+
     # Vault
     VAULT_URL: str = "http://localhost:8200"
     VAULT_TOKEN: str = "changeme"

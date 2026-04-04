@@ -7,6 +7,8 @@ import logging
 
 from src.backend.db.database import get_db
 from src.backend.core.security import verify_token, security
+from src.backend.core.cache import cache_get, cache_set, cache_delete, cache_invalidate_pattern
+from src.backend.core.config import get_settings
 from src.backend.models.agent import Agent
 from src.backend.models.agent_schemas import (
     AgentCreate,
@@ -60,6 +62,7 @@ async def create_agent(
     db.add(agent)
     await db.commit()
     await db.refresh(agent)
+    await cache_invalidate_pattern(f"{tenant_id}:agents:*")
     return agent
 
 
@@ -69,9 +72,16 @@ async def list_agents(
     db: AsyncSession = Depends(get_db),
     tenant_id: str = Depends(get_current_tenant),
 ):
+    cache_key = f"{tenant_id}:agents:list"
+    cached = await cache_get(cache_key)
+    if cached is not None:
+        return cached
+
     result = await db.execute(select(Agent).where(Agent.tenant_id == tenant_id))
     agents = result.scalars().all()
-    return {"items": agents, "total": len(agents)}
+    data = {"items": [AgentResponse.model_validate(a).model_dump(mode="json") for a in agents], "total": len(agents)}
+    await cache_set(cache_key, data, ttl=get_settings().REDIS_TTL)
+    return data
 
 
 @router.get("/{agent_id}", response_model=AgentResponse)
@@ -80,6 +90,11 @@ async def get_agent(
     db: AsyncSession = Depends(get_db),
     tenant_id: str = Depends(get_current_tenant),
 ):
+    cache_key = f"{tenant_id}:agents:{agent_id}"
+    cached = await cache_get(cache_key)
+    if cached is not None:
+        return cached
+
     result = await db.execute(
         select(Agent).where(Agent.id == agent_id, Agent.tenant_id == tenant_id)
     )
@@ -88,7 +103,9 @@ async def get_agent(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found"
         )
-    return agent
+    data = AgentResponse.model_validate(agent).model_dump(mode="json")
+    await cache_set(cache_key, data, ttl=get_settings().REDIS_TTL)
+    return data
 
 
 @router.patch("/{agent_id}", response_model=AgentResponse)
@@ -112,6 +129,8 @@ async def update_agent(
 
     await db.commit()
     await db.refresh(agent)
+    await cache_delete(f"{tenant_id}:agents:{agent_id}")
+    await cache_delete(f"{tenant_id}:agents:list")
     return agent
 
 
@@ -132,4 +151,5 @@ async def delete_agent(
 
     await db.delete(agent)
     await db.commit()
+    await cache_delete(f"{tenant_id}:agents:{agent_id}", f"{tenant_id}:agents:list")
     return None

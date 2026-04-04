@@ -17,7 +17,10 @@
       "Bash(npm run:*)",
       "Bash(ls src/frontend/src/components/A*)",
       "Bash(ls src/frontend/src/components/S*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(cd \"C:\\\\Users\\\\ianache\\\\Desktop\\\\DATA\\\\01-DOCUMENTOS\\\\02-PROYECTOS\\\\104-mIAPlatform\\\\mIAPlatform\" && .venv/Scripts/uv.exe pip install \"redis[hiredis]>=5.0.0\" 2>&1)",
+      "Bash(cd \"C:\\\\Users\\\\ianache\\\\Desktop\\\\DATA\\\\01-DOCUMENTOS\\\\02-PROYECTOS\\\\104-mIAPlatform\\\\mIAPlatform\" && uv pip install \"redis[hiredis]>=5.0.0\" 2>&1)"
     ]
   }
 }

@@ -3,3 +3,4 @@ node-modules/**
 .ruff_cache/**
 src/frontend/dist/
 .venv/**
+**/__pycache__/**

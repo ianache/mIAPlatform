@@ -24,34 +24,39 @@
 </template>
 
 <script setup lang="ts">
-const stats = [
-  {
-    label: 'Avg Latency',
-    value: '245ms',
-    indicator: null,
-    indicatorClass: '',
-    dotClass: '',
-  },
-  {
-    label: 'Cost / 1k Tokens',
-    value: '$0.003',
-    indicator: null,
-    indicatorClass: '',
-    dotClass: '',
-  },
+import { computed } from 'vue';
+import { useRegistryStore } from '../stores/registry';
+
+const registryStore = useRegistryStore();
+
+const stats = computed(() => [
   {
     label: 'Active Models',
-    value: '12',
+    value: registryStore.activeModelCount,
+    indicator: null,
+    indicatorClass: '',
+    dotClass: '',
+  },
+  {
+    label: 'Total Models',
+    value: registryStore.totalModelCount,
+    indicator: null,
+    indicatorClass: '',
+    dotClass: '',
+  },
+  {
+    label: 'Providers',
+    value: registryStore.providerCount,
     indicator: null,
     indicatorClass: '',
     dotClass: '',
   },
   {
     label: 'Registry Health',
-    value: '98%',
-    indicator: 'Healthy',
-    indicatorClass: 'text-green-400',
-    dotClass: 'bg-green-400',
+    value: registryStore.hasValidKey ? '✓' : '—',
+    indicator: registryStore.registryHealthLabel,
+    indicatorClass: registryStore.hasValidKey ? 'text-green-400' : 'text-outline',
+    dotClass: registryStore.hasValidKey ? 'bg-green-400' : 'bg-outline',
   },
-];
+]);
 </script>

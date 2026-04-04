@@ -16,12 +16,19 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json();
 }
 
-const getHeaders = () => {
+const getHeaders = (isFormData = false) => {
   const token = localStorage.getItem('mia_access_token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-  };
+  const headers: Record<string, string> = {};
+  
+  if (!isFormData) {
+    headers['Content-Type'] = 'application/json';
+  }
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  return headers;
 };
 
 export const apiClient = {
@@ -32,19 +39,30 @@ export const apiClient = {
     });
     return handleResponse<T>(response);
   },
-  async post<T>(endpoint: string, data: any): Promise<T> {
+  async post<T>(endpoint: string, data: any, options?: { headers?: Record<string, string> }): Promise<T> {
+    const isFormData = data instanceof FormData;
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(data)
+      headers: { ...getHeaders(isFormData), ...options?.headers },
+      body: isFormData ? data : JSON.stringify(data)
     });
     return handleResponse<T>(response);
   },
-  async patch<T>(endpoint: string, data: any): Promise<T> {
+  async put<T>(endpoint: string, data: any, options?: { headers?: Record<string, string> }): Promise<T> {
+    const isFormData = data instanceof FormData;
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      method: 'PUT',
+      headers: { ...getHeaders(isFormData), ...options?.headers },
+      body: isFormData ? data : JSON.stringify(data)
+    });
+    return handleResponse<T>(response);
+  },
+  async patch<T>(endpoint: string, data: any, options?: { headers?: Record<string, string> }): Promise<T> {
+    const isFormData = data instanceof FormData;
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'PATCH',
-      headers: getHeaders(),
-      body: JSON.stringify(data)
+      headers: { ...getHeaders(isFormData), ...options?.headers },
+      body: isFormData ? data : JSON.stringify(data)
     });
     return handleResponse<T>(response);
   },

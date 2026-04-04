@@ -1,6 +1,6 @@
 <template>
   <div
-    class="glass rounded-2xl p-5 flex flex-col gap-3 cursor-default transition-colors duration-200 hover:bg-surface-high"
+    class="glass rounded-2xl p-5 flex flex-col gap-3 transition-colors duration-200 hover:bg-surface-high"
   >
     <!-- Header: provider logo + name -->
     <div class="flex items-center gap-3">
@@ -19,7 +19,7 @@
         class="ml-auto flex-shrink-0 text-xs font-label px-2 py-0.5 rounded-full"
         :class="statusClass"
       >
-        {{ model.status }}
+        {{ statusLabel }}
       </span>
     </div>
 
@@ -32,42 +32,73 @@
       >
         {{ tag }}
       </span>
+      <span
+        v-if="model.context_window"
+        class="bg-surface-highest text-onSurface-variant font-label text-xs px-2 py-0.5 rounded-full"
+      >
+        {{ formatCtx(model.context_window) }} context
+      </span>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-3 pt-1 border-t border-surface-highest">
+      <button
+        class="text-xs font-label text-onSurface-variant hover:text-primary transition-colors"
+        @click="emit('edit')"
+      >
+        Edit
+      </button>
+      <button
+        class="text-xs font-label text-onSurface-variant hover:text-error transition-colors"
+        @click="emit('delete')"
+      >
+        Delete
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import type { RegistryModel } from '../types';
 
-interface ModelInfo {
-  name: string;
-  provider: 'openai' | 'anthropic' | 'google';
-  status: 'Active' | 'Deprecated' | 'Beta';
-  tags: string[];
-}
-
-const props = defineProps<{ model: ModelInfo }>();
+const props = defineProps<{ model: RegistryModel }>();
+const emit = defineEmits<{ edit: []; delete: [] }>();
 
 const providerConfig: Record<string, { initial: string; color: string; label: string }> = {
   openai: { initial: 'O', color: '#10a37f', label: 'OpenAI' },
   anthropic: { initial: 'A', color: '#d97706', label: 'Anthropic' },
   google: { initial: 'G', color: '#4285F4', label: 'Google' },
+  other: { initial: '?', color: '#8C909F', label: 'Other' },
 };
 
 const providerInitial = computed(() => providerConfig[props.model.provider]?.initial ?? '?');
 const providerColor = computed(() => providerConfig[props.model.provider]?.color ?? '#8C909F');
-const providerLabel = computed(() => providerConfig[props.model.provider]?.label ?? props.model.provider);
+const providerLabel = computed(
+  () => providerConfig[props.model.provider]?.label ?? props.model.provider
+);
+
+const statusLabel = computed(() => {
+  switch (props.model.status) {
+    case 'active': return 'Active';
+    case 'deprecated': return 'Deprecated';
+    case 'beta': return 'Beta';
+    default: return props.model.status;
+  }
+});
 
 const statusClass = computed(() => {
   switch (props.model.status) {
-    case 'Active':
-      return 'bg-green-900/40 text-green-400';
-    case 'Deprecated':
-      return 'bg-amber-900/40 text-amber-400';
-    case 'Beta':
-      return 'bg-primary/10 text-primary';
-    default:
-      return 'bg-surface-highest text-onSurface-variant';
+    case 'active': return 'bg-green-900/40 text-green-400';
+    case 'deprecated': return 'bg-amber-900/40 text-amber-400';
+    case 'beta': return 'bg-primary/10 text-primary';
+    default: return 'bg-surface-highest text-onSurface-variant';
   }
 });
+
+function formatCtx(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(0)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}k`;
+  return String(n);
+}
 </script>

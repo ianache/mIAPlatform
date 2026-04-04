@@ -4,42 +4,47 @@
       Feature-to-Model Mapping
     </h3>
 
-    <div class="flex flex-col gap-1">
+    <!-- Empty state when no models and no mappings yet -->
+    <p
+      v-if="registryStore.models.length === 0 && rows.length === 0"
+      class="text-sm font-body text-onSurface-variant text-center py-4"
+    >
+      Add models to the registry first, then configure mappings here.
+    </p>
+
+    <div v-else class="flex flex-col gap-1">
       <div
-        v-for="(feature, index) in features"
-        :key="feature.id"
+        v-for="(row, index) in rows"
+        :key="row.featureId"
         class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150"
         :class="index % 2 === 0 ? 'bg-surface-low' : 'bg-surface'"
       >
         <!-- Feature name -->
-        <span class="flex-1 font-body text-sm text-onSurface truncate">{{ feature.name }}</span>
+        <span class="flex-1 font-body text-sm text-onSurface truncate">{{ row.featureName }}</span>
 
         <!-- Model selector -->
         <div class="relative flex-shrink-0">
           <select
-            v-model="feature.selectedModel"
+            v-model="row.selectedModel"
             class="appearance-none bg-surface-highest text-onSurface-variant font-label text-xs rounded-lg px-3 py-1.5 pr-7 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
-            @change="handleChange(feature)"
+            @change="handleChange(row)"
           >
+            <option value="">— none —</option>
             <option
-              v-for="model in availableModels"
+              v-for="model in registryStore.models"
               :key="model.id"
-              :value="model.id"
+              :value="model.name"
             >
-              {{ model.label }}
+              {{ model.name }}
             </option>
           </select>
-          <!-- dropdown arrow -->
           <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-onSurface-variant text-[10px]">
             &#9660;
           </span>
         </div>
 
         <!-- Save indicator -->
-        <span
-          v-if="feature.saved"
-          class="text-green-400 font-label text-xs flex-shrink-0"
-        >
+        <span v-if="row.saved" class="text-green-400 font-label text-xs flex-shrink-0">
           Saved
         </span>
       </div>
@@ -48,41 +53,49 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useAgentStore } from '../stores/agents';
+import { ref, watch } from 'vue';
+import { useRegistryStore } from '../stores/registry';
 
-const agentStore = useAgentStore();
+const registryStore = useRegistryStore();
 
 interface FeatureRow {
-  id: string;
-  name: string;
+  featureId: string;
+  featureName: string;
   selectedModel: string;
   saved: boolean;
 }
 
-const features = ref<FeatureRow[]>([
-  { id: 'core-chat', name: 'Core Chat Agent', selectedModel: 'gpt-4o', saved: false },
-  { id: 'report-gen', name: 'Report Generator', selectedModel: 'claude-3-5-sonnet', saved: false },
-  { id: 'web-search', name: 'Web Search Assistant', selectedModel: 'gemini-1.5-pro', saved: false },
-]);
-
-const availableModels = [
-  { id: 'gpt-4o', label: 'GPT-4o' },
-  { id: 'gpt-4o-mini', label: 'GPT-4o Mini' },
-  { id: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
-  { id: 'claude-3-5-sonnet', label: 'Claude 3.5 Sonnet' },
-  { id: 'claude-3-opus', label: 'Claude 3 Opus' },
-  { id: 'claude-3-haiku', label: 'Claude 3 Haiku' },
-  { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
-  { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
+// Default feature rows — persisted via store
+const defaultFeatures = [
+  { featureId: 'core-chat', featureName: 'Core Chat Agent' },
+  { featureId: 'report-gen', featureName: 'Report Generator' },
+  { featureId: 'web-search', featureName: 'Web Search Assistant' },
 ];
 
-function handleChange(feature: FeatureRow) {
-  feature.saved = false;
-  // Simulate save after short debounce
-  setTimeout(() => {
-    feature.saved = true;
-    setTimeout(() => { feature.saved = false; }, 2000);
-  }, 300);
+const rows = ref<FeatureRow[]>(
+  defaultFeatures.map((f) => ({ ...f, selectedModel: '', saved: false }))
+);
+
+// Sync rows with store mappings when they load
+watch(
+  () => registryStore.featureMappings,
+  (mappings) => {
+    for (const row of rows.value) {
+      const stored = mappings.find((m) => m.feature_id === row.featureId);
+      if (stored) row.selectedModel = stored.model_id;
+    }
+  },
+  { immediate: true }
+);
+
+async function handleChange(row: FeatureRow) {
+  row.saved = false;
+  try {
+    await registryStore.upsertFeatureMapping(row.featureId, row.featureName, row.selectedModel);
+    row.saved = true;
+    setTimeout(() => { row.saved = false; }, 2000);
+  } catch {
+    // silently fail — store captures error
+  }
 }
 </script>

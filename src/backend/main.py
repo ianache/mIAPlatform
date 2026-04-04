@@ -6,16 +6,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from src.backend.api import health
 from src.backend.llm import routes as llm_router
-from src.backend.api import tenants, agents
+from src.backend.api import tenants, agents, registry, upload, skills, workspace
+from src.backend.core.cache import init_redis, close_redis
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler."""
-    # Startup
     print("Starting Orchestra API...")
+    await init_redis()
     yield
-    # Shutdown
+    await close_redis()
     print("Shutting down Orchestra API...")
 
 
@@ -41,6 +42,10 @@ app.include_router(health.router, prefix="/api/v1")
 app.include_router(llm_router.router, prefix="/api/v1/llm")
 app.include_router(tenants.router, prefix="/api/v1")
 app.include_router(agents.router, prefix="/api/v1")
+app.include_router(registry.router, prefix="/api/v1")
+app.include_router(upload.router, prefix="/api/v1")
+app.include_router(skills.router, prefix="/api/v1")
+app.include_router(workspace.router, prefix="/api/v1")
 
 
 @app.get("/")

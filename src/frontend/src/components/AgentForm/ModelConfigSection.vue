@@ -14,7 +14,7 @@
         >
           <option value="" disabled>Select a provider</option>
           <option
-            v-for="provider in providers"
+            v-for="provider in availableProviders"
             :key="provider.id"
             :value="provider.id"
           >
@@ -44,14 +44,16 @@
       <label class="block text-sm font-label text-onSurface-variant" for="model-select">
         Model <span class="text-error">*</span>
       </label>
-      <div v-if="localProvider !== 'other'" class="relative">
+      <div class="relative">
         <select
           id="model-select"
           v-model="localModel"
-          :disabled="!localProvider"
+          :disabled="!localProvider || registryStore.loading"
           class="w-full appearance-none bg-surface-high text-onSurface font-body rounded-lg px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-primary cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <option value="" disabled>Select a model</option>
+          <option value="" disabled>
+            {{ registryStore.loading ? 'Loading models...' : 'Select a model' }}
+          </option>
           <option
             v-for="model in availableModels"
             :key="model"
@@ -69,14 +71,12 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
       </div>
-      <input
-        v-else
-        id="model-custom"
-        v-model="localModel"
-        type="text"
-        placeholder="Enter custom model name"
-        class="w-full bg-surface-high text-onSurface font-body placeholder-onSurface-variant rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-primary transition-all"
-      />
+      <p v-if="registryStore.error" class="text-xs text-error mt-1">
+        {{ registryStore.error }}
+      </p>
+      <p v-else-if="availableProviders.length === 0 && !registryStore.loading" class="text-xs text-onSurface-variant mt-1">
+        No models registered. Add models in the Model Registry first.
+      </p>
     </div>
 
     <!-- Temperature Slider -->
@@ -108,7 +108,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useRegistryStore } from '../../stores/registry';
 import type { LLMProvider } from '../../types';
 
 interface Props {
@@ -126,32 +127,57 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
+const registryStore = useRegistryStore();
+
 const localProvider = ref<LLMProvider['id'] | ''>(props.provider);
 const localModel = ref(props.model);
 const localTemperature = ref(props.temperature);
 
+// Sync with props
+watch(() => props.provider, (val) => { localProvider.value = val; });
+watch(() => props.model, (val) => { localModel.value = val; });
+watch(() => props.temperature, (val) => { localTemperature.value = val; });
+
+// Emit changes
 watch(localProvider, (val) => emit('update:provider', val));
 watch(localModel, (val) => emit('update:model', val));
 watch(localTemperature, (val) => emit('update:temperature', val));
 
-const providers = [
-  { id: 'openai' as const, label: 'OpenAI' },
-  { id: 'anthropic' as const, label: 'Anthropic' },
-  { id: 'google' as const, label: 'Google Gemini' },
-  { id: 'other' as const, label: 'Other' },
-];
-
-const modelMap: Record<string, string[]> = {
-  openai: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'],
-  anthropic: ['claude-3-5-sonnet', 'claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'],
-  google: ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-1.0-pro'],
+// Provider label mapping
+const providerLabels: Record<string, string> = {
+  openai: 'OpenAI',
+  anthropic: 'Anthropic',
+  google: 'Google Gemini',
+  ollama: 'Ollama',
+  other: 'Other',
 };
 
-const availableModels = computed(() =>
-  localProvider.value && localProvider.value !== 'other'
-    ? modelMap[localProvider.value] ?? []
-    : []
-);
+// Available providers based on registered models
+const availableProviders = computed(() => {
+  const providers = new Set<string>();
+  
+  // Add providers from registered models
+  registryStore.models.forEach((m) => {
+    if (m.status === 'active') {
+      providers.add(m.provider);
+    }
+  });
+  
+  // Convert to dropdown format
+  return Array.from(providers).map((id) => ({
+    id: id as LLMProvider['id'],
+    label: providerLabels[id] || id.charAt(0).toUpperCase() + id.slice(1),
+  }));
+});
+
+// Available models for selected provider
+const availableModels = computed(() => {
+  if (!localProvider.value) return [];
+  
+  return registryStore.models
+    .filter((m) => m.provider === localProvider.value && m.status === 'active')
+    .map((m) => m.name);
+});
 
 const providerDotClass = computed(() => {
   switch (localProvider.value) {
@@ -170,4 +196,11 @@ function handleProviderChange() {
   localModel.value = '';
   emit('update:model', '');
 }
+
+// Load models on mount
+onMounted(() => {
+  if (registryStore.models.length === 0) {
+    registryStore.fetchModels();
+  }
+});
 </script>

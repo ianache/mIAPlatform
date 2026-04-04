@@ -4,11 +4,21 @@
   >
     <!-- Top row: avatar + name + status badge -->
     <div class="flex items-center gap-3">
+      <!-- Avatar: Image or Initials -->
       <div
-        class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-headline font-semibold text-background shrink-0"
-        :style="{ background: avatarColor }"
+        class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-headline font-semibold text-background shrink-0 overflow-hidden"
+        :style="avatarStyle"
       >
-        {{ initials }}
+        <img
+          v-if="hasAvatar"
+          :src="agent.avatar_url"
+          alt="Agent avatar"
+          class="w-full h-full object-cover"
+          @error="handleAvatarError"
+        />
+        <template v-else>
+          {{ initials }}
+        </template>
       </div>
       <div class="flex-1 min-w-0">
         <p class="font-headline font-semibold text-onSurface truncate">{{ agent.name }}</p>
@@ -43,12 +53,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { Agent } from '../types';
 
 const props = defineProps<{ agent: Agent }>();
 const router = useRouter();
+
+const avatarError = ref(false);
+
+const hasAvatar = computed(() => {
+  return !!props.agent.avatar_url && !avatarError.value;
+});
 
 const initials = computed(() => {
   return props.agent.name
@@ -70,6 +86,13 @@ const avatarColor = computed(() => {
   let hash = 0;
   for (const c of props.agent.name) hash = (hash * 31 + c.charCodeAt(0)) & 0xffffffff;
   return colors[Math.abs(hash) % colors.length];
+});
+
+const avatarStyle = computed(() => {
+  if (hasAvatar.value) {
+    return { background: 'transparent' };
+  }
+  return { background: avatarColor.value };
 });
 
 const statusLabel = computed(() => {
@@ -115,6 +138,10 @@ const capabilityLabel = computed(() => {
   const count = props.agent.capabilities.length;
   return count === 1 ? '1 capability' : `${count} capabilities`;
 });
+
+function handleAvatarError() {
+  avatarError.value = true;
+}
 
 function handleEdit() {
   router.push(`/agents/${props.agent.id}/edit`);

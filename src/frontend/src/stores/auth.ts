@@ -27,6 +27,7 @@ export const useAuthStore = defineStore('auth', {
     refreshToken: localStorage.getItem('mia_refresh_token') as string | null,
     idToken: localStorage.getItem('mia_id_token') as string | null,
     user: null as Record<string, unknown> | null,
+    avatarUrl: localStorage.getItem('mia_user_avatar_url') as string | null,
   }),
   getters: {
     isAuthenticated: (state) => !!state.accessToken,
@@ -85,15 +86,22 @@ export const useAuthStore = defineStore('auth', {
       if (id) localStorage.setItem('mia_id_token', id)
     },
 
+    setAvatarUrl(url: string) {
+      this.avatarUrl = url
+      localStorage.setItem('mia_user_avatar_url', url)
+    },
+
     async logout() {
       const idToken = this.idToken
       this.accessToken = null
       this.refreshToken = null
       this.idToken = null
       this.user = null
+      this.avatarUrl = null
       localStorage.removeItem('mia_access_token')
       localStorage.removeItem('mia_refresh_token')
       localStorage.removeItem('mia_id_token')
+      localStorage.removeItem('mia_user_avatar_url')
 
       const params = new URLSearchParams({
         client_id: KEYCLOAK_CLIENT_ID,

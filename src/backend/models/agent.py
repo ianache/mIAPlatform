@@ -3,6 +3,7 @@ from typing import List, Optional
 from uuid import UUID, uuid4
 from sqlalchemy import Column, String, Text, Float, DateTime, JSON
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.orm import relationship
 from src.backend.models.base import Base
 
 
@@ -23,3 +24,6 @@ class Agent(Base):
     status = Column(String, default="ready")
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    subprojects = relationship("Subproject", back_populates="agent")

@@ -14,6 +14,8 @@ from src.backend.models.base import Base
 
 # Import all models so their tables are registered on Base.metadata
 import src.backend.models.agent  # noqa: F401
+import src.backend.models.registry_model  # noqa: F401
+import src.backend.models.workspace  # noqa: F401
 
 config = context.config
 settings = get_settings()

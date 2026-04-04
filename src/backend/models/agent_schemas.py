@@ -62,3 +62,10 @@ class AgentListResponse(BaseModel):
 class CapabilityToggle(BaseModel):
     capability_name: str
     enabled: bool
+
+
+class AvatarUploadResponse(BaseModel):
+    filename: str
+    url: str
+    content_type: str
+    size: int

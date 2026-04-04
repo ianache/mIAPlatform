@@ -20,42 +20,54 @@
         </span>
       </div>
 
-      <!-- Key input row -->
+      <!-- Saved key display or input -->
       <div class="flex gap-3 items-center">
         <input
           :type="revealed[provider.id] ? 'text' : 'password'"
           :placeholder="`sk-... (${provider.name} API Key)`"
-          :value="keys[provider.id]"
+          :value="inputKeys[provider.id]"
           class="flex-1 bg-surface-low rounded-lg px-4 py-2.5 text-sm font-label text-onSurface placeholder-outline focus:outline-none focus:ring-1 focus:ring-primary"
           autocomplete="off"
-          @input="handleInput(provider.id, ($event.target as HTMLInputElement).value)"
+          @input="inputKeys[provider.id] = ($event.target as HTMLInputElement).value"
         />
         <button
           class="text-xs font-label text-onSurface-variant hover:text-onSurface transition-colors px-2"
-          @click="toggleReveal(provider.id)"
+          @click="revealed[provider.id] = !revealed[provider.id]"
         >
           {{ revealed[provider.id] ? 'Hide' : 'Show' }}
         </button>
       </div>
 
+      <!-- Saved key masked display -->
+      <p v-if="storedKey(provider.id)" class="text-xs font-label text-onSurface-variant">
+        Saved: {{ storedKey(provider.id) }}
+      </p>
+
       <!-- Last validated -->
-      <p v-if="lastValidated[provider.id]" class="text-xs font-label text-onSurface-variant">
-        Last validated: {{ lastValidated[provider.id] }}
+      <p v-if="lastValidated(provider.id)" class="text-xs font-label text-onSurface-variant">
+        Last validated: {{ lastValidated(provider.id) }}
+      </p>
+
+      <!-- Error -->
+      <p v-if="errors[provider.id]" class="text-xs font-label text-error">
+        {{ errors[provider.id] }}
       </p>
 
       <!-- Actions -->
       <div class="flex gap-3">
         <button
-          class="text-sm font-label font-medium text-primary transition-opacity hover:opacity-70"
+          class="text-sm font-label font-medium text-primary transition-opacity hover:opacity-70 disabled:opacity-40"
+          :disabled="saving[provider.id]"
           @click="saveKey(provider.id)"
         >
-          Save
+          {{ saving[provider.id] ? 'Saving...' : 'Save' }}
         </button>
         <button
-          class="text-sm font-label font-medium text-onSurface-variant transition-opacity hover:opacity-70"
+          class="text-sm font-label font-medium text-onSurface-variant transition-opacity hover:opacity-70 disabled:opacity-40"
+          :disabled="validating[provider.id] || !storedKey(provider.id)"
           @click="validateKey(provider.id)"
         >
-          Validate
+          {{ validating[provider.id] ? 'Validating...' : 'Validate' }}
         </button>
       </div>
     </div>
@@ -64,9 +76,11 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue';
+import { useRegistryStore } from '../stores/registry';
 
 type ProviderId = 'openai' | 'anthropic' | 'google';
-type ValidationStatus = 'valid' | 'invalid' | 'untested';
+
+const registryStore = useRegistryStore();
 
 const providers = [
   { id: 'openai' as ProviderId, name: 'OpenAI', abbr: 'OA', color: 'linear-gradient(135deg, #ADC6FF 0%, #4D8EFF 100%)' },
@@ -74,80 +88,75 @@ const providers = [
   { id: 'google' as ProviderId, name: 'Google Gemini', abbr: 'GG', color: 'linear-gradient(135deg, #B1C6F9 0%, #749CFF 100%)' },
 ];
 
-// Client-side key storage (Phase 5 will add Vault integration for secure storage)
-const keys = reactive<Record<ProviderId, string>>({
-  openai: '',
-  anthropic: '',
-  google: '',
-});
+const inputKeys = reactive<Record<ProviderId, string>>({ openai: '', anthropic: '', google: '' });
+const revealed = reactive<Record<ProviderId, boolean>>({ openai: false, anthropic: false, google: false });
+const saving = reactive<Record<ProviderId, boolean>>({ openai: false, anthropic: false, google: false });
+const validating = reactive<Record<ProviderId, boolean>>({ openai: false, anthropic: false, google: false });
+const errors = reactive<Record<ProviderId, string>>({ openai: '', anthropic: '', google: '' });
 
-const savedKeys = reactive<Record<ProviderId, string>>({
-  openai: '',
-  anthropic: '',
-  google: '',
-});
-
-const validationStatus = reactive<Record<ProviderId, ValidationStatus>>({
-  openai: 'untested',
-  anthropic: 'untested',
-  google: 'untested',
-});
-
-const lastValidated = reactive<Record<ProviderId, string>>({
-  openai: '',
-  anthropic: '',
-  google: '',
-});
-
-const revealed = reactive<Record<ProviderId, boolean>>({
-  openai: false,
-  anthropic: false,
-  google: false,
-});
-
-function handleInput(id: ProviderId, value: string) {
-  keys[id] = value;
+function getRecord(id: ProviderId) {
+  return registryStore.apiKeys.find((k) => k.provider === id) ?? null;
 }
 
-function toggleReveal(id: ProviderId) {
-  revealed[id] = !revealed[id];
+function storedKey(id: ProviderId): string {
+  return getRecord(id)?.key_masked ?? '';
 }
 
-function saveKey(id: ProviderId) {
-  savedKeys[id] = keys[id];
-  // Reset reveal after save (key now masked)
-  revealed[id] = false;
-  validationStatus[id] = 'untested';
-}
-
-function validateKey(id: ProviderId) {
-  // Placeholder — will connect to backend validation endpoint in Phase 1 Vault integration
-  const hasKey = (savedKeys[id] || keys[id]).length > 0;
-  validationStatus[id] = hasKey ? 'valid' : 'invalid';
-  lastValidated[id] = new Date().toLocaleString();
+function lastValidated(id: ProviderId): string {
+  const r = getRecord(id);
+  if (!r?.last_validated) return '';
+  return new Date(r.last_validated).toLocaleString();
 }
 
 function statusLabel(id: ProviderId): string {
-  switch (validationStatus[id]) {
-    case 'valid': return 'Valid';
-    case 'invalid': return 'Invalid';
-    default: return 'Not tested';
-  }
+  const r = getRecord(id);
+  if (!r) return 'Not configured';
+  if (r.is_valid) return 'Valid';
+  if (r.last_validated) return 'Invalid';
+  return 'Not tested';
 }
 
 function dotClass(id: ProviderId): string {
-  switch (validationStatus[id]) {
-    case 'valid': return 'bg-green-400';
-    case 'invalid': return 'bg-error';
-    default: return 'bg-outline';
-  }
+  const r = getRecord(id);
+  if (!r) return 'bg-outline';
+  if (r.is_valid) return 'bg-green-400';
+  if (r.last_validated) return 'bg-error';
+  return 'bg-outline';
 }
 
 function statusClass(id: ProviderId): string {
-  switch (validationStatus[id]) {
-    case 'valid': return 'text-green-400';
-    case 'invalid': return 'text-error';
-    default: return 'text-outline';
+  const r = getRecord(id);
+  if (!r) return 'text-outline';
+  if (r.is_valid) return 'text-green-400';
+  if (r.last_validated) return 'text-error';
+  return 'text-outline';
+}
+
+async function saveKey(id: ProviderId) {
+  const key = inputKeys[id].trim();
+  if (!key) return;
+  errors[id] = '';
+  saving[id] = true;
+  try {
+    await registryStore.saveApiKey(id, key);
+    inputKeys[id] = '';
+    revealed[id] = false;
+  } catch (err: any) {
+    errors[id] = err?.detail ?? 'Failed to save key.';
+  } finally {
+    saving[id] = false;
+  }
+}
+
+async function validateKey(id: ProviderId) {
+  errors[id] = '';
+  validating[id] = true;
+  try {
+    await registryStore.validateApiKey(id);
+  } catch (err: any) {
+    errors[id] = err?.detail ?? 'Validation failed.';
+  } finally {
+    validating[id] = false;
   }
 }
 </script>
