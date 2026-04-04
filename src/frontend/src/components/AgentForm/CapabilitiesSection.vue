@@ -92,7 +92,7 @@
     <div class="flex items-center justify-between text-xs text-onSurface-variant font-label pt-2 border-t border-surface-high">
       <span>{{ skillsStore.skills.length }} skills available</span>
       <a
-        href="https://github.com/ianache/skills-catalog"
+        href="https://github.com/ianache/skills-catalog/blob/main/catalog.yaml"
         target="_blank"
         class="text-primary hover:opacity-70 transition-opacity"
       >

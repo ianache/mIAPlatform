@@ -67,11 +67,11 @@
 
           <!-- Name -->
           <div class="space-y-1">
-            <label class="font-label text-sm text-onSurface-variant">Name *</label>
+            <label class="font-label text-sm text-onSurface-variant">Display Name *</label>
             <input
               v-model="form.name"
               type="text"
-              placeholder="e.g. gpt-4o"
+              placeholder="e.g. Gemini 1.5 Pro (Production)"
               class="w-full bg-surface-low rounded-lg px-4 py-2.5 text-sm font-label text-onSurface placeholder-outline focus:outline-none focus:ring-1 focus:ring-primary"
               :class="{ 'ring-1 ring-error': nameError }"
               @blur="validateName"
@@ -86,13 +86,54 @@
               <select
                 v-model="form.provider"
                 class="w-full appearance-none bg-surface-low rounded-lg px-4 py-2.5 text-sm font-label text-onSurface focus:outline-none focus:ring-1 focus:ring-primary pr-8"
+                @change="onProviderChange"
               >
                 <option value="openai">OpenAI</option>
                 <option value="anthropic">Anthropic</option>
                 <option value="google">Google</option>
+                <option value="groq">Groq</option>
+                <option value="ollama">Ollama</option>
                 <option value="other">Other</option>
               </select>
               <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-onSurface-variant text-xs">&#9660;</span>
+            </div>
+          </div>
+
+          <!-- LiteLLM Prefix + Model ID (2-col grid) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- LiteLLM Prefix -->
+            <div class="space-y-1">
+              <label class="font-label text-sm text-onSurface-variant">
+                LiteLLM Prefix
+                <span class="ml-1 text-onSurface-variant/60 font-normal">(e.g. gemini, openai)</span>
+              </label>
+              <input
+                v-model="form.litellm_prefix"
+                type="text"
+                placeholder="e.g. gemini"
+                class="w-full bg-surface-low rounded-lg px-4 py-2.5 text-sm font-label text-onSurface placeholder-outline focus:outline-none focus:ring-1 focus:ring-primary font-mono"
+              />
+              <p class="text-xs text-onSurface-variant/60 font-label">
+                model_name = <span class="text-primary font-mono">{{ litellmModelName }}</span>
+              </p>
+            </div>
+
+            <!-- Model ID (combobox via datalist) -->
+            <div class="space-y-1">
+              <label class="font-label text-sm text-onSurface-variant">Model ID *</label>
+              <input
+                v-model="form.model_id"
+                type="text"
+                list="model-options"
+                placeholder="Select or type model ID"
+                class="w-full bg-surface-low rounded-lg px-4 py-2.5 text-sm font-label text-onSurface placeholder-outline focus:outline-none focus:ring-1 focus:ring-primary font-mono"
+                :class="{ 'ring-1 ring-error': modelIdError }"
+                @blur="validateModelId"
+              />
+              <datalist id="model-options">
+                <option v-for="m in availableModels" :key="m" :value="m" />
+              </datalist>
+              <p v-if="modelIdError" class="text-xs text-error font-label">Model ID is required.</p>
             </div>
           </div>
 
@@ -197,7 +238,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed, onMounted } from 'vue';
+import { reactive, ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useRegistryStore } from '../stores/registry';
 import type { RegistryModelCreate } from '../types';
@@ -210,20 +251,85 @@ const modelId = route.params.id as string | undefined;
 const isEdit = computed(() => !!modelId);
 
 const loadingModel = ref(isEdit.value);
-const modelLoaded = ref(!isEdit.value); // create mode: immediately ready
+const modelLoaded = ref(!isEdit.value);
 const notFound = ref(false);
 const successMessage = ref('');
 const globalError = ref('');
 const nameError = ref(false);
+const modelIdError = ref(false);
 const tagInput = ref('');
 
-const form = reactive<RegistryModelCreate>({
+// Provider → LiteLLM prefix + available models
+const PROVIDER_CONFIGS: Record<string, { prefix: string; models: string[] }> = {
+  openai: {
+    prefix: 'openai',
+    models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo', 'o1', 'o1-mini', 'o1-preview'],
+  },
+  anthropic: {
+    prefix: 'anthropic',
+    models: [
+      'claude-opus-4-5',
+      'claude-sonnet-4-5',
+      'claude-haiku-4-5-20251001',
+      'claude-3-5-sonnet-20241022',
+      'claude-3-opus-20240229',
+      'claude-3-haiku-20240307',
+    ],
+  },
+  google: {
+    prefix: 'gemini',
+    models: [
+      'gemini-2.0-flash',
+      'gemini-2.0-flash-lite',
+      'gemini-1.5-pro',
+      'gemini-1.5-flash',
+      'gemini-1.0-pro',
+    ],
+  },
+  groq: {
+    prefix: 'groq',
+    models: [
+      'llama-3.3-70b-versatile',
+      'llama-3.1-8b-instant',
+      'llama3-70b-8192',
+      'llama3-8b-8192',
+      'mixtral-8x7b-32768',
+      'gemma2-9b-it',
+    ],
+  },
+  ollama: {
+    prefix: 'ollama',
+    models: ['llama3.1', 'llama3.2', 'llama3.3', 'mistral', 'mixtral', 'phi3', 'phi4', 'codellama', 'qwen2.5', 'deepseek-r1'],
+  },
+  other: { prefix: '', models: [] },
+};
+
+const form = reactive<RegistryModelCreate & { litellm_prefix: string | null; model_id: string | null }>({
   name: '',
   provider: 'openai',
+  litellm_prefix: PROVIDER_CONFIGS.openai.prefix,
+  model_id: null,
   status: 'active',
   tags: [],
   context_window: null,
 });
+
+const availableModels = computed(() => PROVIDER_CONFIGS[form.provider]?.models ?? []);
+
+const litellmModelName = computed(() => {
+  const prefix = form.litellm_prefix?.trim();
+  const mid = form.model_id?.trim();
+  if (!mid) return '—';
+  return prefix ? `${prefix}/${mid}` : mid;
+});
+
+function onProviderChange() {
+  const cfg = PROVIDER_CONFIGS[form.provider];
+  if (cfg) {
+    form.litellm_prefix = cfg.prefix;
+    form.model_id = null;
+  }
+}
 
 onMounted(async () => {
   if (!isEdit.value) return;
@@ -231,6 +337,8 @@ onMounted(async () => {
     const model = await registryStore.fetchModelById(modelId!);
     form.name = model.name;
     form.provider = model.provider;
+    form.litellm_prefix = model.litellm_prefix ?? PROVIDER_CONFIGS[model.provider]?.prefix ?? '';
+    form.model_id = model.model_id ?? null;
     form.status = model.status;
     form.tags = [...model.tags];
     form.context_window = model.context_window;
@@ -244,6 +352,10 @@ onMounted(async () => {
 
 function validateName() {
   nameError.value = form.name.trim().length === 0;
+}
+
+function validateModelId() {
+  modelIdError.value = !form.model_id || form.model_id.trim().length === 0;
 }
 
 function addTag() {
@@ -260,12 +372,15 @@ function removeTag(index: number) {
 
 async function handleSubmit() {
   validateName();
-  if (nameError.value) return;
+  validateModelId();
+  if (nameError.value || modelIdError.value) return;
 
   globalError.value = '';
   const payload: RegistryModelCreate = {
     name: form.name.trim(),
     provider: form.provider,
+    litellm_prefix: form.litellm_prefix?.trim() || null,
+    model_id: form.model_id?.trim() || null,
     status: form.status,
     tags: form.tags,
     context_window: form.context_window || null,

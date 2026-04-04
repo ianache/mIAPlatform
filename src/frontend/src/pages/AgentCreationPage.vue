@@ -72,10 +72,10 @@
             <h2 class="text-lg font-headline font-semibold text-onSurface mb-5">Model Configuration</h2>
             <ModelConfigSection
               :provider="form.provider"
-              :model="form.model"
+              :registry-model-id="form.registry_model_id"
               :temperature="form.temperature"
               @update:provider="form.provider = $event as typeof form.provider"
-              @update:model="form.model = $event"
+              @update:registry-model-id="form.registry_model_id = $event"
               @update:temperature="form.temperature = $event"
             />
           </div>
@@ -143,6 +143,7 @@ const form = reactive<AgentCreate & { avatar_url?: string; system_prompt?: strin
   name: '',
   description: '',
   avatar_url: '',
+  registry_model_id: '',
   provider: 'openai',
   model: '',
   temperature: 0.7,
@@ -173,6 +174,7 @@ async function handleSubmit() {
       name: form.name.trim(),
       description: form.description || undefined,
       avatar_url: form.avatar_url || undefined,
+      registry_model_id: form.registry_model_id || undefined,
       provider: form.provider,
       model: form.model,
       temperature: form.temperature,

@@ -110,5 +110,39 @@ export const useAuthStore = defineStore('auth', {
       })
       window.location.href = `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/logout?${params}`
     },
+
+    async refreshAccessToken(): Promise<boolean> {
+      if (!this.refreshToken) {
+        return false
+      }
+
+      try {
+        const response = await fetch(
+          `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              grant_type: 'refresh_token',
+              client_id: KEYCLOAK_CLIENT_ID,
+              refresh_token: this.refreshToken,
+            }),
+          }
+        )
+
+        if (!response.ok) {
+          // Refresh failed, logout user
+          await this.logout()
+          return false
+        }
+
+        const tokens = await response.json()
+        this.setTokens(tokens.access_token, tokens.refresh_token || this.refreshToken, tokens.id_token)
+        return true
+      } catch (error) {
+        console.error('Token refresh failed:', error)
+        return false
+      }
+    },
   },
 })

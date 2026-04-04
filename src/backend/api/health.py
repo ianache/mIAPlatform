@@ -119,6 +119,23 @@ async def check_keycloak() -> Dict[str, Any]:
         return {"status": "unhealthy", "message": "Service unavailable"}
 
 
+async def check_redis() -> Dict[str, Any]:
+    """Check Redis connection."""
+    try:
+        from src.backend.core.cache import get_redis_client
+        
+        client = get_redis_client()
+        if client is None:
+            return {"status": "unhealthy", "message": "Redis client not initialized"}
+        
+        # Try to ping Redis
+        await client.ping()
+        return {"status": "healthy", "message": "Connected"}
+    except Exception as e:
+        logger.error(f"Redis health check failed: {e}")
+        return {"status": "unhealthy", "message": str(e)}
+
+
 @router.get("/health")
 async def health_check():
     """Basic health check."""
@@ -146,9 +163,10 @@ async def detailed_health_check():
             check_qdrant(),
             check_mongo(),
             check_keycloak(),
+            check_redis(),
             return_exceptions=True
         )
-        
+
         # Build response
         dependencies = {
             "postgresql": results[0] if not isinstance(results[0], Exception) else {"status": "unhealthy", "message": str(results[0])},
@@ -157,6 +175,7 @@ async def detailed_health_check():
             "qdrant": results[3] if not isinstance(results[3], Exception) else {"status": "unhealthy", "message": str(results[3])},
             "mongodb": results[4] if not isinstance(results[4], Exception) else {"status": "unhealthy", "message": str(results[4])},
             "keycloak": results[5] if not isinstance(results[5], Exception) else {"status": "unhealthy", "message": str(results[5])},
+            "redis": results[6] if not isinstance(results[6], Exception) else {"status": "unhealthy", "message": str(results[6])},
         }
         
         # Determine overall status

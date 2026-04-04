@@ -2,12 +2,16 @@
 
 import logging
 import json
+import re
+import os
+from pathlib import Path
+from datetime import datetime
+from uuid import UUID, uuid4
 from typing import AsyncGenerator, Dict, Any, List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, Query, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc, func
-from uuid import UUID
 import secrets
 import string
 
@@ -20,7 +24,20 @@ from src.backend.models.chat_schemas import (
     ChatStreamChunk, MetadataProperty
 )
 from src.backend.models.agent import Agent
-from src.backend.models.workspace import Subproject
+from src.backend.models.workspace import Subproject, AgentArtifact
+from src.backend.models.workspace_schemas import AgentArtifactResponse
+from src.backend.models.registry_model import APIKeyRecord, RegistryModel as RegistryModelDB
+from src.backend.api.ws_manager import event_manager
+from src.backend.core.security import verify_token_raw
+from src.backend.core.config import get_settings
+
+# Fallback LiteLLM prefix when no matching registry entry exists
+_PROVIDER_PREFIX_MAP: dict[str, str] = {
+    "google": "gemini",
+    "openai": "openai",
+    "anthropic": "anthropic",
+    "ollama": "ollama",
+}
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 logger = logging.getLogger(__name__)
@@ -49,6 +66,27 @@ def format_metadata_for_adk(metadata: Dict[str, Any]) -> str:
         lines.append(f"{key}: {value}")
     lines.append("========================\n")
     return "\n".join(lines)
+
+
+@router.websocket("/ws/{session_code}")
+async def agent_events_ws(
+    session_code: str,
+    websocket: WebSocket,
+    token: str = Query(...),
+):
+    """WebSocket endpoint — pushes agent intermediate steps to the client."""
+    try:
+        await verify_token_raw(token)
+    except Exception:
+        await websocket.close(code=1008)
+        return
+
+    await event_manager.connect(session_code, websocket)
+    try:
+        while True:
+            await websocket.receive_text()   # keep-alive; ignore payload
+    except WebSocketDisconnect:
+        event_manager.disconnect(session_code, websocket)
 
 
 @router.post("/sessions", response_model=ChatSessionResponse, status_code=status.HTTP_201_CREATED)
@@ -87,8 +125,8 @@ async def create_chat_session(
             subproject_id=session_in.subproject_id,
             agent_id=session_in.agent_id,
             session_code=session_code,
-            title=session_in.title or f"Chat {session_code}",
-            metadata=session_in.metadata or {}
+        title=session_in.title or f"Chat {session_code}",
+        session_metadata=session_in.session_metadata or {}
         )
         
         db.add(session)
@@ -169,32 +207,25 @@ async def get_chat_session(
 
 async def get_or_create_session(
     session_code: str,
-    agent_code: str,
+    agent_id: str,
     tenant_id: str,
     db: AsyncSession
 ) -> tuple[ChatSession, Agent]:
     """Get existing session or create new one. Also validates agent."""
-    # First verify agent by code (using session_code format as agent identifier for now)
-    # In production, agent_code should be a separate field or identifier
+    # Convert agent_id string to UUID
+    try:
+        agent_uuid = UUID(agent_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid agent_id format: {agent_id}")
+    
+    # Verify agent by ID from database
     agent_result = await db.execute(
-        select(Agent).where(Agent.tenant_id == tenant_id)
+        select(Agent).where(Agent.id == agent_uuid, Agent.tenant_id == tenant_id)
     )
-    agents = agent_result.scalars().all()
-    
-    # Try to find agent - for now we'll use a simple matching or first available
-    # In production, implement proper agent_code field
-    agent = None
-    for a in agents:
-        if str(a.id).startswith(agent_code) or a.name.lower().replace(" ", "-") == agent_code.lower():
-            agent = a
-            break
-    
-    if not agent and agents:
-        # Fallback to first agent for development
-        agent = agents[0]
+    agent = agent_result.scalar_one_or_none()
     
     if not agent:
-        raise HTTPException(status_code=404, detail=f"Agent not found: {agent_code}")
+        raise HTTPException(status_code=404, detail=f"Agent not found: {agent_id}")
     
     # Try to get existing session
     if session_code and session_code != "new":
@@ -210,6 +241,7 @@ async def get_or_create_session(
             # Verify session belongs to this agent
             if str(session.agent_id) != str(agent.id):
                 raise HTTPException(status_code=403, detail="Session does not belong to this agent")
+            logger.info(f"Found existing session: {session.session_code}, subproject_id: {session.subproject_id}")
             return session, agent
     
     # Create new session
@@ -258,7 +290,7 @@ async def save_message(
     session: ChatSession,
     role: str,
     content: str,
-    metadata: Dict[str, Any],
+    message_metadata: Dict[str, Any],
     injected_metadata: Dict[str, Any],
     db: AsyncSession
 ) -> ChatMessage:
@@ -276,7 +308,7 @@ async def save_message(
         sequence_number=max_seq + 1,
         role=role,
         content=content,
-        metadata=metadata,
+        message_metadata=message_metadata,
         injected_metadata=injected_metadata
     )
     
@@ -290,6 +322,131 @@ async def save_message(
     return message
 
 
+async def get_agent_api_key(agent: Agent, db: AsyncSession) -> str:
+    """Get API key for agent's provider from database."""
+    try:
+        result = await db.execute(
+            select(APIKeyRecord).where(
+                APIKeyRecord.provider == agent.provider,
+                APIKeyRecord.is_valid == True
+            )
+        )
+        api_key_record = result.scalar_one_or_none()
+        
+        if api_key_record:
+            # Return the encrypted key (in production, decrypt it)
+            return api_key_record.key_encrypted
+        
+        # Fallback to environment variable
+        from src.backend.core.config import get_settings
+        settings = get_settings()
+        return settings.GOOGLE_API_KEY
+        
+    except Exception as e:
+        logger.error(f"Error getting API key for provider {agent.provider}: {e}")
+        from src.backend.core.config import get_settings
+        settings = get_settings()
+        return settings.GOOGLE_API_KEY
+
+
+async def create_artifact_from_response(
+    session: ChatSession,
+    full_response: str,
+    model_name: str,
+    api_key: str,
+    db: AsyncSession,
+    litellm_prefix: str | None = None,
+):
+    """Generate a named artifact from the agent's full response text."""
+    artifact_id = uuid4()
+    settings = get_settings()
+
+    # --- 1. Generate name + summary via a quick LiteLLM call ---
+    name = f"Agent Response {datetime.utcnow():%Y-%m-%d %H:%M}"
+    summary = full_response[:200] if full_response else ""
+
+    try:
+        import litellm
+        # TEMPORARY: force artifact summarisation through Groq instead of the
+        # agent's provider (avoids vertex_ai ADC requirement for Gemini).
+        artifact_model = settings.ARTIFACT_LLM_MODEL  # e.g. "groq/openai/gpt-oss-120b"
+        # Resolve Groq API key: DB first, then env var
+        groq_key = settings.GROQ_API_KEY
+        try:
+            groq_result = await db.execute(
+                select(APIKeyRecord).where(
+                    APIKeyRecord.provider == "groq",
+                    APIKeyRecord.is_valid == True,
+                )
+            )
+            groq_record = groq_result.scalar_one_or_none()
+            if groq_record:
+                groq_key = groq_record.key_encrypted
+                logger.info(f"Artifact key source: DB (provider=groq)")
+            else:
+                logger.info(f"Artifact key source: settings.GROQ_API_KEY")
+        except Exception:
+            pass
+        masked = (groq_key[:8] + "..." + groq_key[-4:]) if groq_key and len(groq_key) > 12 else "(empty)"
+        logger.info(f"Artifact LLM → model={artifact_model}  key={masked}")
+        prompt = (
+            "Read the following agent response and return ONLY a JSON object with two fields:\n"
+            '{"name": "<short descriptive title, max 8 words>", "summary": "<one sentence summary>"}\n\n'
+            f"Agent response:\n{full_response[:3000]}"
+        )
+        meta_response = await litellm.acompletion(
+            model=artifact_model,
+            api_key=groq_key or None,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=120,
+            temperature=0.3,
+        )
+        raw = meta_response.choices[0].message.content or ""
+        match = re.search(r'\{.*?\}', raw, re.DOTALL)
+        if match:
+            parsed = json.loads(match.group())
+            name = parsed.get("name", name)[:200]
+            summary = parsed.get("summary", summary)
+    except Exception as e:
+        logger.warning(f"Artifact name/summary generation failed: {e}")
+
+    # --- 2. Write markdown file ---
+    uploads_path = settings.UPLOADS_PATH
+    artifact_dir = Path(uploads_path) / "artifacts" / session.session_code
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+    artifact_file = artifact_dir / f"{artifact_id}.md"
+    try:
+        artifact_file.write_text(full_response, encoding="utf-8")
+    except Exception as e:
+        logger.error(f"Failed to write artifact file: {e}")
+        return None
+
+    file_url = f"/uploads/artifacts/{session.session_code}/{artifact_id}.md"
+
+    # --- 3. Persist to DB ---
+    try:
+        logger.info(f"Creating artifact - Session ID: {session.id}, Session subproject_id: {session.subproject_id}")
+        artifact = AgentArtifact(
+            id=artifact_id,
+            session_id=session.id,
+            subproject_id=session.subproject_id,
+            execution_id=None,
+            name=name,
+            summary=summary,
+            artifact_type="markdown",
+            content=full_response[:5000],
+            file_url=file_url,
+        )
+        logger.info(f"Artifact created with subproject_id: {artifact.subproject_id}")
+        db.add(artifact)
+        await db.commit()
+        await db.refresh(artifact)
+        return artifact
+    except Exception as e:
+        logger.error(f"Failed to persist artifact: {e}")
+        return None
+
+
 async def stream_chat_response(
     session: ChatSession,
     agent: Agent,
@@ -297,13 +454,16 @@ async def stream_chat_response(
     injected_metadata: Dict[str, Any],
     db: AsyncSession
 ) -> AsyncGenerator[str, None]:
-    """Stream chat response with metadata injection."""
+    """Stream chat response with metadata injection using Google ADK."""
+    response_content = []
+    assistant_message_id = None
+    
     try:
         # Get conversation history
         history = await get_conversation_context(session, db)
         
         # Build system prompt with metadata
-        system_prompt = agent.system_prompt or "You are a helpful AI assistant."
+        system_prompt = str(agent.system_prompt) if agent.system_prompt else "You are a helpful AI assistant."
         
         # Inject metadata into context
         metadata_context = format_metadata_for_adk(injected_metadata)
@@ -316,44 +476,172 @@ async def stream_chat_response(
             {"timestamp": "user"}, injected_metadata, db
         )
         
-        # Here you would integrate with Google ADK
-        # For now, simulate streaming response
-        response_content = []
+        # Get API key for agent's provider
+        api_key = await get_agent_api_key(agent, db)
         
-        # Simulate streaming chunks
-        chunks = [
-            "Entendido. ",
-            "Procesando tu solicitud ",
-            "con los metadatos proporcionados. ",
-            "\n\n",
-            "**Metadatos inyectados:**\n",
-        ]
+        # Resolve registry entry: prefer registry_model_id FK, fall back to string match
+        if agent.registry_model_id:
+            reg_result = await db.execute(
+                select(RegistryModelDB).where(
+                    RegistryModelDB.id == agent.registry_model_id,
+                )
+            )
+        else:
+            reg_result = await db.execute(
+                select(RegistryModelDB).where(
+                    RegistryModelDB.model_id == agent.model,
+                    RegistryModelDB.provider == agent.provider,
+                    RegistryModelDB.tenant_id == session.tenant_id,
+                ).limit(1)
+            )
+        registry_entry = reg_result.scalar_one_or_none()
+
+        # Derive model_id and litellm_prefix from registry; fall back to agent fields
+        resolved_model = (
+            (registry_entry.model_id or registry_entry.name)
+            if registry_entry else str(agent.model)
+        )
+        litellm_prefix: str | None = (
+            registry_entry.litellm_prefix
+            if registry_entry and registry_entry.litellm_prefix
+            else _PROVIDER_PREFIX_MAP.get(str(agent.provider))
+        )
+        logger.info(
+            f"Resolved model='{resolved_model}' litellm_prefix='{litellm_prefix}' "
+            f"(registry_id={'set' if agent.registry_model_id else 'unset'}) "
+            f"provider={agent.provider}"
+        )
+
+        # Build step_callback that broadcasts to WebSocket clients for this session
+        _session_code = session.session_code
+        async def _step_callback(step_type: str, message: str, **kwargs):
+            from datetime import datetime
+            await event_manager.broadcast(_session_code, {
+                "type": "step", "step_type": step_type,
+                "message": message, "timestamp": datetime.utcnow().isoformat(), **kwargs,
+            })
+
+        # Initialize ADK Agent with provider-agnostic LiteLLM prefix
+        from src.backend.skills.adk_agent import GoogleADKAgent
+        adk_agent = GoogleADKAgent(
+            model=resolved_model,
+            api_key=api_key,
+            litellm_prefix=litellm_prefix,
+            step_callback=_step_callback,
+        )
         
-        for key, value in injected_metadata.items():
-            chunks.append(f"- {key}: {value}\n")
+        # Load only the skills specified in agent capabilities
+        from src.backend.skills.loader import get_skills_loader
+        loader = get_skills_loader()
+        all_tools = loader.get_tools_for_agent()
         
-        chunks.append("\n¿En qué más puedo ayudarte?")
+        # Filter tools based on agent capabilities
+        agent_capabilities = agent.capabilities or []
+        if agent_capabilities:
+            filtered_tools = []
+            for tool in all_tools:
+                # Check if tool's skill is in agent capabilities
+                tool_skill_name = tool.get('name', '').split('.')[0] if '.' in tool.get('name', '') else tool.get('name', '')
+                if tool_skill_name in agent_capabilities:
+                    filtered_tools.append(tool)
+            adk_agent._tools = filtered_tools
+            logger.info(f"Agent {agent.name} using {len(filtered_tools)} tools from capabilities: {agent_capabilities}")
+        else:
+            adk_agent._tools = all_tools
+            logger.info(f"Agent {agent.name} using all {len(all_tools)} available tools")
         
-        for i, chunk in enumerate(chunks):
+        # Initialize the agent
+        await adk_agent.initialize()
+        
+        # Create a queue to collect agent events
+        from asyncio import Queue
+        agent_events: Queue = Queue()
+        
+        async def agent_event_callback(step_type: str, **kwargs):
+            """Callback to capture agent events and put them in the queue."""
+            await agent_events.put({
+                "type": "step",
+                "step_type": step_type,
+                **kwargs
+            })
+        
+        # Stream response from ADK agent with event callback
+        sequence_number = 0
+        async for chunk in adk_agent.chat_stream(
+            message=user_message,
+            system_prompt=system_prompt,
+            context={"history": [(h.role, h.content) for h in history]},
+            metadata=injected_metadata,
+            event_callback=agent_event_callback
+        ):
+            # First, emit any pending agent events
+            while not agent_events.empty():
+                try:
+                    event = agent_events.get_nowait()
+                    event_chunk = ChatStreamChunk(
+                        type="step",
+                        content=json.dumps(event)
+                    )
+                    yield f"data: {json.dumps(event_chunk.model_dump())}\n\n"
+                except:
+                    break
+            
             response_content.append(chunk)
             
             stream_chunk = ChatStreamChunk(
                 type="content",
                 content=chunk,
-                sequence_number=i
+                sequence_number=sequence_number
             )
+            sequence_number += 1
             yield f"data: {json.dumps(stream_chunk.model_dump())}\n\n"
         
-        # Save assistant message
+        # Emit any remaining events after stream completes
+        while not agent_events.empty():
+            try:
+                event = agent_events.get_nowait()
+                event_chunk = ChatStreamChunk(
+                    type="step",
+                    content=json.dumps(event)
+                )
+                yield f"data: {json.dumps(event_chunk.model_dump())}\n\n"
+            except:
+                break
+        
+        # Save assistant message after streaming is complete
         full_response = "".join(response_content)
-        await save_message(
+        assistant_message = await save_message(
             session, "assistant", full_response,
-            {"model": agent.model, "provider": agent.provider},
+            {"model": str(agent.model), "provider": str(agent.provider)},
             {}, db
         )
-        
-        # Send completion
-        done_chunk = ChatStreamChunk(type="done")
+        assistant_message_id = str(assistant_message.id)
+
+        # Create artifact and emit SSE event before done
+        if full_response.strip():
+            artifact = await create_artifact_from_response(
+                session, full_response, resolved_model, api_key, db,
+                litellm_prefix=litellm_prefix,
+            )
+            if artifact:
+                artifact_chunk = ChatStreamChunk(
+                    type="artifact",
+                    content=json.dumps({
+                        "id": str(artifact.id),
+                        "name": artifact.name,
+                        "summary": artifact.summary,
+                        "file_url": artifact.file_url,
+                        "artifact_type": artifact.artifact_type,
+                        "created_at": artifact.created_at.isoformat(),
+                    })
+                )
+                yield f"data: {json.dumps(artifact_chunk.model_dump())}\n\n"
+
+        # Send completion with message ID
+        done_chunk = ChatStreamChunk(
+            type="done",
+            content=assistant_message_id
+        )
         yield f"data: {json.dumps(done_chunk.model_dump())}\n\n"
         
     except Exception as e:
@@ -383,7 +671,7 @@ async def send_chat_message(
         # Get or create session and validate agent
         session, agent = await get_or_create_session(
             request.session_code,
-            request.agent_code,
+            request.agent_id,
             tenant_id,
             db
         )
@@ -481,6 +769,100 @@ async def get_session_messages(
         raise
     except Exception as e:
         logger.error(f"Error getting messages: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/sessions/{session_code}/artifacts", response_model=List[AgentArtifactResponse])
+async def get_session_artifacts(
+    session_code: str,
+    db: AsyncSession = Depends(get_db),
+    credentials=Depends(security),
+):
+    """Get artifacts produced during a chat session."""
+    try:
+        token_data = await verify_token(credentials)
+        tenant_id = token_data.get("tenant_id") or token_data.get("sub", "default-tenant")
+
+        session_result = await db.execute(
+            select(ChatSession).where(
+                ChatSession.session_code == session_code,
+                ChatSession.tenant_id == tenant_id
+            )
+        )
+        session = session_result.scalar_one_or_none()
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+
+        result = await db.execute(
+            select(AgentArtifact)
+            .where(AgentArtifact.session_id == session.id)
+            .order_by(desc(AgentArtifact.created_at))
+        )
+        return result.scalars().all()
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching session artifacts: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/subprojects/{subproject_id}/artifacts", response_model=List[AgentArtifactResponse])
+async def get_subproject_artifacts(
+    subproject_id: str,
+    db: AsyncSession = Depends(get_db),
+    credentials=Depends(security),
+):
+    """Get all artifacts for a subproject across all sessions.
+    
+    Searches by both subproject_id (for newer artifacts) and session_id (for backward compatibility).
+    """
+    try:
+        token_data = await verify_token(credentials)
+        tenant_id = token_data.get("tenant_id") or token_data.get("sub", "default-tenant")
+        
+        from uuid import UUID
+        
+        subproject_uuid = UUID(subproject_id)
+        
+        # Method 1: Get all sessions for this subproject
+        sessions_result = await db.execute(
+            select(ChatSession.id).where(
+                ChatSession.subproject_id == subproject_uuid,
+                ChatSession.tenant_id == tenant_id
+            )
+        )
+        session_ids = [row[0] for row in sessions_result.all()]
+        
+        logger.info(f"Found {len(session_ids)} sessions for subproject {subproject_id}")
+        
+        # Method 2: Get artifacts by subproject_id OR session_id
+        if session_ids:
+            result = await db.execute(
+                select(AgentArtifact)
+                .where(
+                    (AgentArtifact.subproject_id == subproject_uuid) |
+                    (AgentArtifact.session_id.in_(session_ids))
+                )
+                .order_by(desc(AgentArtifact.created_at))
+            )
+        else:
+            # Fallback: only search by subproject_id
+            result = await db.execute(
+                select(AgentArtifact)
+                .where(AgentArtifact.subproject_id == subproject_uuid)
+                .order_by(desc(AgentArtifact.created_at))
+            )
+        
+        artifacts = result.scalars().all()
+        logger.info(f"Found {len(artifacts)} artifacts for subproject {subproject_id}")
+        
+        return artifacts
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching subproject artifacts: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 

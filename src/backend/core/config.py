@@ -45,6 +45,15 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
+    # Skills Configuration
+    SKILLS_PATH: str = "./skills"
+    UPLOADS_PATH: str = "./uploads"
+    GOOGLE_API_KEY: str = ""
+    GOOGLE_MODEL: str = "gemini-3.0-flash"
+    # Temporary: override model used for artifact name/summary generation
+    ARTIFACT_LLM_MODEL: str = "groq/openai/gpt-oss-120b"
+    GROQ_API_KEY: str = ""
+
     class Config:
         env_file = ".env"
         case_sensitive = True

@@ -70,6 +70,12 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     )
 
 
+async def verify_token_raw(token: str) -> dict:
+    """Verify a raw JWT string — used by WebSocket endpoints."""
+    creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+    return await verify_token(creds)
+
+
 async def verify_token(credentials: HTTPAuthorizationCredentials) -> dict:
     """Verify JWT token and return payload."""
     settings = get_settings()

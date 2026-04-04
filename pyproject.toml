@@ -22,6 +22,9 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "pyyaml>=6.0",
     "redis[hiredis]>=5.0.0",
+    "google-adk>=1.28.1",
+    "requests>=2.33.1",
+    "python-gitlab>=8.2.0",
 ]
 
 [project.optional-dependencies]

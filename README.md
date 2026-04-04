@@ -97,3 +97,13 @@ Puedes sobreescribir cualquier variable del config.py creando un archivo .env en
   Evalua especificaciones de Test Cases para una User Story conforme al Plan de Pruebas.
 
   Eres un QA Experto y tienes por objetivo asegurar que las especificaciones de Test Cases cumplan los requerimientos expresado en una User Story conforme a un Plan de Pruebas. 
+
+  ## Test GitLab
+  ```
+  python .\skills\evaluar_test_case\scripts\gitlab_client.py --project-id 65 --issue-id 6099 --token CHANGEME --url "https://project.comsatel.com.pe"
+  ```
+
+  ```
+  $env:GITLAB_TOKEN="CHANGEME"
+  python .\skills\evaluar_test_case\scripts\get_testcase.py --project-id 65 --issue-id 6099 --url "https://project.comsatel.com.pe"
+  ```

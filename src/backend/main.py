@@ -1,13 +1,16 @@
 """Orchestra - Multi-Agent AI Platform API."""
 
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from src.backend.api import health
 from src.backend.llm import routes as llm_router
-from src.backend.api import tenants, agents, registry, upload, skills, workspace
+from src.backend.api import tenants, agents, registry, upload, skills, workspace, chat
 from src.backend.core.cache import init_redis, close_redis
+from src.backend.core.config import get_settings
 
 
 @asynccontextmanager
@@ -46,6 +49,12 @@ app.include_router(registry.router, prefix="/api/v1")
 app.include_router(upload.router, prefix="/api/v1")
 app.include_router(skills.router, prefix="/api/v1")
 app.include_router(workspace.router, prefix="/api/v1")
+app.include_router(chat.router, prefix="/api/v1")
+
+# Static file serving for uploads (artifacts, avatars, etc.)
+_uploads_dir = get_settings().UPLOADS_PATH
+os.makedirs(_uploads_dir, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=_uploads_dir), name="uploads")
 
 
 @app.get("/")

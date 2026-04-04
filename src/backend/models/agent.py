@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID, uuid4
-from sqlalchemy import Column, String, Text, Float, DateTime, JSON
+from sqlalchemy import Column, String, Text, Float, DateTime, JSON, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import relationship
 from src.backend.models.base import Base
@@ -16,6 +16,12 @@ class Agent(Base):
     name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
     avatar_url = Column(String, nullable=True)
+    registry_model_id = Column(
+        PG_UUID(as_uuid=True),
+        ForeignKey('mia.registry_models.id', ondelete='SET NULL'),
+        nullable=True,
+        index=True,
+    )
     provider = Column(String, nullable=False)
     model = Column(String, nullable=False)
     temperature = Column(Float, default=0.7)

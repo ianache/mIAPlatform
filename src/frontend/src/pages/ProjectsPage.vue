@@ -193,12 +193,12 @@ onMounted(async () => {
 
 async function fetchProjects() {
   try {
-    const projectsResponse = await apiClient.get('/api/v1/workspace/projects');
+    const projectsResponse = await apiClient.get<{ items: any[]; total: number }>('/api/v1/workspace/projects');
     const projectsList = projectsResponse.items || [];
 
     const projectsWithCounts = await Promise.all(
       projectsList.map(async (project: any) => {
-        const subprojectsResponse = await apiClient.get(`/api/v1/workspace/subprojects?project_id=${project.id}`);
+        const subprojectsResponse = await apiClient.get<{ items: any[]; total: number }>(`/api/v1/workspace/subprojects?project_id=${project.id}`);
         return {
           ...project,
           subproject_count: subprojectsResponse.items?.length || 0

@@ -16,6 +16,7 @@ from src.backend.models.base import Base
 import src.backend.models.agent  # noqa: F401
 import src.backend.models.registry_model  # noqa: F401
 import src.backend.models.workspace  # noqa: F401
+import src.backend.models.chat  # noqa: F401
 
 config = context.config
 settings = get_settings()

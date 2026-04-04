@@ -147,22 +147,28 @@ class AgentActionStreamResponse(BaseModel):
 # Artifact Schemas
 class AgentArtifactResponse(BaseModel):
     id: UUID
-    execution_id: UUID
+    execution_id: Optional[UUID] = None
+    session_id: Optional[UUID] = None
+    subproject_id: Optional[UUID] = None
     name: str
     artifact_type: str
     content: Optional[str]
     file_url: Optional[str]
+    summary: Optional[str] = None
     created_at: datetime
-    
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class AgentArtifactCreate(BaseModel):
-    execution_id: UUID
+    execution_id: Optional[UUID] = None
+    session_id: Optional[UUID] = None
+    subproject_id: Optional[UUID] = None
     name: str
     artifact_type: str
     content: Optional[str] = None
     file_url: Optional[str] = None
+    summary: Optional[str] = None
 
 
 # Workspace Summary

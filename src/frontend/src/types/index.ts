@@ -4,6 +4,7 @@ export interface Agent {
   name: string;
   description?: string;
   avatar_url?: string;
+  registry_model_id: string | null;
   provider: LLMProvider['id'];
   model: string;
   temperature: number;
@@ -17,7 +18,7 @@ export interface Agent {
 export type AgentCreate = Omit<Agent, 'id' | 'tenant_id' | 'created_at' | 'updated_at'>;
 
 export interface LLMProvider {
-  id: 'openai' | 'anthropic' | 'google' | 'other';
+  id: 'openai' | 'anthropic' | 'google' | 'ollama' | 'other';
   name: string;
   logo_url: string;
 }
@@ -47,6 +48,8 @@ export interface RegistryModel {
   tenant_id: string;
   name: string;
   provider: string;
+  litellm_prefix: string | null;
+  model_id: string | null;
   status: 'active' | 'deprecated' | 'beta';
   tags: string[];
   context_window: number | null;
@@ -76,4 +79,16 @@ export interface FeatureMapping {
   model_id: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface Artifact {
+  id: string
+  name: string
+  summary: string | null
+  artifact_type: string
+  file_url: string | null
+  session_id: string | null
+  subproject_id: string | null
+  content: string | null
+  created_at: string
 }

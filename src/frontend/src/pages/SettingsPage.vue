@@ -207,7 +207,15 @@ import StatsRow from '../components/StatsRow.vue';
 const authStore = useAuthStore();
 
 // Health status
-const healthStatus = ref({
+interface DependencyStatus {
+  status: string;
+  message: string;
+}
+
+const healthStatus = ref<{
+  status: string;
+  dependencies: Record<string, DependencyStatus>
+}>({
   status: 'unknown',
   dependencies: {}
 });

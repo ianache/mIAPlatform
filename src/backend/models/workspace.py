@@ -1,6 +1,6 @@
 """Workspace models for projects and subprojects."""
 
-from sqlalchemy import Column, String, ForeignKey, DateTime, Text, JSON
+from sqlalchemy import Column, String, ForeignKey, DateTime, Text, JSON, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -46,6 +46,7 @@ class Subproject(Base):
     project = relationship("Project", back_populates="subprojects")
     agent = relationship("Agent", back_populates="subprojects")
     executions = relationship("AgentExecution", back_populates="subproject", cascade="all, delete-orphan")
+    artifacts = relationship("AgentArtifact", back_populates="subproject")
 
 
 class AgentExecution(Base):
@@ -89,13 +90,17 @@ class AgentArtifact(Base):
     __table_args__ = {"schema": "mia"}
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    execution_id = Column(UUID(as_uuid=True), ForeignKey("mia.agent_executions.id"), nullable=False)
+    execution_id = Column(UUID(as_uuid=True), ForeignKey("mia.agent_executions.id"), nullable=True)
+    session_id = Column(UUID(as_uuid=True), ForeignKey("mia.chat_sessions.id", ondelete="SET NULL"), nullable=True, index=True)
+    subproject_id = Column(UUID(as_uuid=True), ForeignKey("mia.subprojects.id", ondelete="SET NULL"), nullable=True, index=True)
     name = Column(String(200), nullable=False)
-    artifact_type = Column(String(50), nullable=False)  # file, code, text, json
+    artifact_type = Column(String(50), nullable=False)  # file, code, text, json, markdown
     content = Column(Text, nullable=True)
     file_url = Column(String(500), nullable=True)  # If stored as file
+    summary = Column(Text, nullable=True)
     metadata_json = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
     # Relationships
     execution = relationship("AgentExecution", back_populates="artifacts")
+    subproject = relationship("Subproject", back_populates="artifacts")

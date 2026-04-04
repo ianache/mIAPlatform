@@ -21,25 +21,22 @@
             {{ provider.label }}
           </option>
         </select>
-        <!-- Provider indicator dot -->
         <span
           v-if="localProvider"
-          class="absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
+          class="absolute w-2 h-2 rounded-full top-1/2 -translate-y-1/2"
           :class="providerDotClass"
-          style="left: auto; right: 2.5rem;"
+          style="right: 2.5rem;"
         />
         <svg
           class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-onSurface-variant"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+          fill="none" viewBox="0 0 24 24" stroke="currentColor"
         >
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
       </div>
     </div>
 
-    <!-- Model Dropdown -->
+    <!-- Model Dropdown (value = registry_model UUID) -->
     <div class="space-y-1.5">
       <label class="block text-sm font-label text-onSurface-variant" for="model-select">
         Model <span class="text-error">*</span>
@@ -47,7 +44,7 @@
       <div class="relative">
         <select
           id="model-select"
-          v-model="localModel"
+          v-model="localRegistryModelId"
           :disabled="!localProvider || registryStore.loading"
           class="w-full appearance-none bg-surface-high text-onSurface font-body rounded-lg px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-primary cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -55,27 +52,23 @@
             {{ registryStore.loading ? 'Loading models...' : 'Select a model' }}
           </option>
           <option
-            v-for="model in availableModels"
-            :key="model"
-            :value="model"
+            v-for="m in filteredModels"
+            :key="m.id"
+            :value="m.id"
           >
-            {{ model }}
+            {{ m.name }}{{ m.model_id ? ` — ${m.model_id}` : '' }}
           </option>
         </select>
         <svg
           class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-onSurface-variant"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+          fill="none" viewBox="0 0 24 24" stroke="currentColor"
         >
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
       </div>
-      <p v-if="registryStore.error" class="text-xs text-error mt-1">
-        {{ registryStore.error }}
-      </p>
-      <p v-else-if="availableProviders.length === 0 && !registryStore.loading" class="text-xs text-onSurface-variant mt-1">
-        No models registered. Add models in the Model Registry first.
+      <p v-if="registryStore.error" class="text-xs text-error mt-1">{{ registryStore.error }}</p>
+      <p v-else-if="filteredModels.length === 0 && localProvider && !registryStore.loading" class="text-xs text-onSurface-variant mt-1">
+        No active models for this provider. Add one in the Model Registry first.
       </p>
     </div>
 
@@ -92,10 +85,7 @@
       <input
         id="temperature-slider"
         v-model.number="localTemperature"
-        type="range"
-        min="0"
-        max="2"
-        step="0.1"
+        type="range" min="0" max="2" step="0.1"
         class="w-full accent-primary cursor-pointer"
       />
       <div class="flex justify-between text-xs text-onSurface-variant font-label">
@@ -114,13 +104,13 @@ import type { LLMProvider } from '../../types';
 
 interface Props {
   provider: LLMProvider['id'] | '';
-  model: string;
+  registryModelId: string;  // UUID of selected registry model
   temperature: number;
 }
 
 interface Emits {
-  (e: 'update:provider', value: LLMProvider['id'] | ''): void;
-  (e: 'update:model', value: string): void;
+  (e: 'update:provider', value: string): void;
+  (e: 'update:registryModelId', value: string): void;
   (e: 'update:temperature', value: number): void;
 }
 
@@ -129,21 +119,37 @@ const emit = defineEmits<Emits>();
 
 const registryStore = useRegistryStore();
 
-const localProvider = ref<LLMProvider['id'] | ''>(props.provider);
-const localModel = ref(props.model);
+const localProvider = ref<string>(props.provider);
+const localRegistryModelId = ref<string>(props.registryModelId);
 const localTemperature = ref(props.temperature);
 
-// Sync with props
+// Sync props → local (edit mode load)
 watch(() => props.provider, (val) => { localProvider.value = val; });
-watch(() => props.model, (val) => { localModel.value = val; });
 watch(() => props.temperature, (val) => { localTemperature.value = val; });
+watch(() => props.registryModelId, (uuid) => {
+  localRegistryModelId.value = uuid;
+  // Sync localProvider from registry entry (needed on edit mode load)
+  if (uuid) {
+    const entry = registryStore.models.find(m => m.id === uuid);
+    if (entry) localProvider.value = entry.provider;
+  }
+});
 
 // Emit changes
-watch(localProvider, (val) => emit('update:provider', val));
-watch(localModel, (val) => emit('update:model', val));
 watch(localTemperature, (val) => emit('update:temperature', val));
 
-// Provider label mapping
+watch(localRegistryModelId, (uuid) => {
+  emit('update:registryModelId', uuid);
+  // Derive and emit provider from selected registry entry
+  if (uuid) {
+    const entry = registryStore.models.find(m => m.id === uuid);
+    if (entry) {
+      localProvider.value = entry.provider;
+      emit('update:provider', entry.provider);
+    }
+  }
+});
+
 const providerLabels: Record<string, string> = {
   openai: 'OpenAI',
   anthropic: 'Anthropic',
@@ -152,55 +158,49 @@ const providerLabels: Record<string, string> = {
   other: 'Other',
 };
 
-// Available providers based on registered models
+// Providers that have at least one active registered model
 const availableProviders = computed(() => {
-  const providers = new Set<string>();
-  
-  // Add providers from registered models
+  const seen = new Set<string>();
   registryStore.models.forEach((m) => {
-    if (m.status === 'active') {
-      providers.add(m.provider);
-    }
+    if (m.status === 'active') seen.add(m.provider);
   });
-  
-  // Convert to dropdown format
-  return Array.from(providers).map((id) => ({
+  return Array.from(seen).map((id) => ({
     id: id as LLMProvider['id'],
-    label: providerLabels[id] || id.charAt(0).toUpperCase() + id.slice(1),
+    label: providerLabels[id] ?? id.charAt(0).toUpperCase() + id.slice(1),
   }));
 });
 
-// Available models for selected provider
-const availableModels = computed(() => {
-  if (!localProvider.value) return [];
-  
-  return registryStore.models
-    .filter((m) => m.provider === localProvider.value && m.status === 'active')
-    .map((m) => m.name);
-});
+// Registry models filtered by selected provider
+const filteredModels = computed(() =>
+  localProvider.value
+    ? registryStore.models.filter(
+        (m) => m.provider === localProvider.value && m.status === 'active'
+      )
+    : []
+);
 
-const providerDotClass = computed(() => {
-  switch (localProvider.value) {
-    case 'openai':
-      return 'bg-primary';
-    case 'anthropic':
-      return 'bg-tertiary';
-    case 'google':
-      return 'bg-secondary';
-    default:
-      return 'bg-outline';
-  }
-});
+const providerDotClass = computed(() => ({
+  openai: 'bg-primary',
+  anthropic: 'bg-tertiary',
+  google: 'bg-secondary',
+  ollama: 'bg-outline',
+  other: 'bg-outline',
+}[localProvider.value] ?? 'bg-outline'));
 
 function handleProviderChange() {
-  localModel.value = '';
-  emit('update:model', '');
+  localRegistryModelId.value = '';
+  emit('update:registryModelId', '');
+  emit('update:provider', localProvider.value);
 }
 
-// Load models on mount
 onMounted(() => {
   if (registryStore.models.length === 0) {
     registryStore.fetchModels();
+  }
+  // If registryModelId already set (edit mode), sync provider
+  if (props.registryModelId) {
+    const entry = registryStore.models.find(m => m.id === props.registryModelId);
+    if (entry) localProvider.value = entry.provider;
   }
 });
 </script>

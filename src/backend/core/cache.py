@@ -79,3 +79,8 @@ async def cache_invalidate_pattern(pattern: str) -> None:
             await _client.delete(*keys)
     except Exception as exc:
         logger.warning("cache_invalidate_pattern(%s) error: %s", pattern, exc)
+
+
+def get_redis_client() -> Optional[aioredis.Redis]:
+    """Get the Redis client instance (for health checks)."""
+    return _client

@@ -9,6 +9,7 @@ class ProviderEnum(str, Enum):
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     GOOGLE = "google"
+    OLLAMA = "ollama"
     OTHER = "other"
 
 
@@ -16,6 +17,7 @@ class AgentCreate(BaseModel):
     name: str = Field(..., min_length=3, max_length=100)
     description: Optional[str] = None
     avatar_url: Optional[str] = None
+    registry_model_id: Optional[UUID] = None
     provider: ProviderEnum
     model: str
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
@@ -28,6 +30,7 @@ class AgentUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=3, max_length=100)
     description: Optional[str] = None
     avatar_url: Optional[str] = None
+    registry_model_id: Optional[UUID] = None
     provider: Optional[ProviderEnum] = None
     model: Optional[str] = None
     temperature: Optional[float] = Field(None, ge=0.0, le=2.0)
@@ -42,6 +45,7 @@ class AgentResponse(BaseModel):
     name: str
     description: Optional[str]
     avatar_url: Optional[str]
+    registry_model_id: Optional[UUID]
     provider: str
     model: str
     temperature: float

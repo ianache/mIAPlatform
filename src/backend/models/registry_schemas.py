@@ -7,6 +7,8 @@ from datetime import datetime
 class RegistryModelCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     provider: str
+    litellm_prefix: Optional[str] = None
+    model_id: Optional[str] = None
     status: str = "active"
     tags: List[str] = Field(default_factory=list)
     context_window: Optional[int] = None
@@ -15,6 +17,8 @@ class RegistryModelCreate(BaseModel):
 class RegistryModelUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=200)
     provider: Optional[str] = None
+    litellm_prefix: Optional[str] = None
+    model_id: Optional[str] = None
     status: Optional[str] = None
     tags: Optional[List[str]] = None
     context_window: Optional[int] = None
@@ -25,6 +29,8 @@ class RegistryModelResponse(BaseModel):
     tenant_id: str
     name: str
     provider: str
+    litellm_prefix: Optional[str]
+    model_id: Optional[str]
     status: str
     tags: List[str]
     context_window: Optional[int]

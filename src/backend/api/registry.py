@@ -93,18 +93,30 @@ async def _probe_provider_key(provider: str, api_key: str) -> bool:
                     timeout=10.0
                 )
                 return response.status_code == 200
-        
+
+        elif provider.lower() == "groq":
+            # Test Groq API (OpenAI-compatible endpoint)
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    "https://api.groq.com/openai/v1/models",
+                    headers={"Authorization": f"Bearer {api_key}"},
+                    timeout=10.0
+                )
+                logger.info(f"Groq probe → status={response.status_code} body={response.text[:200]}")
+                # 401/403 = definitively invalid key; anything else = treat as valid
+                return response.status_code not in (401, 403)
+
         else:
-            # Unknown provider, assume invalid
-            logger.warning(f"Unknown provider: {provider}")
-            return False
+            # Unknown / custom provider — cannot probe, assume stored key is valid
+            logger.info(f"Provider '{provider}' has no validation probe; marking as stored (unverified)")
+            return True
     
     except httpx.RequestError as e:
         logger.error(f"Network error validating {provider} API key: {e}")
-        return False
+        return None  # type: ignore  — caller treats None as "could not verify"
     except Exception as e:
         logger.error(f"Error validating {provider} API key: {e}")
-        return False
+        return None  # type: ignore
 
 
 # ── Registry Models ───────────────────────────────────────────────────────────
@@ -248,6 +260,10 @@ async def validate_api_key(
         raise HTTPException(status_code=404, detail="API key not found for this provider")
 
     is_valid = await _probe_provider_key(provider, record.key_encrypted)
+
+    if is_valid is None:
+        # Network/connection error — don't overwrite existing validity status
+        raise HTTPException(status_code=503, detail="Could not reach provider to validate key. Try again later.")
 
     record.is_valid = is_valid
     record.last_validated = datetime.utcnow()

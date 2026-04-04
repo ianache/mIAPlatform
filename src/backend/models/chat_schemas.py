@@ -15,7 +15,7 @@ class MetadataProperty(BaseModel):
 class ChatRequest(BaseModel):
     """Request model for chat endpoint with metadata injection."""
     session_code: str = Field(..., min_length=1, max_length=50, description="Código de sesión de chat")
-    agent_code: str = Field(..., min_length=1, max_length=50, description="Código del agente registrado en BD")
+    agent_id: str = Field(..., min_length=1, description="ID del agente en la base de datos (mia.agents.id) - UUID como string")
     message: str = Field(..., min_length=1, description="Mensaje del usuario")
     metadata: List[MetadataProperty] = Field(default=[], description="Metadatos a inyectar en la inferencia")
     stream: bool = Field(default=True, description="Si debe retornar respuesta en streaming")
@@ -25,7 +25,7 @@ class ChatMessageCreate(BaseModel):
     """Create a new chat message."""
     role: str = Field(..., pattern="^(user|assistant|system|tool)$")
     content: str
-    metadata: Optional[Dict[str, Any]] = None
+    message_metadata: Optional[Dict[str, Any]] = None
     injected_metadata: Optional[Dict[str, Any]] = None
     tool_calls: Optional[List[Dict]] = None
     tool_results: Optional[List[Dict]] = None
@@ -38,7 +38,7 @@ class ChatMessageResponse(BaseModel):
     sequence_number: int
     role: str
     content: str
-    metadata: Dict[str, Any]
+    message_metadata: Dict[str, Any]
     injected_metadata: Dict[str, Any]
     tool_calls: Optional[List[Dict]]
     created_at: datetime
@@ -51,7 +51,7 @@ class ChatSessionCreate(BaseModel):
     subproject_id: UUID
     agent_id: UUID
     title: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
+    session_metadata: Optional[Dict[str, Any]] = None
 
 
 class ChatSessionResponse(BaseModel):
@@ -63,7 +63,7 @@ class ChatSessionResponse(BaseModel):
     session_code: str
     title: Optional[str]
     status: str
-    metadata: Dict[str, Any]
+    session_metadata: Dict[str, Any]
     message_count: int
     created_at: datetime
     updated_at: datetime
@@ -78,7 +78,7 @@ class ChatSessionDetailResponse(ChatSessionResponse):
 
 class ChatStreamChunk(BaseModel):
     """Streaming response chunk."""
-    type: str = Field(..., pattern="^(content|tool_call|tool_result|metadata|error|done)$")
+    type: str = Field(..., pattern="^(content|tool_call|tool_result|metadata|error|done|artifact)$")
     content: Optional[str] = None
     tool_call: Optional[Dict[str, Any]] = None
     tool_result: Optional[Dict[str, Any]] = None

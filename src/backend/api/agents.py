@@ -16,6 +16,7 @@ from src.backend.models.agent_schemas import (
     AgentResponse,
     AgentListResponse,
 )
+from src.backend.models.registry_model import RegistryModel as RegistryModelDB
 
 router = APIRouter(prefix="/agents", tags=["agents"])
 logger = logging.getLogger(__name__)
@@ -58,7 +59,20 @@ async def create_agent(
             detail="Agent with this name already exists",
         )
 
-    agent = Agent(**agent_in.model_dump(), tenant_id=tenant_id)
+    data = agent_in.model_dump()
+    if agent_in.registry_model_id:
+        reg_result = await db.execute(
+            select(RegistryModelDB).where(
+                RegistryModelDB.id == agent_in.registry_model_id,
+                RegistryModelDB.tenant_id == tenant_id,
+            )
+        )
+        reg = reg_result.scalar_one_or_none()
+        if reg:
+            data['model'] = reg.model_id or reg.name
+            data['provider'] = reg.provider
+
+    agent = Agent(**data, tenant_id=tenant_id)
     db.add(agent)
     await db.commit()
     await db.refresh(agent)
@@ -124,7 +138,20 @@ async def update_agent(
             status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found"
         )
 
-    for field, value in agent_in.model_dump(exclude_unset=True).items():
+    update_data = agent_in.model_dump(exclude_unset=True)
+    if agent_in.registry_model_id:
+        reg_result = await db.execute(
+            select(RegistryModelDB).where(
+                RegistryModelDB.id == agent_in.registry_model_id,
+                RegistryModelDB.tenant_id == tenant_id,
+            )
+        )
+        reg = reg_result.scalar_one_or_none()
+        if reg:
+            update_data['model'] = reg.model_id or reg.name
+            update_data['provider'] = reg.provider
+
+    for field, value in update_data.items():
         setattr(agent, field, value)
 
     await db.commit()

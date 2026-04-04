@@ -16,10 +16,10 @@
       <!-- Right Controls -->
       <div class="flex items-center gap-4">
         <!-- Session ID Badge -->
-        <div v-if="workspaceStore.currentExecution" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-high border border-surface">
+        <div v-if="workspaceStore.sessionCode" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-high border border-surface">
           <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-          <span class="text-xs font-label text-onSurface-variant">AGENT SESSION ID:</span>
-          <span class="text-xs font-mono text-primary font-medium">{{ workspaceStore.currentExecution.id.slice(0, 6).toUpperCase() }}</span>
+          <span class="text-xs font-label text-onSurface-variant">SESSION:</span>
+          <span class="text-xs font-mono text-primary font-medium">{{ workspaceStore.sessionCode }}</span>
         </div>
 
         <!-- Action Buttons -->
@@ -49,54 +49,156 @@
 
     <!-- Main Content -->
     <div class="flex-1 flex overflow-hidden">
-      <!-- Left Panel: Main Content / Artifacts -->
+      <!-- Left Panel: Session Artifacts -->
+      <div class="w-[300px] flex-shrink-0">
+        <SessionArtifactsPanel 
+          :artifacts="workspaceStore.sessionArtifacts" 
+          :mode="artifactViewMode"
+          :subproject-id="workspaceStore.currentSubproject?.id || ''"
+          @switch-mode="handleArtifactModeSwitch"
+          @select-artifact="handleArtifactSelect"
+        />
+      </div>
+
+      <!-- Center Panel: Main Content -->
       <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <!-- Content Header -->
         <div class="px-8 py-6 border-b border-surface-high/50">
           <div class="flex items-center gap-3 mb-3">
-            <span v-if="currentArtifact" class="px-2 py-1 rounded bg-surface-high text-xs font-mono text-primary">
-              {{ currentArtifact.name }}
-            </span>
             <span class="text-xs text-onSurface-variant font-label">
-              Generated {{ formatTime(currentArtifact?.created_at) }}
+              {{ workspaceStore.sessionCode ? `SESSION ID| ${workspaceStore.sessionCode}` : 'No active session' }}
             </span>
           </div>
           <h1 class="text-3xl font-headline font-bold text-onSurface mb-3">
-            {{ currentArtifact?.name || workspaceStore.currentSubproject?.name || 'Workspace' }}
+            {{ workspaceStore.currentSubproject?.name || 'Workspace' }}
           </h1>
           <p class="text-onSurface-variant font-body max-w-3xl">
-            {{ currentArtifact?.description || workspaceStore.currentSubproject?.description || 'Select a project and subproject to begin working with your agent.' }}
+            {{ workspaceStore.currentSubproject?.description || 'Select a project and subproject to begin working with your agent.' }}
           </p>
         </div>
 
         <!-- Main Content Area -->
         <div class="flex-1 overflow-y-auto p-8">
+          <!-- Selected Artifact Viewer (Always visible when artifact is selected) -->
+          <div v-if="selectedArtifact" class="glass rounded-2xl p-8 mb-8">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-xl font-headline font-semibold text-onSurface">{{ selectedArtifact.name }}</h3>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-label uppercase">{{ selectedArtifact.artifact_type }}</span>
+                    <span class="text-xs text-onSurface-variant font-mono">{{ formatDateTime(selectedArtifact.created_at) }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <!-- Copy to Clipboard -->
+                <button
+                  class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-label text-onSurface-variant hover:text-primary hover:bg-primary/10 transition-colors border border-surface-high"
+                  @click="copyToClipboard(selectedArtifactContent)"
+                  title="Copy to clipboard"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Copy
+                </button>
+                <!-- Download as File -->
+                <button
+                  class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-label text-onSurface-variant hover:text-primary hover:bg-primary/10 transition-colors border border-surface-high"
+                  @click="downloadArtifact(selectedArtifact.name, selectedArtifactContent)"
+                  title="Download as .md file"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Save
+                </button>
+                <button
+                  class="p-2 rounded-lg text-onSurface-variant hover:text-error hover:bg-error/10 transition-colors"
+                  @click="closeArtifactViewer"
+                  title="Close"
+                >
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Summary -->
+            <div v-if="selectedArtifact.summary" class="mb-4 p-4 bg-surface-high/50 rounded-lg border border-surface-high">
+              <p class="text-sm text-onSurface-variant font-body">{{ selectedArtifact.summary }}</p>
+            </div>
+            
+            <!-- Content -->
+            <div class="bg-surface-high/30 rounded-xl border border-surface-high overflow-hidden">
+              <div v-if="selectedArtifactLoading" class="flex items-center justify-center py-12">
+                <svg class="animate-spin w-8 h-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+              </div>
+              <div v-else-if="selectedArtifactContent" class="p-6 max-h-[60vh] overflow-y-auto">
+                <!-- Code/JSON Display -->
+                <pre v-if="selectedArtifact.artifact_type === 'code' || selectedArtifact.artifact_type === 'json'" class="bg-surface rounded-lg p-4 overflow-x-auto text-sm font-mono"><code>{{ selectedArtifactContent }}</code></pre>
+                
+                <!-- Markdown Display with Enhanced Styling -->
+                <div v-else-if="selectedArtifact.artifact_type === 'markdown'" class="markdown-viewer">
+                  <div class="markdown-content" v-html="renderMarkdown(selectedArtifactContent)"></div>
+                </div>
+                
+                <!-- Plain Text Display -->
+                <div v-else class="whitespace-pre-wrap font-body text-sm text-onSurface">{{ selectedArtifactContent }}</div>
+              </div>
+              <div v-else class="text-center py-12 text-onSurface-variant">
+                <p class="text-sm font-label">No content available</p>
+              </div>
+            </div>
+          </div>
+
           <!-- Empty State -->
-          <div v-if="!currentArtifact && workspaceStore.artifacts.length === 0" class="h-full flex flex-col items-center justify-center text-onSurface-variant">
+          <div v-if="workspaceStore.chatMessages.length === 0 && !selectedArtifact" class="h-full flex flex-col items-center justify-center text-onSurface-variant">
             <div class="w-32 h-32 rounded-full bg-surface-high flex items-center justify-center mb-6">
               <svg class="w-16 h-16 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h2 class="text-xl font-headline font-semibold mb-2">No Artifacts Yet</h2>
+            <h2 class="text-xl font-headline font-semibold mb-2">Start a Conversation</h2>
             <p class="text-sm max-w-md text-center mb-6">
-              Start a conversation with your agent to generate reports, analysis, and insights.
+              Select a project and subproject, then start chatting with your agent.
             </p>
+            <button 
+              v-if="workspaceStore.currentSubproject?.agent"
+              class="px-6 py-3 rounded-lg bg-primary text-background font-label flex items-center gap-2 hover:opacity-90 transition-opacity"
+              @click="scrollToInput"
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Start Chat
+            </button>
           </div>
 
-          <!-- Artifact Content -->
-          <div v-else-if="currentArtifact" class="space-y-8">
-            <!-- Main Artifact Display -->
+          <!-- Welcome / Info Panel -->
+          <div v-else-if="!selectedArtifact" class="space-y-8">
             <div class="glass rounded-2xl p-8">
-              <div v-if="currentArtifact.content" class="prose prose-invert max-w-none">
-                <pre class="bg-surface-high rounded-xl p-6 overflow-x-auto text-sm font-mono text-onSurface">{{ currentArtifact.content }}</pre>
-              </div>
+              <h3 class="text-xl font-headline font-semibold text-onSurface mb-4">Session Active</h3>
+              <p class="text-onSurface-variant font-body">
+                Your conversation with <strong class="text-primary">{{ workspaceStore.currentSubproject?.agent?.name }}</strong> is in progress.
+                Messages will appear in the right panel.
+              </p>
               
               <!-- Visualization Placeholder -->
               <div class="mt-8 p-8 bg-surface-high/50 rounded-xl border border-surface-high">
                 <div class="flex items-center justify-between mb-6">
                   <div>
-                    <p class="text-xs text-onSurface-variant font-label uppercase tracking-wider mb-1">Inference Latency</p>
+                    <p class="text-xs text-onSurface-variant font-label uppercase tracking-wider mb-1">Response Time</p>
                     <div class="flex items-baseline gap-2">
                       <span class="text-4xl font-headline font-bold text-onSurface">42.8ms</span>
                       <span class="text-sm text-green-400 font-label">↓12% avg</span>
@@ -115,7 +217,7 @@
             <!-- Bottom Cards -->
             <div class="grid grid-cols-2 gap-6">
               <div class="glass rounded-xl p-6">
-                <p class="text-xs text-onSurface-variant font-label uppercase tracking-wider mb-4">Strategic Insights</p>
+                <p class="text-xs text-onSurface-variant font-label uppercase tracking-wider mb-4">Session Info</p>
                 <div class="space-y-3">
                   <div class="flex items-start gap-3">
                     <span class="w-5 h-5 rounded-full bg-green-400/20 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -124,7 +226,7 @@
                       </svg>
                     </span>
                     <p class="text-sm text-onSurface font-body">
-                      Agent '{{ workspaceStore.currentSubproject?.agent?.name || 'Echo-7' }}' successfully optimized the vector storage indices, reducing query time by 18%.
+                      Agent '{{ workspaceStore.currentSubproject?.agent?.name || 'Agent' }}' is ready to assist.
                     </p>
                   </div>
                   <div class="flex items-start gap-3">
@@ -134,14 +236,14 @@
                       </svg>
                     </span>
                     <p class="text-sm text-onSurface font-body">
-                      Resource allocation shifted to Cluster Delta during peak demand window (14:00 - 16:00 UTC).
+                      {{ workspaceStore.chatMessages.length }} messages in this session.
                     </p>
                   </div>
                 </div>
               </div>
 
               <div class="glass rounded-xl p-6">
-                <p class="text-xs text-onSurface-variant font-label uppercase tracking-wider mb-4">Confidence Score</p>
+                <p class="text-xs text-onSurface-variant font-label uppercase tracking-wider mb-4">Agent Status</p>
                 <div class="flex items-baseline gap-1 mb-2">
                   <span class="text-5xl font-headline font-bold text-onSurface">99.2</span>
                   <span class="text-2xl text-onSurface-variant">%</span>
@@ -149,29 +251,7 @@
                 <div class="h-2 bg-surface-high rounded-full overflow-hidden">
                   <div class="h-full w-[99.2%] bg-primary rounded-full"></div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Artifacts List (when no artifact selected but some exist) -->
-          <div v-else class="grid grid-cols-1 gap-4">
-            <div
-              v-for="artifact in workspaceStore.artifacts"
-              :key="artifact.id"
-              class="glass rounded-xl p-6 cursor-pointer hover:bg-surface-high/50 transition-colors"
-              @click="selectArtifact(artifact)"
-            >
-              <div class="flex items-center justify-between">
-                <div>
-                  <span class="px-2 py-1 rounded bg-surface-high text-xs font-mono text-primary mb-2 inline-block">
-                    {{ artifact.artifact_type.toUpperCase() }}
-                  </span>
-                  <h3 class="font-headline font-semibold text-onSurface text-lg">{{ artifact.name }}</h3>
-                  <p class="text-sm text-onSurface-variant mt-1">{{ artifact.content?.slice(0, 100) }}...</p>
-                </div>
-                <svg class="w-5 h-5 text-onSurface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
+                <p class="text-xs text-onSurface-variant mt-2">Operational</p>
               </div>
             </div>
           </div>
@@ -262,99 +342,168 @@
           </div>
         </div>
 
-        <!-- Activity Feed -->
+        <!-- Agent Activity Steps -->
+        <div v-if="(workspaceStore.agentSteps || []).length > 0" class="px-4 py-3 border-b border-surface-high">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs text-onSurface-variant font-label uppercase tracking-wider">Activity Log</span>
+            <button 
+              class="text-[10px] text-onSurface-variant/60 hover:text-primary transition-colors"
+              @click="workspaceStore.agentSteps = []"
+            >
+              Clear
+            </button>
+          </div>
+          <div class="space-y-2 max-h-48 overflow-y-auto">
+            <div 
+              v-for="step in (workspaceStore.agentSteps || [])" 
+              :key="step.id"
+              class="flex items-start gap-2 p-2 rounded-lg bg-surface-high/50 text-xs"
+            >
+              <!-- Step Icon -->
+              <div class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5" :class="getStepIconClass(step.step_type)">
+                <!-- Thinking -->
+                <svg v-if="step.step_type === 'thinking'" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                <!-- Tool Call -->
+                <svg v-else-if="step.step_type === 'tool_call'" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+                <!-- Tool Result -->
+                <svg v-else-if="step.step_type === 'tool_result'" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <!-- Tool Error -->
+                <svg v-else-if="step.step_type === 'tool_error'" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <!-- Generating -->
+                <svg v-else-if="step.step_type === 'generating'" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <!-- LLM Request -->
+                <svg v-else-if="step.step_type === 'llm_request'" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <!-- User Input Required -->
+                <svg v-else-if="step.step_type === 'user_input_required'" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <!-- Default -->
+                <svg v-else class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <!-- Step Content -->
+              <div class="flex-1 min-w-0">
+                <p class="font-label text-onSurface leading-tight">{{ step.message }}</p>
+                <p v-if="step.tool_name" class="text-[10px] text-onSurface-variant/60 mt-0.5 font-mono">{{ step.tool_name }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Feed - Chat Messages -->
         <div ref="actionsContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
           <!-- Empty State -->
-          <div v-if="workspaceStore.actions.length === 0" class="text-center py-8">
+          <div v-if="workspaceStore.chatMessages.length === 0" class="text-center py-8">
             <div class="w-16 h-16 rounded-full bg-surface-high mx-auto mb-4 flex items-center justify-center">
               <svg class="w-8 h-8 text-onSurface-variant opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
               </svg>
             </div>
-            <p class="text-sm text-onSurface-variant font-label">Agent activity will appear here</p>
+            <p class="text-sm text-onSurface-variant font-label">Start a conversation with your agent</p>
           </div>
 
-          <!-- Activity Items -->
+          <!-- Chat Messages -->
           <template v-else>
             <div
-              v-for="action in workspaceStore.actions"
-              :key="action.id"
+              v-for="message in workspaceStore.chatMessages"
+              :key="message.id"
               class="group"
             >
-              <!-- Agent Header -->
-              <div class="flex items-center gap-3 mb-2">
+              <!-- User Message -->
+              <div v-if="message.role === 'user'" class="flex items-start gap-3 mb-4">
+                <div class="w-8 h-8 rounded-full bg-surface-high flex items-center justify-center flex-shrink-0">
+                  <span class="text-xs font-semibold text-onSurface">U</span>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-sm font-label font-medium text-onSurface">You</span>
+                    <span class="text-xs text-onSurface-variant font-mono">{{ formatTime(message.created_at) }}</span>
+                  </div>
+                  <div class="text-sm text-onSurface font-body leading-relaxed whitespace-pre-wrap bg-surface-high/50 rounded-lg p-3">
+                    {{ message.content }}
+                  </div>
+                  <!-- Show injected metadata -->
+                  <div v-if="Object.keys(message.injected_metadata).length > 0" class="mt-2 flex flex-wrap gap-1">
+                    <span
+                      v-for="(value, key) in message.injected_metadata"
+                      :key="key"
+                      class="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-mono"
+                    >
+                      {{ key }}: {{ value }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Assistant Message -->
+              <div v-else class="flex items-start gap-3 mb-4">
                 <img
                   v-if="workspaceStore.currentSubproject?.agent?.avatar_url"
                   :src="workspaceStore.currentSubproject.agent.avatar_url"
-                  class="w-8 h-8 rounded-full object-cover ring-2 ring-surface-high"
+                  class="w-8 h-8 rounded-full object-cover ring-2 ring-surface-high flex-shrink-0"
                 />
-                <div v-else class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-sm text-background font-semibold ring-2 ring-surface-high">
+                <div v-else class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-sm text-background font-semibold ring-2 ring-surface-high flex-shrink-0">
                   {{ workspaceStore.currentSubproject?.agent?.name?.charAt(0).toUpperCase() || 'A' }}
                 </div>
                 <div class="flex-1">
-                  <p class="text-sm font-label font-medium text-onSurface">
-                    {{ workspaceStore.currentSubproject?.agent?.name || 'Agent' }}
-                  </p>
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-sm font-label font-medium text-onSurface">
+                      {{ workspaceStore.currentSubproject?.agent?.name || 'Agent' }}
+                    </span>
+                    <span class="text-xs text-onSurface-variant font-mono">{{ formatTime(message.created_at) }}</span>
+                  </div>
+                  <div class="text-sm text-onSurface font-body leading-relaxed whitespace-pre-wrap">
+                    {{ message.content }}
+                  </div>
                 </div>
-                <span class="text-xs text-onSurface-variant font-mono">
-                  {{ formatTime(action.created_at) }}
-                </span>
               </div>
+            </div>
 
-              <!-- Action Content -->
-              <div class="ml-11">
-                <!-- Thinking State -->
-                <div v-if="action.action_type === 'think'" class="flex items-center gap-2 text-onSurface-variant">
+            <!-- Streaming Content -->
+            <div v-if="workspaceStore.isStreaming && workspaceStore.streamingContent" class="flex items-start gap-3 mb-4">
+              <img
+                v-if="workspaceStore.currentSubproject?.agent?.avatar_url"
+                :src="workspaceStore.currentSubproject.agent.avatar_url"
+                class="w-8 h-8 rounded-full object-cover ring-2 ring-surface-high flex-shrink-0"
+              />
+              <div v-else class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-sm text-background font-semibold ring-2 ring-surface-high flex-shrink-0">
+                {{ workspaceStore.currentSubproject?.agent?.name?.charAt(0).toUpperCase() || 'A' }}
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-sm font-label font-medium text-onSurface">
+                    {{ workspaceStore.currentSubproject?.agent?.name || 'Agent' }}
+                  </span>
                   <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-                  <span class="text-xs font-label uppercase tracking-wider">Thinking...</span>
                 </div>
-
-                <!-- Code/Query Block -->
-                <div v-else-if="action.action_type === 'tool_call'" class="bg-surface-high rounded-lg p-3 border border-surface-high">
-                  <div class="flex items-center gap-2 mb-2 text-xs text-onSurface-variant font-mono">
-                    <span class="text-primary">➜</span>
-                    <span>EXECUTING QUERY:</span>
-                  </div>
-                  <code class="text-xs font-mono text-onSurface block">{{ action.content }}</code>
-                  <div class="mt-2 pt-2 border-t border-surface flex items-center gap-2 text-xs text-green-400">
-                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Response received successfully</span>
-                  </div>
-                </div>
-
-                <!-- Message/Response -->
-                <div v-else-if="action.action_type === 'message'" class="text-sm text-onSurface font-body leading-relaxed">
-                  {{ action.content }}
-                </div>
-
-                <!-- Error -->
-                <div v-else-if="action.action_type === 'error'" class="bg-error/10 rounded-lg p-3 border border-error/20">
-                  <div class="flex items-center gap-2 text-error text-sm">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>{{ action.content }}</span>
-                  </div>
-                </div>
-
-                <!-- Default -->
-                <div v-else class="text-sm text-onSurface font-body">
-                  {{ action.content }}
+                <div class="text-sm text-onSurface font-body leading-relaxed whitespace-pre-wrap">
+                  {{ workspaceStore.streamingContent }}
                 </div>
               </div>
             </div>
 
             <!-- Loading Indicator -->
-            <div v-if="workspaceStore.isExecuting || workspaceStore.hasRunningExecution" class="flex items-center gap-3 py-4">
+            <div v-if="workspaceStore.isExecuting && !workspaceStore.streamingContent" class="flex items-center gap-3 py-4">
               <div class="w-8 h-8 rounded-full bg-surface-high flex items-center justify-center">
                 <svg class="animate-spin w-4 h-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                 </svg>
               </div>
-              <span class="text-sm text-onSurface-variant font-label">Agent is processing...</span>
+              <span class="text-sm text-onSurface-variant font-label">Agent is thinking...</span>
             </div>
           </template>
         </div>
@@ -398,6 +547,9 @@
               </button>
             </div>
           </div>
+          <p class="text-[10px] text-onSurface-variant font-label mt-2 text-center uppercase tracking-wider">
+            SYNTHEX OS V2.4.0 • ULTRA LATENCY MODE
+          </p>
         </div>
       </div>
     </div>
@@ -488,6 +640,7 @@ import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useWorkspaceStore } from '../stores/workspace';
 import { apiClient } from '../api/client';
+import SessionArtifactsPanel from '../components/SessionArtifactsPanel.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -496,7 +649,6 @@ const actionsContainer = ref<HTMLElement | null>(null);
 const promptInput = ref<HTMLTextAreaElement | null>(null);
 
 // Local state
-const currentArtifact = ref<any>(null);
 const selectedProjectId = ref('');
 const selectedSubprojectId = ref('');
 const projectSubprojects = ref<Array<any>>([]);
@@ -506,6 +658,10 @@ const newProjectName = ref('');
 const newSubprojectName = ref('');
 const newSubprojectAgentId = ref('');
 const availableAgents = ref<Array<{ id: string; name: string }>>([]);
+const artifactViewMode = ref<'session' | 'subproject'>('session');
+const selectedArtifact = ref<Artifact | null>(null);
+const selectedArtifactContent = ref<string>('');
+const selectedArtifactLoading = ref(false);
 
 const canExecute = computed(() => {
   return workspaceStore.promptText.trim().length > 0 && 
@@ -513,13 +669,22 @@ const canExecute = computed(() => {
          workspaceStore.currentSubproject?.agent;
 });
 
-// Scroll to bottom of actions when new actions are added
-watch(() => workspaceStore.actions.length, () => {
+// Scroll to bottom when new messages are added
+watch(() => workspaceStore.chatMessages.length, () => {
   nextTick(() => {
     if (actionsContainer.value) {
       actionsContainer.value.scrollTop = actionsContainer.value.scrollHeight;
     }
   });
+});
+
+// Fetch artifacts when session code changes (e.g. after first message creates a new session)
+watch(() => workspaceStore.sessionCode, async (newCode) => {
+  if (newCode && artifactViewMode.value === 'session') {
+    await workspaceStore.fetchSessionArtifacts(newCode);
+  } else if (!newCode) {
+    workspaceStore.sessionArtifacts = [];
+  }
 });
 
 onMounted(async () => {
@@ -532,9 +697,20 @@ onMounted(async () => {
   }
 });
 
+// Watch for route changes to handle navigation between subprojects
+watch(() => route.params.subprojectId, async (newSubprojectId) => {
+  if (newSubprojectId && newSubprojectId !== selectedSubprojectId.value) {
+    console.log('Route subprojectId changed to:', newSubprojectId);
+    await loadWorkspace(newSubprojectId as string);
+    // Reset selected artifact when switching subprojects
+    selectedArtifact.value = null;
+    selectedArtifactContent.value = '';
+  }
+});
+
 async function fetchAgents() {
   try {
-    const response = await apiClient.get('/api/v1/agents');
+    const response = await apiClient.get<{ items: any[]; total: number }>('/api/v1/agents');
     availableAgents.value = response.items || [];
   } catch (err) {
     console.error('Failed to fetch agents:', err);
@@ -542,33 +718,53 @@ async function fetchAgents() {
 }
 
 async function loadWorkspace(subprojectId: string) {
+  console.log('loadWorkspace called with subprojectId:', subprojectId);
   await workspaceStore.fetchSubprojectDetails(subprojectId);
   
+  console.log('After fetchSubprojectDetails - currentSubproject:', workspaceStore.currentSubproject?.name, 'ID:', workspaceStore.currentSubproject?.id);
+
   if (workspaceStore.currentProject) {
     selectedProjectId.value = workspaceStore.currentProject.id;
     await fetchProjectSubprojects(workspaceStore.currentProject.id);
   }
-  
-  if (workspaceStore.currentSubproject) {
-    selectedSubprojectId.value = workspaceStore.currentSubproject.id;
+
+  // Only update selectedSubprojectId if it doesn't match what we expect
+  if (workspaceStore.currentSubproject && workspaceStore.currentSubproject.id !== subprojectId) {
+    console.warn('Mismatch! Expected subprojectId:', subprojectId, 'but got:', workspaceStore.currentSubproject.id);
   }
   
-  await workspaceStore.fetchExecutions(subprojectId);
-  
-  if (workspaceStore.currentExecution) {
-    await workspaceStore.fetchActions(workspaceStore.currentExecution.id);
-    await workspaceStore.fetchArtifacts(workspaceStore.currentExecution.id);
-    
-    // Set first artifact as current
-    if (workspaceStore.artifacts.length > 0) {
-      currentArtifact.value = workspaceStore.artifacts[0];
+  // Always ensure selectedSubprojectId matches what we loaded
+  if (workspaceStore.currentSubproject) {
+    selectedSubprojectId.value = workspaceStore.currentSubproject.id;
+    console.log('Updated selectedSubprojectId to:', selectedSubprojectId.value);
+  }
+
+  // Check if there's an existing chat session for this subproject
+  try {
+    const sessions = await apiClient.get<{ items: any[] }>(`/api/v1/chat/sessions?subproject_id=${subprojectId}`);
+    if (sessions.items && sessions.items.length > 0) {
+      // Use most recent session
+      const recentSession = sessions.items[0];
+      workspaceStore.sessionCode = recentSession.session_code;
+      await workspaceStore.fetchChatMessages(recentSession.session_code);
+      // Load artifacts based on current view mode
+      if (artifactViewMode.value === 'session') {
+        await workspaceStore.fetchSessionArtifacts(recentSession.session_code);
+      }
     }
+    // If in subproject mode, load subproject artifacts
+    if (artifactViewMode.value === 'subproject') {
+      await workspaceStore.fetchSubprojectArtifacts(subprojectId);
+    }
+  } catch (err) {
+    // No existing session, will create new one on first message
+    console.log('No existing chat session found');
   }
 }
 
 async function fetchProjectSubprojects(projectId: string) {
   try {
-    const response = await apiClient.get(`/api/v1/workspace/subprojects?project_id=${projectId}`);
+    const response = await apiClient.get<{ items: any[]; total: number }>(`/api/v1/workspace/subprojects?project_id=${projectId}`);
     projectSubprojects.value = response.items || [];
   } catch (err) {
     console.error('Failed to fetch subprojects:', err);
@@ -593,17 +789,20 @@ async function handleProjectChange() {
 }
 
 async function handleSubprojectChange() {
+  console.log('handleSubprojectChange called with selectedSubprojectId:', selectedSubprojectId.value);
+  
   if (!selectedSubprojectId.value) {
+    console.log('No subproject selected, clearing currentSubproject');
     workspaceStore.currentSubproject = null;
     return;
   }
   
+  // Find the selected subproject in the list to verify ID matches name
+  const selectedSubproject = projectSubprojects.value.find(s => s.id === selectedSubprojectId.value);
+  console.log('Selected subproject from dropdown:', selectedSubproject?.name, 'ID:', selectedSubproject?.id);
+  
   await loadWorkspace(selectedSubprojectId.value);
   router.push(`/workspace/${selectedSubprojectId.value}`);
-}
-
-function selectArtifact(artifact: any) {
-  currentArtifact.value = artifact;
 }
 
 function formatTime(dateStr: string) {
@@ -611,11 +810,157 @@ function formatTime(dateStr: string) {
   const date = new Date(dateStr);
   const now = new Date();
   const diff = now.getTime() - date.getTime();
-  
+
   if (diff < 60000) return 'Just now';
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
   if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
   return date.toLocaleDateString();
+}
+
+function getStepIconClass(stepType: string): string {
+  const classes: Record<string, string> = {
+    thinking: 'bg-yellow-500/20 text-yellow-400',
+    tool_call: 'bg-blue-500/20 text-blue-400',
+    tool_result: 'bg-green-500/20 text-green-400',
+    tool_error: 'bg-red-500/20 text-red-400',
+    generating: 'bg-purple-500/20 text-purple-400',
+    llm_request: 'bg-cyan-500/20 text-cyan-400',
+    user_input_required: 'bg-orange-500/20 text-orange-400',
+  };
+  return classes[stepType] || 'bg-gray-500/20 text-gray-400';
+}
+
+async function handleArtifactModeSwitch(mode: 'session' | 'subproject') {
+  console.log('Switching artifact mode to:', mode);
+  console.log('Current subproject:', workspaceStore.currentSubproject?.name, 'ID:', workspaceStore.currentSubproject?.id);
+  artifactViewMode.value = mode;
+  
+  if (mode === 'session' && workspaceStore.sessionCode) {
+    console.log('Fetching session artifacts for:', workspaceStore.sessionCode);
+    await workspaceStore.fetchSessionArtifacts(workspaceStore.sessionCode);
+  } else if (mode === 'subproject' && workspaceStore.currentSubproject?.id) {
+    console.log('Fetching subproject artifacts for:', workspaceStore.currentSubproject.id);
+    const artifacts = await workspaceStore.fetchSubprojectArtifacts(workspaceStore.currentSubproject.id);
+    console.log('Fetched subproject artifacts:', artifacts.length);
+  } else {
+    console.log('Cannot fetch artifacts - missing sessionCode or subprojectId. currentSubproject:', workspaceStore.currentSubproject);
+  }
+}
+
+async function handleArtifactSelect(artifact: any) {
+  console.log('handleArtifactSelect called with artifact:', artifact?.name, 'ID:', artifact?.id);
+  selectedArtifact.value = artifact;
+  console.log('selectedArtifact set to:', selectedArtifact.value?.name);
+  selectedArtifactContent.value = '';
+  selectedArtifactLoading.value = true;
+  
+  // First try to use the content field if available
+  if (artifact.content && artifact.content.trim().length > 0) {
+    selectedArtifactContent.value = artifact.content;
+    selectedArtifactLoading.value = false;
+    return;
+  }
+  
+  // Fetch content from file_url if available
+  if (artifact.file_url) {
+    try {
+      const url = `http://localhost:8000${artifact.file_url}`;
+      const response = await fetch(url);
+      if (response.ok) {
+        selectedArtifactContent.value = await response.text();
+      }
+    } catch (err) {
+      console.error('Error loading artifact content:', err);
+    }
+  }
+  
+  selectedArtifactLoading.value = false;
+}
+
+function closeArtifactViewer() {
+  selectedArtifact.value = null;
+  selectedArtifactContent.value = '';
+}
+
+function renderMarkdown(content: string): string {
+  let html = content
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // Tables - must be processed before line breaks
+  html = html.replace(/\|([^\n]*)\|\r?\n\|[-:\s|]+\|\r?\n((?:\|[^\n]*\|\r?\n?)+)/g, (match, header, body) => {
+    // Parse header
+    const headerCells = header.split('|').map((cell: string) => cell.trim()).filter((cell: string) => cell);
+    const headerHtml = headerCells.map((cell: string) => `<th class="px-4 py-2 text-left font-semibold border-b border-surface-high">${cell}</th>`).join('');
+    
+    // Parse body rows
+    const rows = body.trim().split('\n');
+    const bodyHtml = rows.map((row: string) => {
+      const cells = row.split('|').map((cell: string) => cell.trim()).filter((cell: string) => cell);
+      const cellsHtml = cells.map((cell: string) => `<td class="px-4 py-2 border-b border-surface-high/50">${cell}</td>`).join('');
+      return `<tr>${cellsHtml}</tr>`;
+    }).join('');
+    
+    return `<table class="w-full my-4 border-collapse"><thead><tr>${headerHtml}</tr></thead><tbody>${bodyHtml}</tbody></table>`;
+  });
+
+  // Headers
+  html = html.replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>');
+  html = html.replace(/^## (.*$)/gim, '<h2 class="text-xl font-semibold mt-4 mb-2">$1</h2>');
+  html = html.replace(/^# (.*$)/gim, '<h1 class="text-2xl font-semibold mt-4 mb-2">$1</h1>');
+  
+  // Bold and italic
+  html = html.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+  html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+  
+  // Code blocks
+  html = html.replace(/```([\s\S]*?)```/g, '<pre class="bg-surface-high rounded-lg p-3 my-2 overflow-x-auto"><code>$1</code></pre>');
+  html = html.replace(/`([^`]+)`/g, '<code class="bg-surface-high px-1.5 py-0.5 rounded text-sm">$1</code>');
+  
+  // Lists
+  html = html.replace(/^\* (.*$)/gim, '<li class="ml-4">$1</li>');
+  html = html.replace(/^- (.*$)/gim, '<li class="ml-4">$1</li>');
+  html = html.replace(/^\d+\. (.*$)/gim, '<li class="ml-4">$1</li>');
+  
+  // Links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">$1</a>');
+  
+  // Line breaks (only outside of tables)
+  html = html.replace(/\n/g, '<br>');
+
+  return html;
+}
+
+function formatDateTime(dateStr: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+async function copyToClipboard(content: string) {
+  try {
+    await navigator.clipboard.writeText(content);
+    alert('Content copied to clipboard!');
+  } catch (err) {
+    console.error('Failed to copy:', err);
+    alert('Failed to copy to clipboard');
+  }
+}
+
+function downloadArtifact(name: string, content: string) {
+  const blob = new Blob([content], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${name}.md`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 function autoResize() {
@@ -675,17 +1020,21 @@ async function executePrompt() {
   if (!canExecute.value || !workspaceStore.currentSubproject) return;
   
   try {
-    await workspaceStore.createExecution(
-      workspaceStore.currentSubproject.id,
-      workspaceStore.promptText
+    // Example metadata - in production this could come from UI inputs
+    const metadata = [
+      { key: 'timestamp', value: new Date().toISOString() },
+      { key: 'subproject', value: workspaceStore.currentSubproject.name },
+    ];
+    
+    await workspaceStore.sendChatMessage(
+      workspaceStore.promptText,
+      metadata
     );
     
     // Reset input height
     if (promptInput.value) {
       promptInput.value.style.height = 'auto';
     }
-    
-    startPollingActions();
   } catch (err) {
     console.error('Failed to execute:', err);
   }
@@ -698,7 +1047,6 @@ function handleEnterKey(event: KeyboardEvent) {
 
 function startNewSession() {
   workspaceStore.newSession();
-  currentArtifact.value = null;
   nextTick(() => promptInput.value?.focus());
 }
 
@@ -706,18 +1054,134 @@ function toggleVoice() {
   workspaceStore.toggleRecording();
   alert('Voice input not yet implemented');
 }
-
-function startPollingActions() {
-  if (!workspaceStore.currentExecution) return;
-  
-  const executionId = workspaceStore.currentExecution.id;
-  const interval = setInterval(async () => {
-    if (!workspaceStore.hasRunningExecution) {
-      clearInterval(interval);
-      return;
-    }
-    await workspaceStore.fetchActions(executionId);
-    await workspaceStore.fetchArtifacts(executionId);
-  }, 2000);
-}
 </script>
+
+<style scoped>
+.markdown-viewer {
+  background: var(--surface);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.markdown-content :deep(h1) {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--onSurface);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--surface-high);
+}
+
+.markdown-content :deep(h2) {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--onSurface);
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--surface-high);
+}
+
+.markdown-content :deep(h3) {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--onSurface);
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content :deep(p) {
+  color: var(--onSurface-variant);
+  line-height: 1.75;
+  margin-bottom: 1rem;
+}
+
+.markdown-content :deep(strong) {
+  color: var(--onSurface);
+  font-weight: 600;
+}
+
+.markdown-content :deep(em) {
+  color: var(--onSurface-variant);
+  font-style: italic;
+}
+
+.markdown-content :deep(code) {
+  background: var(--surface-high);
+  color: var(--primary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.875rem;
+}
+
+.markdown-content :deep(pre) {
+  background: var(--surface-high);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+  border: 1px solid var(--surface-high);
+}
+
+.markdown-content :deep(pre code) {
+  background: transparent;
+  color: var(--onSurface);
+  padding: 0;
+}
+
+.markdown-content :deep(ul), .markdown-content :deep(ol) {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.markdown-content :deep(li) {
+  color: var(--onSurface-variant);
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.markdown-content :deep(a) {
+  color: var(--primary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.markdown-content :deep(a:hover) {
+  border-bottom-color: var(--primary);
+}
+
+.markdown-content :deep(blockquote) {
+  border-left: 4px solid var(--primary);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: var(--onSurface-variant);
+  font-style: italic;
+}
+
+.markdown-content :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.markdown-content :deep(th),
+.markdown-content :deep(td) {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--surface-high);
+}
+
+.markdown-content :deep(th) {
+  font-weight: 600;
+  color: var(--onSurface);
+  background: var(--surface-high);
+}
+
+.markdown-content :deep(hr) {
+  border: none;
+  border-top: 2px solid var(--surface-high);
+  margin: 2rem 0;
+}
+</style>

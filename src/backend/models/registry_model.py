@@ -13,6 +13,8 @@ class RegistryModel(Base):
     tenant_id = Column(String, index=True, nullable=False)
     name = Column(String, nullable=False)
     provider = Column(String, nullable=False)
+    litellm_prefix = Column(String(100), nullable=True)
+    model_id = Column(String(200), nullable=True)
     status = Column(String, default="active")  # active/deprecated/beta
     tags = Column(JSON, default=list)
     context_window = Column(Integer, nullable=True)
