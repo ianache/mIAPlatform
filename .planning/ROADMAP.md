@@ -25,6 +25,21 @@
 - [x] 01-foundation-01-PLAN.md — Project structure and design tokens
 - [x] 01-foundation-02-PLAN.md — FastAPI core with LiteLLM gateway
 
+## Phase 01-orchestrator-engine: Orchestration Engine — Pipe & Filter Flow Executor
+
+**Goal:** Execute flows designed in the Flow Designer as DAG pipelines, with real-time execution visibility via WebSocket
+
+**Requirements:** ORC-01, ORC-02, ORC-03, ORC-04, ORC-05, ORC-06, ORC-07, ORC-08
+
+**Plans:** 5 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Alembic migration (flow_runs table) + Python execute endpoint + WebSocket relay
+- [ ] 01-02-PLAN.md — Node.js TypeScript orchestrator scaffold + BullMQ worker + docker-compose wiring
+- [ ] 01-03-PLAN.md — DAG engine core: parser, isolated-vm sandbox, executor loop
+- [ ] 01-04-PLAN.md — Node handlers (Source:File, Processor:JS) + cron scheduler
+- [ ] 01-05-PLAN.md — FlowRunsPage.vue + router route + Run buttons in Library/FlowDesigner
+
 ## Phase 2: Agent Core & UI (6-8 weeks)
 
 **Goal:** Enable user-defined agent creation and UI foundation
@@ -152,3 +167,5 @@
 3. **LiteLLM**: Unified LLM gateway from start
 4. **MicroVM sandbox**: Use Firecracker/Kata over plain Docker
 5. **Design-first**: UI must match Design System Specification exactly
+6. **isolated-vm**: Use isolated-vm v6.1.2 for JS sandboxing (NOT vm2 — CVSS 9.8 CVE)
+7. **BullMQ**: Node.js orchestrator + Python backend communicate via Redis/BullMQ
