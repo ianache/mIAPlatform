@@ -1,0 +1,25 @@
+{
+  "name": "@mia/orchestrator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "bullmq": "5.73.0",
+    "ioredis": "5.10.1",
+    "isolated-vm": "6.1.2",
+    "graphology": "0.26.0",
+    "graphology-dag": "0.4.1",
+    "pg": "8.13.3"
+  },
+  "devDependencies": {
+    "typescript": "6.0.2",
+    "tsx": "4.21.0",
+    "@types/node": "22.0.0",
+    "@types/pg": "8.11.10"
+  }
+}
