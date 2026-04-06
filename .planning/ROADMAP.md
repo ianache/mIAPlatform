@@ -34,8 +34,8 @@
 **Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 01-01-PLAN.md — Alembic migration (flow_runs table) + Python execute endpoint + WebSocket relay
-- [ ] 01-02-PLAN.md — Node.js TypeScript orchestrator scaffold + BullMQ worker + docker-compose wiring
+- [x] 01-01-PLAN.md — Alembic migration (flow_runs table) + Python execute endpoint + WebSocket relay
+- [x] 01-02-PLAN.md — Node.js TypeScript orchestrator scaffold + BullMQ worker + docker-compose wiring
 - [ ] 01-03-PLAN.md — DAG engine core: parser, isolated-vm sandbox, executor loop
 - [ ] 01-04-PLAN.md — Node handlers (Source:File, Processor:JS) + cron scheduler
 - [ ] 01-05-PLAN.md — FlowRunsPage.vue + router route + Run buttons in Library/FlowDesigner
