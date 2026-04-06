@@ -1,6 +1,7 @@
 """Orchestra - Multi-Agent AI Platform API."""
 
 import os
+import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,7 +9,8 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from src.backend.api import health
 from src.backend.llm import routes as llm_router
-from src.backend.api import tenants, agents, registry, upload, skills, workspace, chat
+from src.backend.api import tenants, agents, registry, upload, skills, workspace, chat, avatars, library, node_types
+from src.backend.api.library import subscribe_flow_run_events, ws_router
 from src.backend.core.cache import init_redis, close_redis
 from src.backend.core.config import get_settings
 
@@ -18,6 +20,8 @@ async def lifespan(app: FastAPI):
     """Application lifespan handler."""
     print("Starting Orchestra API...")
     await init_redis()
+    # Start Redis subscriber for flow run events
+    asyncio.create_task(subscribe_flow_run_events())
     yield
     await close_redis()
     print("Shutting down Orchestra API...")
@@ -50,6 +54,10 @@ app.include_router(upload.router, prefix="/api/v1")
 app.include_router(skills.router, prefix="/api/v1")
 app.include_router(workspace.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
+app.include_router(avatars.router, prefix="/api/v1")
+app.include_router(library.router, prefix="/api/v1")
+app.include_router(library.ws_router, prefix="/api/v1")
+app.include_router(node_types.router, prefix="/api/v1")
 
 # Static file serving for uploads (artifacts, avatars, etc.)
 _uploads_dir = get_settings().UPLOADS_PATH
