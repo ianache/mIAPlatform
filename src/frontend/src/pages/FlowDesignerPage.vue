@@ -105,6 +105,22 @@
         @dragover.prevent
         @drop="onDrop"
       >
+        <!-- Sticky Notes Layer (rendered behind) -->
+        <div
+          class="absolute inset-0 pointer-events-none"
+          :style="stickyNotesContainerStyle"
+        >
+          <StickyNote
+            v-for="note in stickyNotes"
+            :key="note.id"
+            :note="note"
+            :zoom="viewportZoom"
+            class="pointer-events-auto"
+            @update="updateStickyNote"
+            @delete="deleteStickyNote"
+          />
+        </div>
+
         <VueFlow
           id="main-flow"
           v-model:nodes="vfNodes"
@@ -126,7 +142,7 @@
 
         <!-- Empty canvas hint -->
         <div
-          v-if="vfNodes.length === 0"
+          v-if="vfNodes.length === 0 && stickyNotes.length === 0"
           class="absolute inset-0 flex items-center justify-center pointer-events-none"
         >
           <div class="flex flex-col items-center gap-2 text-center opacity-40">
@@ -163,7 +179,8 @@ import NodePropertiesPanel from '../components/FlowDesigner/NodePropertiesPanel.
 import SourceNode from '../components/FlowDesigner/SourceNode.vue';
 import ProcessorNode from '../components/FlowDesigner/ProcessorNode.vue';
 import SinkNode from '../components/FlowDesigner/SinkNode.vue';
-import StickyNoteNode from '../components/FlowDesigner/StickyNoteNode.vue';
+import StickyNote from '../components/FlowDesigner/StickyNote.vue';
+import type { StickyNote as StickyNoteType } from '../components/FlowDesigner/StickyNote.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -196,13 +213,56 @@ const zoomPercent = computed(() => {
 const vfNodes = ref<any[]>([]);
 const vfEdges = ref<any[]>([]);
 
+// Sticky Notes state (completely separate from flow nodes)
+const stickyNotes = ref<StickyNoteType[]>([]);
+
 // Register custom node types
 const nodeTypes: Record<string, any> = {
   source: markRaw(SourceNode),
   processor: markRaw(ProcessorNode),
   sink: markRaw(SinkNode),
-  sticky_note: markRaw(StickyNoteNode),
 };
+
+// Viewport zoom for sticky notes positioning
+const viewportZoom = computed(() => viewport.value?.zoom ?? 1);
+const viewportTransform = computed(() => {
+  const v = viewport.value;
+  if (!v) return { x: 0, y: 0 };
+  return { x: v.x ?? 0, y: v.y ?? 0 };
+});
+
+const stickyNotesContainerStyle = computed(() => {
+  const transform = viewportTransform.value;
+  const zoom = viewportZoom.value;
+  return {
+    transform: `translate(${transform.x}px, ${transform.y}px) scale(${zoom})`,
+    transformOrigin: '0 0',
+  };
+});
+
+// Sticky Notes CRUD
+function addStickyNote(position: { x: number; y: number }) {
+  const id = `sticky-${Date.now()}`;
+  stickyNotes.value.push({
+    id,
+    position,
+    content: '',
+    color: 'yellow',
+    width: 200,
+    height: 150,
+  });
+}
+
+function updateStickyNote(updatedNote: StickyNoteType) {
+  const idx = stickyNotes.value.findIndex((n) => n.id === updatedNote.id);
+  if (idx !== -1) {
+    stickyNotes.value[idx] = updatedNote;
+  }
+}
+
+function deleteStickyNote(id: string) {
+  stickyNotes.value = stickyNotes.value.filter((n) => n.id !== id);
+}
 
 const selectedVFNode = computed(() => {
   if (!selectedNodeId.value) return null;
@@ -221,36 +281,30 @@ onMounted(async () => {
 
 function loadGraph(data: Flow) {
   // Load regular flow nodes
-  const regularNodes = (data.graph?.nodes ?? []).map((n) => ({
+  vfNodes.value = (data.graph?.nodes ?? []).map((n) => ({
     id: n.id,
     type: n.type,
     position: n.position,
     data: { node_type: n.node_type, node_type_id: n.node_type_id, label: n.label, config: n.config ?? {}, icon: n.icon },
   }));
-  
-  // Load sticky notes from separate field
-  const stickyNotes = (data.graph as any)?.sticky_notes ?? [];
-  const stickyNodes = stickyNotes.map((n: any) => ({
+
+  // Load sticky notes separately (not part of vfNodes)
+  const loadedStickyNotes = (data.graph as any)?.sticky_notes ?? [];
+  stickyNotes.value = loadedStickyNotes.map((n: any) => ({
     id: n.id,
-    type: 'sticky_note',
     position: n.position,
-    data: { 
-      content: n.content,
-      color: n.color,
-      width: n.width,
-      height: n.height,
-    },
+    content: n.content,
+    color: n.color,
+    width: n.width,
+    height: n.height,
   }));
-  
-  // Combine all nodes - sticky notes first so they render behind
-  vfNodes.value = [...stickyNodes, ...regularNodes];
-  
+
   vfEdges.value = (data.graph?.edges ?? []).map((e) => ({
     id: e.id,
     source: e.source,
     target: e.target,
   }));
-  
+
   // Set default zoom to 100% after loading
   setTimeout(() => {
     setViewport({ zoom: 1, x: 0, y: 0 });
@@ -349,19 +403,8 @@ function onDrop(event: DragEvent) {
 
   // Handle sticky notes
   if (dragData.isStickyNote) {
-    const id = `sticky-${Date.now()}`;
-    // Insert at beginning so it renders behind other nodes
-    vfNodes.value.unshift({
-      id,
-      type: 'sticky_note',
-      position,
-      data: { 
-        content: '',
-        color: 'yellow',
-        width: 200,
-        height: 150,
-      },
-    });
+    // Add to separate stickyNotes array, not vfNodes
+    addStickyNote(position);
     return;
   }
 
@@ -379,31 +422,28 @@ async function handleSave() {
   if (!flow.value) return;
   saving.value = true;
   try {
-    // Separate regular nodes from sticky notes
-    const regularNodes = vfNodes.value
-      .filter((n) => n.type !== 'sticky_note')
-      .map((n) => ({
-        id: n.id,
-        type: n.type,
-        node_type: n.data.node_type,
-        node_type_id: n.data.node_type_id,
-        label: n.data.label,
-        position: n.position,
-        config: n.data.config ?? {},
-        icon: n.data.icon,
-      }));
-    
-    const stickyNotes = vfNodes.value
-      .filter((n) => n.type === 'sticky_note')
-      .map((n) => ({
-        id: n.id,
-        position: n.position,
-        content: n.data.content,
-        color: n.data.color,
-        width: n.data.width,
-        height: n.data.height,
-      }));
-    
+    // Regular flow nodes
+    const regularNodes = vfNodes.value.map((n) => ({
+      id: n.id,
+      type: n.type,
+      node_type: n.data.node_type,
+      node_type_id: n.data.node_type_id,
+      label: n.data.label,
+      position: n.position,
+      config: n.data.config ?? {},
+      icon: n.data.icon,
+    }));
+
+    // Sticky notes are stored separately
+    const stickyNotesData = stickyNotes.value.map((n) => ({
+      id: n.id,
+      position: n.position,
+      content: n.content,
+      color: n.color,
+      width: n.width,
+      height: n.height,
+    }));
+
     const graph = {
       nodes: regularNodes,
       edges: vfEdges.value.map((e) => ({
@@ -411,7 +451,7 @@ async function handleSave() {
         source: e.source,
         target: e.target,
       })),
-      sticky_notes: stickyNotes,
+      sticky_notes: stickyNotesData,
     };
     await store.updateFlow(flowId, { graph });
     successMessage.value = 'Flow saved successfully!';
@@ -425,32 +465,29 @@ async function handleSave() {
 
 function exportFlow() {
   if (!flow.value) return;
-  
-  // Separate regular nodes from sticky notes
-  const regularNodes = vfNodes.value
-    .filter((n) => n.type !== 'sticky_note')
-    .map((n) => ({
-      id: n.id,
-      type: n.type,
-      node_type: n.data.node_type,
-      node_type_id: n.data.node_type_id,
-      label: n.data.label,
-      position: n.position,
-      config: n.data.config ?? {},
-      icon: n.data.icon,
-    }));
-  
-  const stickyNotes = vfNodes.value
-    .filter((n) => n.type === 'sticky_note')
-    .map((n) => ({
-      id: n.id,
-      position: n.position,
-      content: n.data.content,
-      color: n.data.color,
-      width: n.data.width,
-      height: n.data.height,
-    }));
-  
+
+  // Regular flow nodes
+  const regularNodes = vfNodes.value.map((n) => ({
+    id: n.id,
+    type: n.type,
+    node_type: n.data.node_type,
+    node_type_id: n.data.node_type_id,
+    label: n.data.label,
+    position: n.position,
+    config: n.data.config ?? {},
+    icon: n.data.icon,
+  }));
+
+  // Sticky notes from separate array
+  const stickyNotesData = stickyNotes.value.map((n) => ({
+    id: n.id,
+    position: n.position,
+    content: n.content,
+    color: n.color,
+    width: n.width,
+    height: n.height,
+  }));
+
   const graph = {
     nodes: regularNodes,
     edges: vfEdges.value.map((e) => ({
@@ -458,7 +495,7 @@ function exportFlow() {
       source: e.source,
       target: e.target,
     })),
-    sticky_notes: stickyNotes,
+    sticky_notes: stickyNotesData,
   };
   
   const exportData = {
