@@ -10,6 +10,29 @@
         </span>
       </div>
       <div class="flex items-center gap-3 shrink-0">
+        <span class="text-xs font-mono text-onSurface-variant min-w-[50px] text-right">
+          {{ zoomPercent }}%
+        </span>
+        <button
+          class="px-3 py-2 rounded-xl font-label text-sm flex items-center gap-2 transition-colors"
+          :class="gridMode ? 'bg-primary/20 text-primary' : 'text-onSurface bg-surface-high hover:bg-surface-highest'"
+          @click="gridMode = !gridMode"
+          title="Toggle grid snap"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          Grid {{ gridMode ? 'On' : 'Off' }}
+        </button>
+        <button
+          class="px-4 py-2 rounded-xl font-label text-sm text-onSurface bg-surface-high hover:bg-surface-highest transition-colors"
+          @click="exportFlow"
+        >
+          <svg class="w-4 h-4 mr-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Export
+        </button>
         <button
           class="px-4 py-2 rounded-xl font-label text-sm text-onSurface bg-surface-high hover:bg-surface-highest transition-colors"
           @click="router.push('/library')"
@@ -68,6 +91,7 @@
       <div
         ref="canvasRef"
         class="flex-1 overflow-hidden relative bg-[#0D1520]"
+        :class="{ 'grid-enabled': gridMode }"
         @dragover.prevent
         @drop="onDrop"
       >
@@ -77,9 +101,13 @@
           v-model:edges="vfEdges"
           :node-types="nodeTypes"
           :delete-key-code="['Delete', 'Backspace']"
-          fit-view-on-init
           class="w-full h-full"
           :default-edge-options="{ animated: false, style: { stroke: '#4B6BFB', strokeWidth: 2 } }"
+          :snap-grid="gridMode ? [GRID_SIZE, GRID_SIZE] : undefined"
+          :snap-to-grid="gridMode"
+          :min-zoom="0.2"
+          :max-zoom="4"
+          :default-viewport="{ zoom: 0.7, x: 0, y: 0 }"
           @connect="onConnect"
           @node-click="onNodeClick"
           @pane-click="selectedNodeId = null"
@@ -128,7 +156,7 @@ import SinkNode from '../components/FlowDesigner/SinkNode.vue';
 const router = useRouter();
 const route = useRoute();
 const store = useLibraryStore();
-const { project } = useVueFlow('main-flow');
+const { project, viewport, setViewport } = useVueFlow('main-flow');
 
 const flowId = route.params.id as string;
 const flow = ref<Flow | null>(null);
@@ -137,6 +165,20 @@ const saving = ref(false);
 const successMessage = ref('');
 const selectedNodeId = ref<string | null>(null);
 const canvasRef = ref<HTMLDivElement | null>(null);
+
+// Grid configuration
+const GRID_SIZE = 20;
+const gridMode = ref(true);
+
+function snapToGrid(value: number): number {
+  return Math.round(value / GRID_SIZE) * GRID_SIZE;
+}
+
+// Zoom percentage display
+const zoomPercent = computed(() => {
+  const zoom = viewport.value?.zoom ?? 1;
+  return Math.round(zoom * 100);
+});
 
 // VueFlow state
 const vfNodes = ref<any[]>([]);
@@ -176,6 +218,10 @@ function loadGraph(data: Flow) {
     source: e.source,
     target: e.target,
   }));
+  // Set default zoom to 100% after loading
+  setTimeout(() => {
+    setViewport({ zoom: 1, x: 0, y: 0 });
+  }, 0);
 }
 
 function onConnect(connection: any) {
@@ -258,7 +304,15 @@ function onDrop(event: DragEvent) {
 
   const clientX = event.clientX - bounds.left;
   const clientY = event.clientY - bounds.top;
-  const position = project({ x: clientX, y: clientY });
+  let position = project({ x: clientX, y: clientY });
+  
+  // Snap to grid if grid mode is enabled
+  if (gridMode.value) {
+    position = {
+      x: snapToGrid(position.x),
+      y: snapToGrid(position.y),
+    };
+  }
 
   const id = `${node_type_id}-${Date.now()}`;
   const defaultConfig = buildDefaultConfig(properties);
@@ -299,4 +353,60 @@ async function handleSave() {
     saving.value = false;
   }
 }
+
+function exportFlow() {
+  if (!flow.value) return;
+  
+  const graph = {
+    nodes: vfNodes.value.map((n) => ({
+      id: n.id,
+      type: n.type,
+      node_type: n.data.node_type,
+      node_type_id: n.data.node_type_id,
+      label: n.data.label,
+      position: n.position,
+      config: n.data.config ?? {},
+    })),
+    edges: vfEdges.value.map((e) => ({
+      id: e.id,
+      source: e.source,
+      target: e.target,
+    })),
+  };
+  
+  const exportData = {
+    title: flow.value.title,
+    description: flow.value.description,
+    graph,
+  };
+  
+  // Generate filename: lowercase, spaces to hyphens, .json extension
+  const filename = flow.value.title
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    + '.json';
+  
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  successMessage.value = `Exported to ${filename}`;
+  setTimeout(() => { successMessage.value = ''; }, 2500);
+}
 </script>
+
+<style scoped>
+.grid-enabled {
+  background-image: 
+    linear-gradient(to right, rgba(75, 107, 251, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(75, 107, 251, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+</style>
