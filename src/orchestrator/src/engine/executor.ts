@@ -1,40 +1,32 @@
 import { pool, updateRunStatus, appendRunLog } from '../db/postgres.js';
 import { emitRunEvent } from '../events/emitter.js';
-import { parseAndSort, type FlowGraph, type FlowNode } from './dagParser.js';
-import { runUserCode } from './sandbox.js';
-
-export interface PipeObject {
-  metadata: {
-    flowId: string;
-    runId: string;
-    nodeId: string;
-    tenantId: string;
-  };
-  payload: Record<string, unknown>;
-  state: Record<string, unknown>;
-}
-
-interface NodeType {
-  id: string;
-  code: string;
-  name: string;
-}
+import { parseAndSort, type FlowGraph } from './dagParser.js';
+import type { FlowNode, PipeObject, NodeType } from './types.js';
+import { sourceFileHandler } from '../nodes/sourceFile.js';
+import { processorJsHandler } from '../nodes/processorJs.js';
 
 /**
- * Stub node handler - will be replaced with real implementations in Plan 04.
- * Currently just passes through with a processed flag.
+ * NodeHandler type - function that executes a node and returns new payload
  */
-async function stubHandler(node: FlowNode, pipeObj: PipeObject, nodeType: any): Promise<unknown> {
-  return { ...pipeObj.payload, [`${node.data.label}_processed`]: true };
-}
+type NodeHandler = (
+  node: FlowNode,
+  pipeObj: PipeObject,
+  nodeType: NodeType
+) => Promise<unknown>;
 
 /**
  * Determines the handler for a node based on its type.
- * For now, all types use stubHandler until Plan 04 implements real handlers.
+ * Routes to real handlers: sourceFileHandler, processorJsHandler, or passthrough.
  */
-async function getHandler(node: FlowNode, nodeType: NodeType | undefined): Promise<Function> {
-  // Until Plan 04 provides real handlers, use stub
-  return stubHandler;
+function getHandler(node: FlowNode, nodeType: NodeType | undefined): NodeHandler {
+  const type = node.type.toLowerCase();
+  const name = (nodeType?.name || '').toLowerCase();
+  
+  if (type === 'source' && name.includes('file')) return sourceFileHandler;
+  if (type === 'processor') return processorJsHandler;
+  
+  // Unknown node type — passthrough (deferred: sink, other sources)
+  return async (_n, p) => p.payload;
 }
 
 /**
@@ -111,11 +103,13 @@ async function executeNode(
   nodeType: NodeType | undefined,
   runId: string
 ): Promise<{ nodeId: string; result: unknown; pipeObj: PipeObject }> {
-  const handler = await getHandler(node, nodeType);
+  const handler = getHandler(node, nodeType);
   const startTime = Date.now();
 
   pipeObj.metadata.nodeId = node.id;
-  const result = await handler(node, pipeObj, nodeType);
+  // nodeType could be undefined for unknown node types - use empty object as fallback
+  const effectiveNodeType = nodeType ?? { id: '', code: '', name: '' };
+  const result = await handler(node, pipeObj, effectiveNodeType);
   const duration_ms = Date.now() - startTime;
 
   const nodeEvent = {
