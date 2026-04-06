@@ -58,6 +58,18 @@ services:
     depends_on:
       - postgres
 
+  orchestrator:
+    build:
+      context: ./src/orchestrator
+      dockerfile: Dockerfile
+    environment:
+      REDIS_URL: ${REDIS_URL:-redis://192.168.100.254:6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://miaplatform:changeme@postgres:5432/miaplatform}
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   mongo_data:
