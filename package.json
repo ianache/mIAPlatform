@@ -8,7 +8,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vue-flow/core": "^1.41.0",
     "@vueuse/core": "^10.7.0",
+    "html-to-image": "^1.11.13",
     "pinia": "^2.1.0",
     "vue": "^3.4.0",
     "vue-router": "^4.2.0"

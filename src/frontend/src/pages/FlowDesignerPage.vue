@@ -25,6 +25,16 @@
           Grid {{ gridMode ? 'On' : 'Off' }}
         </button>
         <button
+          class="px-4 py-2 rounded-xl font-label text-sm text-onSurface bg-surface-high hover:bg-surface-highest transition-colors flex items-center gap-2"
+          @click="exportToPNG"
+          title="Export diagram as PNG"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          PNG
+        </button>
+        <button
           class="px-4 py-2 rounded-xl font-label text-sm text-onSurface bg-surface-high hover:bg-surface-highest transition-colors"
           @click="exportFlow"
         >
@@ -142,6 +152,7 @@
 import { ref, computed, onMounted, markRaw } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { VueFlow, useVueFlow } from '@vue-flow/core';
+import { toPng } from 'html-to-image';
 import '@vue-flow/core/dist/style.css';
 import '@vue-flow/core/dist/theme-default.css';
 
@@ -214,7 +225,7 @@ function loadGraph(data: Flow) {
     id: n.id,
     type: n.type,
     position: n.position,
-    data: { node_type: n.node_type, node_type_id: n.node_type_id, label: n.label, config: n.config ?? {} },
+    data: { node_type: n.node_type, node_type_id: n.node_type_id, label: n.label, config: n.config ?? {}, icon: n.icon },
   }));
   
   // Load sticky notes from separate field
@@ -360,7 +371,7 @@ function onDrop(event: DragEvent) {
     id,
     type: dragData.category,
     position,
-    data: { node_type_id: dragData.node_type_id, label: dragData.name, config: defaultConfig },
+    data: { node_type_id: dragData.node_type_id, label: dragData.name, config: defaultConfig, icon: dragData.icon },
   });
 }
 
@@ -379,6 +390,7 @@ async function handleSave() {
         label: n.data.label,
         position: n.position,
         config: n.data.config ?? {},
+        icon: n.data.icon,
       }));
     
     const stickyNotes = vfNodes.value
@@ -425,6 +437,7 @@ function exportFlow() {
       label: n.data.label,
       position: n.position,
       config: n.data.config ?? {},
+      icon: n.data.icon,
     }));
   
   const stickyNotes = vfNodes.value
@@ -473,6 +486,44 @@ function exportFlow() {
   
   successMessage.value = `Exported to ${filename}`;
   setTimeout(() => { successMessage.value = ''; }, 2500);
+}
+
+async function exportToPNG() {
+  const canvasElement = document.querySelector('#main-flow .vue-flow__viewport') as HTMLElement;
+  if (!canvasElement) {
+    successMessage.value = 'Could not find diagram canvas';
+    setTimeout(() => { successMessage.value = ''; }, 2500);
+    return;
+  }
+
+  try {
+    successMessage.value = 'Generating PNG...';
+    
+    const dataUrl = await toPng(canvasElement, {
+      backgroundColor: '#0D1520',
+      pixelRatio: 2,
+    });
+
+    const filename = flow.value?.title
+      ?.toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '')
+      + '.png' || 'flow-diagram.png';
+
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    successMessage.value = `Exported to ${filename}`;
+    setTimeout(() => { successMessage.value = ''; }, 2500);
+  } catch (err) {
+    console.error('Failed to export PNG:', err);
+    successMessage.value = 'Failed to export PNG';
+    setTimeout(() => { successMessage.value = ''; }, 2500);
+  }
 }
 </script>
 
