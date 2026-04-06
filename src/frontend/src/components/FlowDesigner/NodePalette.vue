@@ -36,6 +36,21 @@
           </div>
         </div>
       </div>
+
+      <!-- Miscelánea Section -->
+      <div class="space-y-1.5 mt-4 pt-4 border-t border-white/10">
+        <p class="text-[10px] font-label uppercase tracking-widest text-onSurface-variant/60 px-1">
+          Miscelánea
+        </p>
+        <div
+          draggable="true"
+          class="flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-high hover:bg-surface-highest cursor-grab active:cursor-grabbing transition-colors select-none"
+          @dragstart="onStickyNoteDragStart($event)"
+        >
+          <span class="text-base leading-none">📝</span>
+          <span class="text-sm font-label text-onSurface truncate">Nota Adhesiva</span>
+        </div>
+      </div>
     </template>
   </aside>
 </template>
@@ -64,6 +79,17 @@ function onDragStart(event: DragEvent, nt: NodeType) {
     name: nt.name,
     icon: nt.icon ?? '📦',
     properties: nt.properties,
+  }));
+  event.dataTransfer!.effectAllowed = 'move';
+}
+
+function onStickyNoteDragStart(event: DragEvent) {
+  event.dataTransfer?.setData('application/vueflow', JSON.stringify({
+    category: 'sticky_note',
+    node_type_id: 'sticky-note',
+    name: 'Nota Adhesiva',
+    icon: '📝',
+    isStickyNote: true,
   }));
   event.dataTransfer!.effectAllowed = 'move';
 }
