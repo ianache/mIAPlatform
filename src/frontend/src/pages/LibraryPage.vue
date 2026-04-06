@@ -110,6 +110,13 @@
             Edit Flow
           </button>
           <button
+            class="px-3 py-2 rounded-xl font-label text-sm text-onSurface bg-surface-high hover:bg-surface-highest transition-colors border border-white/10"
+            @click="router.push(`/library/${flow.id}/runs`)"
+            title="View runs"
+          >
+            Runs
+          </button>
+          <button
             class="px-3 py-2 rounded-xl font-label text-sm text-error bg-surface-high hover:bg-surface-highest transition-colors"
             @click="confirmDelete(flow)"
           >
