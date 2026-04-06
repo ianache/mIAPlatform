@@ -31,7 +31,7 @@
 
 **Requirements:** ORC-01, ORC-02, ORC-03, ORC-04, ORC-05, ORC-06, ORC-07, ORC-08
 
-**Plans:** 5 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 01-01-PLAN.md — Alembic migration (flow_runs table) + Python execute endpoint + WebSocket relay

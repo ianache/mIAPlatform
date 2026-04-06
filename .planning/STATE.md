@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
+milestone: v6.1.2
 milestone_name: milestone
-current_plan: 1
-status: Executing Phase 02
-last_updated: "2026-04-03T02:05:19.095Z"
+current_plan: 3
+status: Executing Phase 01-orchestrator-engine
+last_updated: "2026-04-06T04:33:51.863Z"
 progress:
-  total_phases: 6
-  completed_phases: 1
-  total_plans: 8
-  completed_plans: 4
+  total_phases: 7
+  completed_phases: 2
+  total_plans: 16
+  completed_plans: 9
 ---
 
 # State: Orchestra / Synthetix
@@ -30,6 +30,9 @@ progress:
 - Used fetch instead of axios for API client (no extra dependency, native browser support)
 - Token stored in localStorage with key 'orchestra_token' (to be replaced with httpOnly cookies)
 - Route placeholders use inline templates (proper page components in Plans 03-06)
+- External Redis at 192.168.100.254:6379 shared between Python backend and Node.js orchestrator
+- maxRetriesPerRequest: null required on ioredis for BullMQ compatibility
+- Separate Redis pub/sub client to avoid connection sharing with BullMQ
 
 ## Artifacts Created
 
@@ -41,6 +44,12 @@ progress:
 | `.planning/REQUIREMENTS.md` | ✓ Updated with all UI specs |
 | `.planning/ROADMAP.md` | ✓ Updated (6 phases) |
 | `.planning/STATE.md` | ✓ This file |
+| `src/orchestrator/` | ✓ Node.js TypeScript orchestrator scaffold |
+| `src/orchestrator/src/index.ts` | ✓ BullMQ Worker entry point |
+| `src/orchestrator/src/queues.ts` | ✓ ioredis + BullMQ Queue singleton |
+| `src/orchestrator/src/db/postgres.ts` | ✓ pg Pool for flow_runs |
+| `src/orchestrator/src/events/emitter.ts` | ✓ Redis pub/sub helper |
+| `docker-compose.yml` | ✓ Updated with orchestrator service |
 
 ## Brand
 
