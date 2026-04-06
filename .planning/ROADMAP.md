@@ -31,13 +31,13 @@
 
 **Requirements:** ORC-01, ORC-02, ORC-03, ORC-04, ORC-05, ORC-06, ORC-07, ORC-08
 
-**Plans:** 2/2 plans complete
+**Plans:** 4/5 plans complete
 
 Plans:
 - [x] 01-01-PLAN.md — Alembic migration (flow_runs table) + Python execute endpoint + WebSocket relay
 - [x] 01-02-PLAN.md — Node.js TypeScript orchestrator scaffold + BullMQ worker + docker-compose wiring
-- [ ] 01-03-PLAN.md — DAG engine core: parser, isolated-vm sandbox, executor loop
-- [ ] 01-04-PLAN.md — Node handlers (Source:File, Processor:JS) + cron scheduler
+- [x] 01-03-PLAN.md — DAG engine core: parser, isolated-vm sandbox, executor loop
+- [x] 01-04-PLAN.md — Node handlers (Source:File, Processor:JS) + cron scheduler
 - [ ] 01-05-PLAN.md — FlowRunsPage.vue + router route + Run buttons in Library/FlowDesigner
 
 ## Phase 2: Agent Core & UI (6-8 weeks)
