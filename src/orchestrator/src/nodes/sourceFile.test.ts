@@ -43,7 +43,8 @@ describe('sourceFileHandler', () => {
       id: 'node-1',
       type: 'source',
       node_type_id: 'source-file',
-      data: { label: 'Read File', config: { file_path: testFilePath } },
+      label: 'Read File',
+      config: { file_path: testFilePath },
     };
 
     const result = await sourceFileHandler(node, mockPipeObj, { id: 'nt-1', code: '', name: 'Source:File' });
@@ -58,7 +59,8 @@ describe('sourceFileHandler', () => {
       id: 'node-1',
       type: 'source',
       node_type_id: 'source-file',
-      data: { label: 'Read File', config: { file_path: '../etc/passwd' } },
+      label: 'Read File',
+      config: { file_path: '../etc/passwd' },
     };
 
     await assert.rejects(
@@ -74,7 +76,8 @@ describe('sourceFileHandler', () => {
       id: 'node-1',
       type: 'source',
       node_type_id: 'source-file',
-      data: { label: 'Read File', config: {} },
+      label: 'Read File',
+      config: {},
     };
 
     await assert.rejects(

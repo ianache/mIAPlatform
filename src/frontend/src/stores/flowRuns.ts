@@ -10,6 +10,7 @@ export interface NodeEvent {
   input?: unknown;
   output?: unknown;
   error?: string;
+  code?: string | null;
   timestamp: string;
 }
 export interface RunSummary {
@@ -38,7 +39,9 @@ export const useFlowRunsStore = defineStore('flowRuns', () => {
   }
 
   async function fetchRun(flowId: string, runId: string) {
+    console.log('[flowRuns] fetchRun called', { flowId, runId });
     const data = await apiClient.get<RunDetail>(`/api/v1/library/flows/${flowId}/runs/${runId}`);
+    console.log('[flowRuns] fetchRun result', data);
     activeRun.value = data;
   }
 
@@ -53,14 +56,17 @@ export const useFlowRunsStore = defineStore('flowRuns', () => {
   function connectWebSocket(runId: string) {
     disconnectWebSocket();
     const token = localStorage.getItem('mia_access_token') ?? '';
-    const baseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
+    const baseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8090';
     const wsUrl = baseUrl.replace(/^http/, 'ws') + `/api/v1/library/runs/ws/${runId}?token=${token}`;
     _ws = new WebSocket(wsUrl);
 
     _ws.onmessage = (event) => {
+      console.log('[flowRuns] WebSocket message received', event.data);
       const msg = JSON.parse(event.data);
+      console.log('[flowRuns] Parsed message', msg);
       if (msg.type === 'node_complete' || msg.type === 'node_failed') {
         liveEvents.value.push(msg as NodeEvent);
+        console.log('[flowRuns] Added event, liveEvents now has', liveEvents.value.length, 'events');
       }
       if (msg.type === 'run_complete' || msg.type === 'run_failed') {
         isRunning.value = false;

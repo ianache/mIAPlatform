@@ -18,7 +18,7 @@ export interface Agent {
 export type AgentCreate = Omit<Agent, 'id' | 'tenant_id' | 'created_at' | 'updated_at'>;
 
 export interface LLMProvider {
-  id: 'openai' | 'anthropic' | 'google' | 'ollama' | 'other';
+  id: 'openai' | 'anthropic' | 'google' | 'groq' | 'ollama' | 'other';
   name: string;
   logo_url: string;
 }
@@ -80,6 +80,78 @@ export interface FeatureMapping {
   created_at: string;
   updated_at: string;
 }
+
+// ── Knowledge / Nodes Catalog ─────────────────────────────────────────────────
+
+export type NodeTypeDataType = 'string' | 'number' | 'boolean' | 'code' | 'json'
+
+export interface NodeTypeProperty {
+  name: string
+  data_type: NodeTypeDataType
+  description?: string
+  required: boolean
+  default_value?: string
+}
+
+export interface NodeType {
+  id: string
+  tenant_id: string
+  name: string
+  icon?: string
+  description?: string
+  category: 'source' | 'processor' | 'sink'
+  properties: NodeTypeProperty[]
+  language: 'javascript' | 'python'
+  code?: string
+  created_at: string
+  updated_at: string
+}
+
+export type NodeTypeCreate = Omit<NodeType, 'id' | 'tenant_id' | 'created_at' | 'updated_at'>
+export type NodeTypeUpdate = Partial<NodeTypeCreate>
+
+// ── Library / Flow Designer ───────────────────────────────────────────────────
+
+export interface FlowNodeConfig { [key: string]: any }
+
+export interface FlowNode {
+  id: string
+  type: 'source' | 'processor' | 'sink'
+  node_type: string
+  node_type_id?: string
+  icon?: string
+  label: string
+  position: { x: number; y: number }
+  config: FlowNodeConfig
+}
+
+export interface FlowEdge { id: string; source: string; target: string }
+
+export interface MiscNode {
+  id: string
+  position: { x: number; y: number }
+  content?: string
+  color?: string
+  width?: number
+  height?: number
+}
+
+export interface FlowGraph { nodes: FlowNode[]; edges: FlowEdge[]; misc_nodes?: MiscNode[] }
+
+export interface Flow {
+  id: string
+  tenant_id: string
+  title: string
+  description?: string
+  graph: FlowGraph
+  created_at: string
+  updated_at: string
+}
+
+export type FlowCreate = { title: string; description?: string; graph: FlowGraph }
+export type FlowUpdate = Partial<FlowCreate>
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface Artifact {
   id: string

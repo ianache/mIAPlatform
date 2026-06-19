@@ -1,6 +1,9 @@
 /**
  * Shared type definitions for the orchestrator engine.
  * Used by dagParser, executor, handlers, and other engine components.
+ * 
+ * Note: Flow graphs from the database have label/config directly on the node,
+ * NOT nested inside a 'data' property.
  */
 
 export interface FlowNodeData {
@@ -12,7 +15,10 @@ export interface FlowNode {
   id: string;
   type: string;
   node_type_id: string;
-  data: FlowNodeData;
+  label: string;
+  config?: Record<string, unknown>;
+  position?: { x: number; y: number };
+  data?: FlowNodeData;
 }
 
 export interface FlowEdge {
@@ -24,12 +30,14 @@ export interface FlowEdge {
 export interface FlowGraph {
   nodes: FlowNode[];
   edges: FlowEdge[];
+  misc_nodes?: unknown[];
 }
 
 export interface NodeType {
   id: string;
   code: string;
   name: string;
+  language?: string;
 }
 
 export interface PipeObject {

@@ -2,16 +2,327 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Dark theme by default (to preserve existing look without html class) */
+  --color-background: #091421;
+  
+  --color-surface-low: #121C2A;
+  --color-surface-default: #16202E;
+  --color-surface-high: #212B39;
+  --color-surface-highest: #2B3544;
+  
+  --color-primary-default: #ADC6FF;
+  --color-primary-container: #4D8EFF;
+  
+  --color-secondary: #B1C6F9;
+  --color-tertiary-default: #FFB786;
+  --color-tertiary-container: #DF7412;
+  
+  --color-error: #FFB4AB;
+  
+  --color-on-surface-default: #D9E3F6;
+  --color-on-surface-variant: #C2C6D6;
+  --color-outline: #8C909F;
+  
+  --color-glass-bg: rgba(22, 32, 46, 0.6);
+  --color-glass-border: rgba(255, 255, 255, 0.08);
+  
+  --primary-gradient: linear-gradient(135deg, #ADC6FF 0%, #4D8EFF 100%);
+  --primary-selected-item: linear-gradient(90deg, #ADC6FF 0%, #749CFF 100%);
+  --primary-selected-text: #091421;
+  
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-input: #8C909F;
+  
+  --color-tag-neutral-surface: #2B3544;
+  --color-tag-neutral-text: #C2C6D6;
+  
+  --color-tag-warning-surface: rgba(245, 158, 11, 0.2);
+  --color-tag-warning-text: #FBBF24;
+  
+  --shadow-card: none;
+  
+  --color-success-main: #10B981;
+  --color-success-surface: rgba(16, 185, 129, 0.2);
+  
+  --color-danger-main: #FFB4AB;
+}
+
+/* Make sure .light overrides apply whether on html or body tag */
+.light, html.light {
+  --color-background: #F8FAFC;
+  
+  --color-surface-low: #F1F5F9; /* Sidebar: #F1F5F9 */
+  --color-surface-default: #FFFFFF; /* Card: #FFFFFF */
+  --color-surface-high: #EDF2F7; /* Nested card/inputs: #F1F5F9 or #EDF2F7 */
+  --color-surface-highest: #E2E8F0;
+  
+  --color-primary-default: #2563EB; /* Primary button / logo: #2563EB */
+  --color-primary-container: #3B82F6;
+  
+  --color-secondary: #2563EB;
+  --color-tertiary-default: #DF7412;
+  --color-tertiary-container: #FFB786;
+  
+  --color-error: #DC2626; /* Destructive: #DC2626 */
+  
+  --color-on-surface-default: #0F172A; /* Text primary: #0F172A */
+  --color-on-surface-variant: #475569; /* Text secondary: #475569 */
+  --color-outline: #94A3B8; /* Text tertiary: #94A3B8 */
+  
+  --color-glass-bg: rgba(255, 255, 255, 0.75);
+  --color-glass-border: rgba(0, 0, 0, 0.08);
+  
+  --primary-gradient: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  --primary-selected-item: #DBEAFE; /* Sidebar active item bg: #DBEAFE */
+  --primary-selected-text: #1E40AF; /* Sidebar active item text: #1E40AF */
+  
+  --color-border-subtle: #E2E8F0; /* Border subtle: #E2E8F0 */
+  --color-border-input: #CBD5E1; /* Border input: #CBD5E1 */
+  
+  --color-tag-neutral-surface: #E2E8F0; /* Tag neutral surface: #E2E8F0 */
+  --color-tag-neutral-text: #334155; /* Tag neutral text: #334155 */
+  
+  --color-tag-warning-surface: #FEF3C7; /* Tag warning surface: #FEF3C7 */
+  --color-tag-warning-text: #92400E; /* Tag warning text: #92400E */
+  
+  --shadow-card: 0px 1px 3px rgba(0, 0, 0, 0.05), 0px 1px 2px rgba(0, 0, 0, 0.03);
+  
+  --color-success-main: #15803D; /* Success main: #15803D */
+  --color-success-surface: #D1FAE5; /* Success surface: #D1FAE5 */
+  
+  --color-danger-main: #DC2626;
+}
+
 @layer base {
+  html, body, #app {
+    @apply h-full m-0 p-0;
+  }
   body {
-    @apply bg-[#091421] text-[#D9E3F6];
+    background-color: var(--color-background);
+    color: var(--color-on-surface-default);
     font-family: 'Manrope', sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Override hardcoded border-white classes in light mode */
+  html.light .border-white\/5,
+  html.light .border-r.border-white\/5,
+  html.light .border-l.border-white\/5,
+  html.light .border-b.border-white\/5,
+  html.light .border-t.border-white\/5,
+  .light .border-white\/5,
+  .light .border-r.border-white\/5,
+  .light .border-l.border-white\/5,
+  .light .border-b.border-white\/5,
+  .light .border-t.border-white\/5 {
+    border-color: var(--color-border-subtle) !important;
+  }
+  html.light .border-white\/10,
+  .light .border-white\/10 {
+    border-color: var(--color-border-subtle) !important;
   }
 }
 
 @layer utilities {
   .glass {
-    background: rgba(22, 32, 46, 0.6);
+    background: var(--color-glass-bg);
     backdrop-filter: blur(12px);
+    border: 1px solid var(--color-glass-border);
+    box-shadow: var(--shadow-card);
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   }
 }
+
+/* 
+  Core theme overrides to bypass Tailwind CSS color/opacity compilation bugs.
+  These override Tailwind's compiled classes with the exact CSS variable value,
+  preventing hex colors in variables from breaking inside Tailwind's rgb() wrapping.
+*/
+.bg-background {
+  background-color: var(--color-background) !important;
+}
+.bg-surface-low {
+  background-color: var(--color-surface-low) !important;
+}
+.bg-surface {
+  background-color: var(--color-surface-default) !important;
+}
+.bg-surface-high {
+  background-color: var(--color-surface-high) !important;
+}
+.bg-surface-highest {
+  background-color: var(--color-surface-highest) !important;
+}
+.text-onSurface {
+  color: var(--color-on-surface-default) !important;
+}
+.text-onSurface-variant {
+  color: var(--color-on-surface-variant) !important;
+}
+.text-outline {
+  color: var(--color-outline) !important;
+}
+.text-primary {
+  color: var(--color-primary-default) !important;
+}
+.bg-primary-gradient {
+  background: var(--primary-gradient) !important;
+}
+.bg-primary-selected-item {
+  background: var(--primary-selected-item) !important;
+}
+.text-primarySelectedText {
+  color: var(--primary-selected-text) !important;
+}
+
+/* Light mode specific element overrides */
+.light .text-green-400,
+html.light .text-green-400 {
+  color: var(--color-success-main) !important;
+}
+.light .bg-green-400,
+html.light .bg-green-400 {
+  background-color: var(--color-success-main) !important;
+}
+.light .bg-green-900\/40,
+html.light .bg-green-900\/40 {
+  background-color: var(--color-success-surface) !important;
+}
+
+.light .bg-amber-900\/40,
+html.light .bg-amber-900\/40 {
+  background-color: var(--color-tag-warning-surface) !important;
+}
+.light .text-amber-400,
+html.light .text-amber-400 {
+  color: var(--color-tag-warning-text) !important;
+}
+
+/* Override borders */
+.light .border-surface-highest,
+.light .border-surface-high,
+.light .border-surface,
+html.light .border-surface-highest,
+html.light .border-surface-high,
+html.light .border-surface {
+  border-color: var(--color-border-subtle) !important;
+}
+
+/* Tags neutral surface override */
+.light .bg-surface-highest,
+html.light .bg-surface-highest {
+  background-color: var(--color-tag-neutral-surface) !important;
+}
+.light .bg-surface-highest.text-onSurface-variant,
+html.light .bg-surface-highest.text-onSurface-variant {
+  color: var(--color-tag-neutral-text) !important;
+}
+
+/* 
+  Opacity overrides for Tailwind slash-opacity classes (e.g. class/60).
+  Tailwind compiles classes like text-onSurface-variant/60 into rgb(hex / opacity).
+  Since our CSS variables are hex codes, the browser fails to parse this rgb(...) format.
+  These explicit overrides manually specify correct rgba values for both light and dark themes.
+*/
+
+/* 1. text-onSurface-variant opacity */
+.light .text-onSurface-variant\/60,
+html.light .text-onSurface-variant\/60 {
+  color: rgba(71, 85, 105, 0.6) !important; /* Slate 600 at 60% */
+}
+.light .text-onSurface-variant\/50,
+html.light .text-onSurface-variant\/50 {
+  color: rgba(71, 85, 105, 0.5) !important; /* Slate 600 at 50% */
+}
+.light .text-onSurface-variant\/40,
+html.light .text-onSurface-variant\/40 {
+  color: rgba(71, 85, 105, 0.4) !important; /* Slate 600 at 40% */
+}
+.light .text-onSurface-variant\/30,
+html.light .text-onSurface-variant\/30 {
+  color: rgba(71, 85, 105, 0.3) !important; /* Slate 600 at 30% */
+}
+
+.text-onSurface-variant\/60 {
+  color: rgba(194, 198, 214, 0.6) !important;
+}
+.text-onSurface-variant\/50 {
+  color: rgba(194, 198, 214, 0.5) !important;
+}
+.text-onSurface-variant\/40 {
+  color: rgba(194, 198, 214, 0.4) !important;
+}
+.text-onSurface-variant\/30 {
+  color: rgba(194, 198, 214, 0.3) !important;
+}
+
+/* 2. text-primary opacity */
+.light .text-primary\/70,
+html.light .text-primary\/70 {
+  color: rgba(37, 99, 235, 0.7) !important; /* Blue 600 at 70% */
+}
+.text-primary\/70 {
+  color: rgba(173, 198, 255, 0.7) !important;
+}
+
+/* 3. bg-primary opacity */
+.light .bg-primary\/20,
+html.light .bg-primary\/20 {
+  background-color: rgba(37, 99, 235, 0.2) !important;
+}
+.light .bg-primary\/10,
+html.light .bg-primary\/10 {
+  background-color: rgba(37, 99, 235, 0.1) !important;
+}
+.bg-primary\/20 {
+  background-color: rgba(173, 198, 255, 0.2) !important;
+}
+.bg-primary\/10 {
+  background-color: rgba(173, 198, 255, 0.1) !important;
+}
+
+/* 4. text-error opacity */
+.light .text-error\/70,
+html.light .text-error\/70 {
+  color: rgba(220, 38, 38, 0.7) !important; /* Red 600 at 70% */
+}
+.text-error\/70 {
+  color: rgba(255, 180, 171, 0.7) !important;
+}
+
+/* Improve form inputs and textarea contrast in light mode */
+.light input,
+.light select,
+.light textarea,
+html.light input,
+html.light select,
+html.light textarea {
+  border: 1px solid var(--color-border-input) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.light input:focus,
+.light select:focus,
+.light textarea:focus,
+html.light input:focus,
+html.light select:focus,
+html.light textarea:focus {
+  border-color: var(--color-primary-default) !important;
+}
+.light input.bg-surface-high,
+.light select.bg-surface-high,
+.light textarea.bg-surface-high,
+html.light input.bg-surface-high,
+html.light select.bg-surface-high,
+html.light textarea.bg-surface-high {
+  background-color: #FFFFFF !important;
+}
+.light input.bg-surface-low,
+.light select.bg-surface-low,
+.light textarea.bg-surface-low,
+html.light input.bg-surface-low,
+html.light select.bg-surface-low,
+html.light textarea.bg-surface-low {
+  background-color: #FFFFFF !important;
+}
+

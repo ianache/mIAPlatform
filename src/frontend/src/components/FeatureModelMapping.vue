@@ -70,6 +70,7 @@ const defaultFeatures = [
   { featureId: 'core-chat', featureName: 'Core Chat Agent' },
   { featureId: 'report-gen', featureName: 'Report Generator' },
   { featureId: 'web-search', featureName: 'Web Search Assistant' },
+  { featureId: 'coding-agent', featureName: 'Coding Agent' },
 ];
 
 const rows = ref<FeatureRow[]>(

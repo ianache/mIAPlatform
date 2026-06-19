@@ -15,7 +15,7 @@ export async function processorJsHandler(
     return pipeObj.payload;
   }
   
-  const result = await runUserCode(nodeType.code, pipeObj, node.data.config as Record<string, unknown>);
+  const result = await runUserCode(nodeType.code, pipeObj, (node.config ?? node.data?.config) as Record<string, unknown>);
   
   // result should be an object; merge into existing payload
   return { ...pipeObj.payload, ...(result as Record<string, unknown>) };

@@ -69,7 +69,9 @@ async def _probe_provider_key(provider: str, api_key: str) -> bool:
                     f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}",
                     timeout=10.0
                 )
-                return response.status_code == 200
+                logger.info(f"Google probe → status={response.status_code} body={response.text[:200]}")
+                # 400 is sometimes bad request but key is valid, 401 is invalid
+                return response.status_code != 401
         
         elif provider.lower() == "openai":
             # Test OpenAI API
@@ -79,7 +81,9 @@ async def _probe_provider_key(provider: str, api_key: str) -> bool:
                     headers={"Authorization": f"Bearer {api_key}"},
                     timeout=10.0
                 )
-                return response.status_code == 200
+                logger.info(f"OpenAI probe → status={response.status_code} body={response.text[:200]}")
+                # 401 = invalid key. 403 = valid key but forbidden access to /v1/models
+                return response.status_code != 401
         
         elif provider.lower() == "anthropic":
             # Test Anthropic API
@@ -87,12 +91,13 @@ async def _probe_provider_key(provider: str, api_key: str) -> bool:
                 response = await client.get(
                     "https://api.anthropic.com/v1/models",
                     headers={
-                        "Authorization": f"Bearer {api_key}",
+                        "x-api-key": api_key,
                         "anthropic-version": "2023-06-01"
                     },
                     timeout=10.0
                 )
-                return response.status_code == 200
+                logger.info(f"Anthropic probe → status={response.status_code} body={response.text[:200]}")
+                return response.status_code != 401
 
         elif provider.lower() == "groq":
             # Test Groq API (OpenAI-compatible endpoint)

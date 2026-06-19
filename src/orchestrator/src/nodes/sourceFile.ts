@@ -9,7 +9,7 @@ export async function sourceFileHandler(
   pipeObj: PipeObject,
   _nodeType: { id: string; code: string; name: string }
 ): Promise<Record<string, unknown>> {
-  const filePath = node.data.config?.['file_path'] as string | undefined;
+  const filePath = (node.config?.['file_path'] ?? node.data?.config?.['file_path']) as string | undefined;
   if (!filePath) throw new Error('Source:File — file_path config required');
 
   // Security: reject path traversal

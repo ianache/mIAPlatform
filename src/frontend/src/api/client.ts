@@ -1,7 +1,7 @@
 import { ApiError } from '../types';
 import { useAuthStore } from '../stores/auth';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8090';
 
 let isRefreshing = false;
 let refreshPromise: Promise<boolean> | null = null;

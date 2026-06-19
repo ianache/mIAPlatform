@@ -1,5 +1,5 @@
 <template>
-  <aside class="w-[220px] shrink-0 bg-[#121C2A] border-r border-white/5 overflow-y-auto flex flex-col gap-4 p-4">
+  <aside class="w-[220px] shrink-0 bg-surface-low border-r border-white/5 overflow-y-auto flex flex-col gap-4 p-4">
     <!-- Loading -->
     <div v-if="store.loading" class="space-y-4">
       <div v-for="n in 3" :key="n" class="space-y-2">
@@ -85,11 +85,11 @@ function onDragStart(event: DragEvent, nt: NodeType) {
 
 function onStickyNoteDragStart(event: DragEvent) {
   event.dataTransfer?.setData('application/vueflow', JSON.stringify({
-    category: 'sticky_note',
-    node_type_id: 'sticky-note',
+    category: 'misc',
+    node_type_id: 'misc',
     name: 'Nota Adhesiva',
     icon: '📝',
-    isStickyNote: true,
+    isMisc: true,
   }));
   event.dataTransfer!.effectAllowed = 'move';
 }

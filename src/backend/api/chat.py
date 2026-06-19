@@ -26,7 +26,7 @@ from src.backend.models.chat_schemas import (
 from src.backend.models.agent import Agent
 from src.backend.models.workspace import Subproject, AgentArtifact
 from src.backend.models.workspace_schemas import AgentArtifactResponse
-from src.backend.models.registry_model import APIKeyRecord, RegistryModel as RegistryModelDB
+from src.backend.models.registry_model import RegistryModel as RegistryModelDB
 from src.backend.api.ws_manager import event_manager
 from src.backend.core.security import verify_token_raw
 from src.backend.core.config import get_settings
@@ -323,30 +323,11 @@ async def save_message(
 
 
 async def get_agent_api_key(agent: Agent, db: AsyncSession) -> str:
-    """Get API key for agent's provider from database."""
-    try:
-        result = await db.execute(
-            select(APIKeyRecord).where(
-                APIKeyRecord.provider == agent.provider,
-                APIKeyRecord.is_valid == True
-            )
-        )
-        api_key_record = result.scalar_one_or_none()
-        
-        if api_key_record:
-            # Return the encrypted key (in production, decrypt it)
-            return api_key_record.key_encrypted
-        
-        # Fallback to environment variable
-        from src.backend.core.config import get_settings
-        settings = get_settings()
-        return settings.GOOGLE_API_KEY
-        
-    except Exception as e:
-        logger.error(f"Error getting API key for provider {agent.provider}: {e}")
-        from src.backend.core.config import get_settings
-        settings = get_settings()
-        return settings.GOOGLE_API_KEY
+    """Get API key for agent's provider — DB first, then env var fallback."""
+    from src.backend.services.api_key_service import APIKeyService
+    provider = str(agent.provider).lower()
+    api_key = await APIKeyService.get_api_key(provider, db)
+    return api_key or ""
 
 
 async def create_artifact_from_response(
@@ -367,26 +348,9 @@ async def create_artifact_from_response(
 
     try:
         import litellm
-        # TEMPORARY: force artifact summarisation through Groq instead of the
-        # agent's provider (avoids vertex_ai ADC requirement for Gemini).
-        artifact_model = settings.ARTIFACT_LLM_MODEL  # e.g. "groq/openai/gpt-oss-120b"
-        # Resolve Groq API key: DB first, then env var
-        groq_key = settings.GROQ_API_KEY
-        try:
-            groq_result = await db.execute(
-                select(APIKeyRecord).where(
-                    APIKeyRecord.provider == "groq",
-                    APIKeyRecord.is_valid == True,
-                )
-            )
-            groq_record = groq_result.scalar_one_or_none()
-            if groq_record:
-                groq_key = groq_record.key_encrypted
-                logger.info(f"Artifact key source: DB (provider=groq)")
-            else:
-                logger.info(f"Artifact key source: settings.GROQ_API_KEY")
-        except Exception:
-            pass
+        from src.backend.services.api_key_service import APIKeyService
+        artifact_model = settings.ARTIFACT_LLM_MODEL
+        groq_key = await APIKeyService.get_api_key("groq", db)
         masked = (groq_key[:8] + "..." + groq_key[-4:]) if groq_key and len(groq_key) > 12 else "(empty)"
         logger.info(f"Artifact LLM → model={artifact_model}  key={masked}")
         prompt = (
@@ -572,7 +536,8 @@ async def stream_chat_response(
             system_prompt=system_prompt,
             context={"history": [(h.role, h.content) for h in history]},
             metadata=injected_metadata,
-            event_callback=agent_event_callback
+            event_callback=agent_event_callback,
+            db=db
         ):
             # First, emit any pending agent events
             while not agent_events.empty():

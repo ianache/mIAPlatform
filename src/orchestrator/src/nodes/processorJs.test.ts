@@ -21,7 +21,8 @@ describe('processorJsHandler', async () => {
       id: 'node-1',
       type: 'processor',
       node_type_id: 'processor-js',
-      data: { label: 'JS Processor', config: {} },
+      label: 'JS Processor',
+      config: {},
     };
 
     const nodeType = { id: 'nt-1', code: 'function process(input, config) { return { processed: true }; }', name: 'Processor:JS' };
@@ -37,7 +38,8 @@ describe('processorJsHandler', async () => {
       id: 'node-1',
       type: 'processor',
       node_type_id: 'processor-js',
-      data: { label: 'JS Processor', config: {} },
+      label: 'JS Processor',
+      config: {},
     };
 
     const nodeType = { id: 'nt-1', code: '', name: 'Processor:JS' };
@@ -52,7 +54,8 @@ describe('processorJsHandler', async () => {
       id: 'node-1',
       type: 'processor',
       node_type_id: 'processor-js',
-      data: { label: 'JS Processor', config: {} },
+      label: 'JS Processor',
+      config: {},
     };
 
     const nodeType = { id: 'nt-1', code: '   ', name: 'Processor:JS' };
@@ -67,7 +70,8 @@ describe('processorJsHandler', async () => {
       id: 'node-1',
       type: 'processor',
       node_type_id: 'processor-js',
-      data: { label: 'JS Processor', config: {} },
+      label: 'JS Processor',
+      config: {},
     };
 
     const nodeType = { id: 'nt-1', code: 'function process(input, config) { return { newKey: "newValue", merged: true }; }', name: 'Processor:JS' };

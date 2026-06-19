@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#091421] flex text-[#D9E3F6]">
+  <div class="min-h-screen bg-background flex text-onSurface">
     <Sidebar :open="sidebarOpen" />
 
     <!-- Overlay for mobile when sidebar is open -->

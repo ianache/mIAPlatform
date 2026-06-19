@@ -108,7 +108,21 @@
       <!-- Implementation card (full width) -->
       <div class="glass rounded-2xl p-6 space-y-4">
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-headline font-semibold text-onSurface">Implementation</h2>
+          <div class="flex items-center gap-2">
+            <h2 class="text-lg font-headline font-semibold text-onSurface">Implementation</h2>
+            <button
+              class="p-1.5 rounded-lg text-primary hover:bg-primary/10 transition-colors flex items-center justify-center disabled:opacity-40"
+              title="Generate / Regenerate code with Coding Agent"
+              :disabled="generatingCode"
+              @click="handleGenerateCode"
+            >
+              <svg v-if="generatingCode" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+              <span v-else class="text-base leading-none">✨</span>
+            </button>
+          </div>
           <div class="flex rounded-lg overflow-hidden border border-white/10">
             <button
               v-for="lang in ['javascript', 'python']"
@@ -177,6 +191,7 @@ import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useNodeTypesStore } from '../stores/nodeTypes';
 import type { NodeTypeProperty } from '../types';
+import { apiClient } from '../api/client';
 
 const router = useRouter();
 const route = useRoute();
@@ -186,6 +201,30 @@ const ntId = route.params.id as string;
 const loading = ref(true);
 const toast = ref('');
 const confirmDelete = ref(false);
+const generatingCode = ref(false);
+
+async function handleGenerateCode() {
+  generatingCode.value = true;
+  try {
+    // Save current changes first to make sure properties and language are updated in DB!
+    await handleSave();
+
+    // Call generate-code endpoint
+    const response = await apiClient.post<{ code: string; model_used: string }>(
+      `/api/v1/library/node-types/${ntId}/generate-code`,
+      {}
+    );
+    form.code = response.code;
+    toast.value = `Code generated using ${response.model_used}!`;
+    setTimeout(() => { toast.value = ''; }, 3500);
+  } catch (err: any) {
+    console.error('Failed to generate code:', err);
+    toast.value = 'Failed to generate code. Please check console.';
+    setTimeout(() => { toast.value = ''; }, 3500);
+  } finally {
+    generatingCode.value = false;
+  }
+}
 
 const form = reactive({
   name: '',

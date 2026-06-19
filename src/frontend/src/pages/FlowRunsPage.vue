@@ -181,6 +181,12 @@
                   <pre class="text-xs font-mono text-onSurface bg-surface rounded-lg px-3 py-2 max-h-48 overflow-auto">{{ formatJson(event.input) }}</pre>
                 </div>
 
+                <!-- Script Executed -->
+                <div v-if="event.code">
+                  <p class="text-xs font-label text-onSurface-variant mb-1 uppercase tracking-wide">Script Executed</p>
+                  <pre class="text-xs font-mono text-onSurface bg-surface rounded-lg px-3 py-2 max-h-48 overflow-auto">{{ event.code }}</pre>
+                </div>
+
                 <!-- Output -->
                 <div v-if="event.output !== undefined">
                   <p class="text-xs font-label text-onSurface-variant mb-1 uppercase tracking-wide">Output</p>

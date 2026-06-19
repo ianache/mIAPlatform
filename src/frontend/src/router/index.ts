@@ -12,6 +12,7 @@ import ProjectEditPage from '../pages/ProjectEditPage.vue';
 import LibraryPage from '../pages/LibraryPage.vue';
 import FlowDesignerPage from '../pages/FlowDesignerPage.vue';
 import FlowRunsPage from '../pages/FlowRunsPage.vue';
+import RunsLogPage from '../pages/RunsLogPage.vue';
 import NodesCatalogPage from '../pages/NodesCatalogPage.vue';
 import NodeTypeEditPage from '../pages/NodeTypeEditPage.vue';
 import { useAuthStore } from '../stores/auth';
@@ -31,6 +32,7 @@ const routes = [
       { path: 'library', name: 'Library', component: LibraryPage },
       { path: 'library/:id/edit', name: 'FlowDesigner', component: FlowDesignerPage },
       { path: 'library/:id/runs', name: 'FlowRuns', component: FlowRunsPage },
+      { path: 'runs-log', name: 'RunsLog', component: RunsLogPage },
       { path: 'nodes-catalog', name: 'NodesCatalog', component: NodesCatalogPage },
       { path: 'nodes-catalog/:id/edit', name: 'NodeTypeEdit', component: NodeTypeEditPage },
       { path: 'model-registry', name: 'ModelRegistry', component: ModelRegistryPage },

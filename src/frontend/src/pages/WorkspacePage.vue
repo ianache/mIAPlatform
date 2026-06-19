@@ -259,9 +259,9 @@
       </div>
 
       <!-- Right Panel: Agent Activity -->
-      <div class="w-[400px] border-l border-surface-high bg-surface/30 backdrop-blur flex flex-col">
+      <div class="w-[400px] border-l border-surface-high bg-surface/30 backdrop-blur flex flex-col h-full">
         <!-- Panel Header -->
-        <div class="p-4 border-b border-surface-high flex items-center justify-between">
+        <div class="p-4 border-b border-surface-high flex items-center justify-between shrink-0">
           <div class="flex items-center gap-3">
             <img
               v-if="workspaceStore.currentSubproject?.agent?.avatar_url"
@@ -286,7 +286,7 @@
         </div>
 
         <!-- Project/Subproject Selectors -->
-        <div class="p-4 border-b border-surface-high space-y-3">
+        <div class="p-4 border-b border-surface-high space-y-3 shrink-0">
           <!-- Project Selector -->
           <div>
             <div class="flex items-center justify-between mb-1">
@@ -343,7 +343,7 @@
         </div>
 
         <!-- Agent Activity Steps -->
-        <div v-if="(workspaceStore.agentSteps || []).length > 0" class="px-4 py-3 border-b border-surface-high">
+        <div v-if="(workspaceStore.agentSteps || []).length > 0" class="px-4 py-3 border-b border-surface-high shrink-0">
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs text-onSurface-variant font-label uppercase tracking-wider">Activity Log</span>
             <button 
@@ -353,7 +353,7 @@
               Clear
             </button>
           </div>
-          <div class="space-y-2 max-h-48 overflow-y-auto">
+          <div class="space-y-2 max-h-32 overflow-y-auto">
             <div 
               v-for="step in (workspaceStore.agentSteps || [])" 
               :key="step.id"
@@ -404,7 +404,7 @@
         </div>
 
         <!-- Activity Feed - Chat Messages -->
-        <div ref="actionsContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div ref="actionsContainer" class="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
           <!-- Empty State -->
           <div v-if="workspaceStore.chatMessages.length === 0" class="text-center py-8">
             <div class="w-16 h-16 rounded-full bg-surface-high mx-auto mb-4 flex items-center justify-center">
@@ -509,7 +509,7 @@
         </div>
 
         <!-- Input Area -->
-        <div class="p-4 border-t border-surface-high bg-surface/50">
+        <div class="p-4 border-t border-surface-high bg-surface/50 shrink-0">
           <div class="relative">
             <textarea
               ref="promptInput"
@@ -547,9 +547,6 @@
               </button>
             </div>
           </div>
-          <p class="text-[10px] text-onSurface-variant font-label mt-2 text-center uppercase tracking-wider">
-            SYNTHEX OS V2.4.0 • ULTRA LATENCY MODE
-          </p>
         </div>
       </div>
     </div>
@@ -640,6 +637,7 @@ import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useWorkspaceStore } from '../stores/workspace';
 import { apiClient } from '../api/client';
+import type { Artifact } from '../types';
 import SessionArtifactsPanel from '../components/SessionArtifactsPanel.vue';
 
 const route = useRoute();
@@ -864,7 +862,7 @@ async function handleArtifactSelect(artifact: any) {
   // Fetch content from file_url if available
   if (artifact.file_url) {
     try {
-      const url = `http://localhost:8000${artifact.file_url}`;
+      const url = `${import.meta.env.VITE_API_URL || 'http://localhost:8090'}${artifact.file_url}`;
       const response = await fetch(url);
       if (response.ok) {
         selectedArtifactContent.value = await response.text();

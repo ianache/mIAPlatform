@@ -33,7 +33,7 @@ El servidor debe correrse con PYTHONPATH configurado. Ejecutar con el path corre
 
 ```
 $env:PYTHONPATH = "D:\02-PERSONAL\01-PROJECTS\22-mIAPlatform"
-python -m uvicorn src.backend.main:app --host 0.0.0.0 --port 8000
+python -m uvicorn src.backend.main:app --host 0.0.0.0 --port 8090
 ```
 O agrega esto al .env del proyecto:
 
@@ -44,7 +44,7 @@ PYTHONPATH=D:\02-PERSONAL\01-PROJECTS\22-mIAPlatform
 Y luego corre:
 
 ```
-python -m uvicorn src.backend.main:app --host 0.0.0.0 --port 8000
+python -m uvicorn src.backend.main:app --host 0.0.0.0 --port 8090
 ```
 
 ## Base de Datos

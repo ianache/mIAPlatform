@@ -6,9 +6,14 @@
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from './stores/auth'
+import { useThemeStore } from './stores/theme'
 
 const router = useRouter()
 const auth = useAuthStore()
+const themeStore = useThemeStore()
+
+// Apply theme synchronously in setup to prevent visual flash
+themeStore.applyTheme()
 
 onMounted(async () => {
   const params = new URLSearchParams(window.location.search)

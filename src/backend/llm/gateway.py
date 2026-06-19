@@ -24,8 +24,15 @@ class LLMGateway:
             "claude-3-5-sonnet-20241022",
             "claude-3-opus-20240229",
             # Google
+            "gemini-3.5-pro",
+            "gemini-3.5-flash",
+            "gemini-3.1-pro-preview",
+            "gemini-3.1-flash-lite",
+            "gemini-2.0-flash",
+            "gemini-2.0-flash-lite",
             "gemini-1.5-pro",
             "gemini-1.5-flash",
+            "gemini-1.0-pro",
             # Local
             "ollama/llama3.1",
             "ollama/mistral",
@@ -38,6 +45,7 @@ class LLMGateway:
         temperature: float = 0.7,
         max_tokens: Optional[int] = None,
         tenant_id: Optional[str] = None,
+        api_key: Optional[str] = None,
     ) -> ModelResponse:
         """
         Execute LLM completion request.
@@ -48,7 +56,12 @@ class LLMGateway:
             temperature: Sampling temperature (0.0 to 1.0)
             max_tokens: Maximum tokens to generate
             tenant_id: Tenant for Vault secret lookup
+            api_key: Optional API key to override environmental defaults
         """
+        # Rewrite gemini-xxx to gemini/gemini-xxx for LiteLLM Google AI Studio routing
+        if model.startswith("gemini-") and "/" not in model:
+            model = f"gemini/{model}"
+
         # Build request params
         params = {
             "model": model,
@@ -58,6 +71,9 @@ class LLMGateway:
 
         if max_tokens:
             params["max_tokens"] = max_tokens
+
+        if api_key:
+            params["api_key"] = api_key
 
         try:
             response = await acompletion(**params)

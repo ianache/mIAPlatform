@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "orchestrator": "npm run --prefix src/orchestrator dev"
   },
   "dependencies": {
     "@vue-flow/core": "^1.41.0",

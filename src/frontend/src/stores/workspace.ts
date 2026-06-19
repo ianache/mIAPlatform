@@ -292,7 +292,7 @@ export const useWorkspaceStore = defineStore('workspace', {
         // Make streaming request with token refresh support
         const authStore = useAuthStore();
         let response = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/chat/send`,
+          `${import.meta.env.VITE_API_URL || 'http://localhost:8090'}/api/v1/chat/send`,
           {
             method: 'POST',
             headers: {
@@ -311,7 +311,7 @@ export const useWorkspaceStore = defineStore('workspace', {
             console.log('Token refreshed successfully, retrying request...');
             // Retry with new token
             response = await fetch(
-              `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/chat/send`,
+              `${import.meta.env.VITE_API_URL || 'http://localhost:8090'}/api/v1/chat/send`,
               {
                 method: 'POST',
                 headers: {

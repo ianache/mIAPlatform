@@ -9,6 +9,7 @@ class ProviderEnum(str, Enum):
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     GOOGLE = "google"
+    GROQ = "groq"
     OLLAMA = "ollama"
     OTHER = "other"
 

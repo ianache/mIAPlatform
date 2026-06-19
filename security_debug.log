@@ -1,0 +1,720 @@
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-18T04:43:32.384305
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781757788, 'iat': 1781757488, 'auth_time': 1781750268, 'jti': 'fad3f5cd-6c1b-4f3b-989d-19a475e8913c', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': 'e4d5d00e-be92-454d-bf48-c5680c725cf6', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-18T04:49:19.979913
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781758113, 'iat': 1781757813, 'auth_time': 1781750268, 'jti': 'bd5f257e-8e35-45ca-9095-9bb70d08328f', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': 'e4d5d00e-be92-454d-bf48-c5680c725cf6', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-18T04:49:27.215549
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781758113, 'iat': 1781757813, 'auth_time': 1781750268, 'jti': 'bd5f257e-8e35-45ca-9095-9bb70d08328f', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': 'e4d5d00e-be92-454d-bf48-c5680c725cf6', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-18T04:50:08.347309
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781758113, 'iat': 1781757813, 'auth_time': 1781750268, 'jti': 'bd5f257e-8e35-45ca-9095-9bb70d08328f', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': 'e4d5d00e-be92-454d-bf48-c5680c725cf6', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-18T04:50:14.426045
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781758113, 'iat': 1781757813, 'auth_time': 1781750268, 'jti': 'bd5f257e-8e35-45ca-9095-9bb70d08328f', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': 'e4d5d00e-be92-454d-bf48-c5680c725cf6', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-18T04:58:41.628425
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781758704, 'iat': 1781758404, 'auth_time': 1781758403, 'jti': 'a651bdb1-8b5f-4164-9dd1-eef4d21b1b11', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': '93733409-603d-46f5-b7e7-90adaac836cc', 'acr': '1', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-18T05:07:57.283042
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781759022, 'iat': 1781758722, 'auth_time': 1781758403, 'jti': '3b696b3f-84db-47f0-b2e2-392e431d2807', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': '93733409-603d-46f5-b7e7-90adaac836cc', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-18T05:16:04.783342
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781759578, 'iat': 1781759278, 'auth_time': 1781758403, 'jti': 'c6a826e4-b738-4309-9e8e-2ef44432a419', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': '93733409-603d-46f5-b7e7-90adaac836cc', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-18T05:16:05.092687
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781759578, 'iat': 1781759278, 'auth_time': 1781758403, 'jti': 'c6a826e4-b738-4309-9e8e-2ef44432a419', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': '93733409-603d-46f5-b7e7-90adaac836cc', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-18T05:16:05.112033
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781759578, 'iat': 1781759278, 'auth_time': 1781758403, 'jti': 'c6a826e4-b738-4309-9e8e-2ef44432a419', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': '93733409-603d-46f5-b7e7-90adaac836cc', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-18T05:21:56.824365
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781760065, 'iat': 1781759765, 'auth_time': 1781758403, 'jti': 'b1914376-adf5-4b33-ae1a-837b88e2ed27', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': '93733409-603d-46f5-b7e7-90adaac836cc', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-18T12:59:18.880596
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781760417, 'iat': 1781760117, 'auth_time': 1781758403, 'jti': 'f5a9239c-9234-4708-81e6-107d3a59455f', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': '93733409-603d-46f5-b7e7-90adaac836cc', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-18T13:36:08.613956
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781787859, 'iat': 1781787559, 'auth_time': 1781758403, 'jti': '3c7287ad-1290-44d2-8087-a542414bad67', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': '93733409-603d-46f5-b7e7-90adaac836cc', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-19T05:20:01.658533
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781790070, 'iat': 1781789770, 'auth_time': 1781758403, 'jti': '4e4a0b36-32bb-407c-a655-f30dda540c56', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': '93733409-603d-46f5-b7e7-90adaac836cc', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-19T05:26:09.029628
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781846702, 'iat': 1781846402, 'auth_time': 1781758403, 'jti': '0ce60c34-f7d8-4066-a87b-f6c4faa140a7', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': '93733409-603d-46f5-b7e7-90adaac836cc', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-19T05:26:11.735999
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781846702, 'iat': 1781846402, 'auth_time': 1781758403, 'jti': '0ce60c34-f7d8-4066-a87b-f6c4faa140a7', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': '93733409-603d-46f5-b7e7-90adaac836cc', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-19T05:31:59.815471
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781847069, 'iat': 1781846769, 'auth_time': 1781758403, 'jti': '4a5d6785-c6b4-4e63-82fc-3d6a8eb681f3', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': '93733409-603d-46f5-b7e7-90adaac836cc', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================
+=== JWT VERIFICATION FAILURE ===
+Timestamp: 2026-06-19T05:43:25.608838
+Error: Signature has expired
+Error Type: ExpiredSignatureError
+Expected Client ID: miaplatform
+Expected Issuer: https://oauth2.qa.comsatel.com.pe/realms/Apps
+Unverified Header: {'alg': 'RS256', 'typ': 'JWT', 'kid': 'G3uGKtgGqYor-f8K9TusP3OatW8XkEbJrvVbodO2350'}
+Unverified Payload: {'exp': 1781847420, 'iat': 1781847120, 'auth_time': 1781758403, 'jti': 'adc68063-39c5-4add-9690-9abedae8a1cf', 'iss': 'https://oauth2.qa.comsatel.com.pe/realms/Apps', 'aud': ['realm-management', 'kmplatform', 'nexus-portal', 'admin-svr', 'cl2home', 'account', 'nexus-bff'], 'sub': 'acaece06-dfdb-4f06-a302-b585dac6d13d', 'typ': 'Bearer', 'azp': 'miaplatform', 'sid': '93733409-603d-46f5-b7e7-90adaac836cc', 'acr': '0', 'allowed-origins': ['*'], 'realm_access': {'roles': ['offline_access', 'admin', 'designer', 'uma_authorization', 'default-roles-apps', 'Administrador del sistema']}, 'resource_access': {'realm-management': {'roles': ['view-users', 'query-groups', 'query-users']}, 'kmplatform': {'roles': ['KM_ADMIN', 'KM_MANAGER']}, 'nexus-portal': {'roles': ['API-Designer']}, 'admin-svr': {'roles': ['inicial', 'idi']}, 'cl2home': {'roles': ['IDI']}, 'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'nexus-bff': {'roles': ['API-Designer']}}, 'scope': 'openid usuario email profile', 'email_verified': False, 'name': 'Ilver Anache', 'preferred_username': 'ianache', 'given_name': 'Ilver', 'family_name': 'Anache'}
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\src\backend\core\security.py", line 93, in verify_token
+    payload = jwt.decode(
+        token,
+    ...<3 lines>...
+        issuer=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}",
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 365, in decode
+    decoded = self.decode_complete(
+        jwt,
+    ...<8 lines>...
+        leeway=leeway,
+    )
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 272, in decode_complete
+    self._validate_claims(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<4 lines>...
+        subject=subject,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 405, in _validate_claims
+    self._validate_exp(payload, now, leeway)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ianache\Desktop\DATA\01-DOCUMENTOS\02-PROYECTOS\104-mIAPlatform\mIAPlatform\.venv\Lib\site-packages\jwt\api_jwt.py", line 508, in _validate_exp
+    raise ExpiredSignatureError("Signature has expired")
+jwt.exceptions.ExpiredSignatureError: Signature has expired
+
+================================

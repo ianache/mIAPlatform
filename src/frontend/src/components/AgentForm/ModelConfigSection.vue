@@ -154,6 +154,7 @@ const providerLabels: Record<string, string> = {
   openai: 'OpenAI',
   anthropic: 'Anthropic',
   google: 'Google Gemini',
+  groq: 'Groq',
   ollama: 'Ollama',
   other: 'Other',
 };
@@ -183,6 +184,7 @@ const providerDotClass = computed(() => ({
   openai: 'bg-primary',
   anthropic: 'bg-tertiary',
   google: 'bg-secondary',
+  groq: 'bg-warning',
   ollama: 'bg-outline',
   other: 'bg-outline',
 }[localProvider.value] ?? 'bg-outline'));

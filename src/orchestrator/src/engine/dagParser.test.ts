@@ -6,9 +6,9 @@ describe('dagParser', () => {
   it('parseAndSort with linear graph [A→B→C] returns [A, B, C]', () => {
     const graph: FlowGraph = {
       nodes: [
-        { id: 'A', type: 'source', node_type_id: 'nt1', data: { label: 'A', config: {} } },
-        { id: 'B', type: 'processor', node_type_id: 'nt2', data: { label: 'B', config: {} } },
-        { id: 'C', type: 'sink', node_type_id: 'nt3', data: { label: 'C', config: {} } },
+        { id: 'A', type: 'source', node_type_id: 'nt1', label: 'A', config: {} },
+        { id: 'B', type: 'processor', node_type_id: 'nt2', label: 'B', config: {} },
+        { id: 'C', type: 'sink', node_type_id: 'nt3', label: 'C', config: {} },
       ],
       edges: [
         { id: 'e1', source: 'A', target: 'B' },
@@ -22,8 +22,8 @@ describe('dagParser', () => {
   it('parseAndSort with cycle [A→B→A] throws an error containing "cycle"', () => {
     const graph: FlowGraph = {
       nodes: [
-        { id: 'A', type: 'source', node_type_id: 'nt1', data: { label: 'A', config: {} } },
-        { id: 'B', type: 'processor', node_type_id: 'nt2', data: { label: 'B', config: {} } },
+        { id: 'A', type: 'source', node_type_id: 'nt1', label: 'A', config: {} },
+        { id: 'B', type: 'processor', node_type_id: 'nt2', label: 'B', config: {} },
       ],
       edges: [
         { id: 'e1', source: 'A', target: 'B' },
@@ -36,9 +36,9 @@ describe('dagParser', () => {
   it('parseAndSort with parallel branches [A→B, A→C] returns A first; B and C in any order after', () => {
     const graph: FlowGraph = {
       nodes: [
-        { id: 'A', type: 'source', node_type_id: 'nt1', data: { label: 'A', config: {} } },
-        { id: 'B', type: 'processor', node_type_id: 'nt2', data: { label: 'B', config: {} } },
-        { id: 'C', type: 'processor', node_type_id: 'nt3', data: { label: 'C', config: {} } },
+        { id: 'A', type: 'source', node_type_id: 'nt1', label: 'A', config: {} },
+        { id: 'B', type: 'processor', node_type_id: 'nt2', label: 'B', config: {} },
+        { id: 'C', type: 'processor', node_type_id: 'nt3', label: 'C', config: {} },
       ],
       edges: [
         { id: 'e1', source: 'A', target: 'B' },
@@ -55,8 +55,8 @@ describe('dagParser', () => {
   it('parseAndSort ignores misc_nodes (sticky notes have no edges)', () => {
     const graph: FlowGraph = {
       nodes: [
-        { id: 'A', type: 'source', node_type_id: 'nt1', data: { label: 'A', config: {} } },
-        { id: 'B', type: 'processor', node_type_id: 'nt2', data: { label: 'B', config: {} } },
+        { id: 'A', type: 'source', node_type_id: 'nt1', label: 'A', config: {} },
+        { id: 'B', type: 'processor', node_type_id: 'nt2', label: 'B', config: {} },
       ],
       edges: [
         { id: 'e1', source: 'A', target: 'B' },
@@ -73,7 +73,7 @@ describe('dagParser', () => {
   it('parseAndSort skips self-loops', () => {
     const graph: FlowGraph = {
       nodes: [
-        { id: 'A', type: 'source', node_type_id: 'nt1', data: { label: 'A', config: {} } },
+        { id: 'A', type: 'source', node_type_id: 'nt1', label: 'A', config: {} },
       ],
       edges: [
         { id: 'e1', source: 'A', target: 'A' }, // self-loop

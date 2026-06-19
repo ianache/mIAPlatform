@@ -21,6 +21,43 @@
                     "issue_id"
                 ]
             }
+        },
+        {
+            "name": "find_project",
+            "description": "Buscar proyecto en Gitlab por su nombre. Devuelve datos basicos del proyecto (id, name, description)",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "nombre del proyecto"
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            }
+        },
+        {
+            "name": "find_userstory",
+            "description": "Busca una user story en proyecto en Gitlab por su codigo. Devuelve datos basicos de la user story (id, name, description)",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "project_id": {
+                        "type": "integer",
+                        "description": "id del proyecto"
+                    },
+                    "userstory_code": {
+                        "type": "string",
+                        "description": "codigo de la userstory"
+                    }
+                },
+                "required": [
+                    "project_id",
+                    "userstory_code"
+                ]
+            }
         }
     ]
 }

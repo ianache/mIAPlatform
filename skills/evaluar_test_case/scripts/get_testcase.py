@@ -19,17 +19,17 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-def execute(project_id: int, issue_id: int) -> Dict[str, Any]:
+def execute(project_id: int, testcase_id: int) -> Dict[str, Any]:
     """Get test case information.
 
     Args:
         project_id: Project identifier
-        issue_id: Test Case identifier
+        testcase_id: Test Case identifier
 
     Returns:
         Dictionary with test case specification
     """
-    logger.info(f"Getting test case information for project {project_id} and issue {issue_id}")
+    logger.info(f"Getting test case information for project {project_id} and issue {testcase_id}")
 
     try:
         client = GitLabClient(
@@ -37,7 +37,7 @@ def execute(project_id: int, issue_id: int) -> Dict[str, Any]:
             private_token=os.getenv('GITLAB_TOKEN')
         )
 
-        issue = client.get_issue(project_id, issue_id)
+        issue = client.get_issue(project_id, testcase_id)
         return json.dumps({
             'title': issue.title,
             'specification': issue.description,

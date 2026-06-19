@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-[calc(100vh-64px)] overflow-hidden">
     <!-- Top bar -->
-    <div class="flex items-center justify-between px-5 py-3 border-b border-white/5 bg-[#121C2A] shrink-0 gap-4">
+    <div class="flex items-center justify-between px-5 py-3 border-b border-white/5 bg-surface-low shrink-0 gap-4">
       <div class="flex items-center gap-2 text-sm font-label text-onSurface-variant">
         <button class="hover:text-onSurface transition-colors" @click="router.push('/library')">Library</button>
         <span>/</span>
@@ -110,7 +110,7 @@
       <!-- Center: Flow Canvas -->
       <div
         ref="canvasRef"
-        class="flex-1 overflow-hidden relative bg-[#0D1520]"
+        class="flex-1 overflow-hidden relative bg-background"
         :class="{ 'grid-enabled': gridMode }"
         @dragover.prevent
         @drop="onDrop"
@@ -460,7 +460,8 @@ async function exportToPNG() {
   }
   try {
     successMessage.value = 'Generating PNG...';
-    const dataUrl = await toPng(canvasElement, { backgroundColor: '#0D1520', pixelRatio: 2 });
+    const backgroundColor = canvasRef.value ? getComputedStyle(canvasRef.value).backgroundColor : '#0D1520';
+    const dataUrl = await toPng(canvasElement, { backgroundColor, pixelRatio: 2 });
     const filename = (flow.value?.title?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') ?? 'flow-diagram') + '.png';
     const a = document.createElement('a');
     a.href = dataUrl;

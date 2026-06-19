@@ -111,12 +111,15 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import { apiClient } from '../../api/client';
+import { useAvatarUpload } from '../../composables/useAvatarUpload';
+
+const { validateFile, uploadAvatar, deleteAvatar } = useAvatarUpload();
 
 interface Props {
   name: string;
   description?: string;
   avatarUrl?: string;
+  agentId?: string;
 }
 
 interface Emits {
@@ -168,49 +171,26 @@ function triggerFilePicker() {
 async function handleFileChange(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0];
   if (!file) return;
-  
-  // Validate file type
-  if (!file.type.startsWith('image/')) {
-    uploadError.value = 'Please select an image file';
+
+  const validationError = validateFile(file);
+  if (validationError) {
+    uploadError.value = validationError;
     return;
   }
-  
-  // Validate file size (max 5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    uploadError.value = 'Image size should be less than 5MB';
-    return;
-  }
-  
+
   uploadError.value = '';
   uploading.value = true;
-  
+
   try {
-    // Upload file to backend
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    const response = await apiClient.post<{
-      filename: string;
-      url: string;
-      content_type: string;
-      size: number;
-    }>('/api/v1/upload/avatar', formData);
-    
-    // Update avatar URL with the permanent URL from server
-    console.log('Upload response:', response);
+    const response = await uploadAvatar(file, 'agent', props.agentId);
     localAvatarUrl.value = response.url;
     imageLoadError.value = false;
-    console.log('Avatar URL set to:', localAvatarUrl.value);
-    
   } catch (err: any) {
-    uploadError.value = err?.detail || 'Failed to upload avatar. Please try again.';
+    uploadError.value = err?.detail || 'Error al subir el avatar. Intenta de nuevo.';
     console.error('Avatar upload error:', err);
   } finally {
     uploading.value = false;
-    // Reset file input
-    if (fileInput.value) {
-      fileInput.value.value = '';
-    }
+    if (fileInput.value) fileInput.value.value = '';
   }
 }
 
@@ -220,25 +200,16 @@ function handleImageError() {
 
 async function clearAvatar() {
   if (!localAvatarUrl.value || uploading.value) return;
-  
-  // Extract filename from URL
-  const filename = localAvatarUrl.value.split('/').pop();
-  
-  if (filename) {
-    try {
-      // Delete the file from server
-      await apiClient.delete(`/api/v1/upload/avatar/${filename}`);
-    } catch (err) {
-      console.error('Failed to delete avatar:', err);
-      // Continue anyway to clear the reference
-    }
+
+  try {
+    await deleteAvatar(localAvatarUrl.value);
+  } catch (err) {
+    console.error('Failed to delete avatar:', err);
   }
-  
+
   localAvatarUrl.value = '';
   imageLoadError.value = false;
-  if (fileInput.value) {
-    fileInput.value.value = '';
-  }
+  if (fileInput.value) fileInput.value.value = '';
 }
 
 function validateName() {

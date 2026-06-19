@@ -4,6 +4,7 @@ import { parseAndSort, type FlowGraph } from './dagParser.js';
 import type { FlowNode, PipeObject, NodeType } from './types.js';
 import { sourceFileHandler } from '../nodes/sourceFile.js';
 import { processorJsHandler } from '../nodes/processorJs.js';
+import { processorPyHandler } from '../nodes/processorPy.js';
 
 /**
  * NodeHandler type - function that executes a node and returns new payload
@@ -22,10 +23,26 @@ function getHandler(node: FlowNode, nodeType: NodeType | undefined): NodeHandler
   const type = node.type.toLowerCase();
   const name = (nodeType?.name || '').toLowerCase();
   
-  if (type === 'source' && name.includes('file')) return sourceFileHandler;
-  if (type === 'processor') return processorJsHandler;
+  // 1. Explicitly check for the default built-in FILE node
+  if (type === 'source' && name === 'file') {
+    return sourceFileHandler;
+  }
   
-  // Unknown node type — passthrough (deferred: sink, other sources)
+  // 2. If node type has code, route to the appropriate language runner
+  if (nodeType?.code && nodeType.code.trim() !== '') {
+    const lang = (nodeType.language || 'javascript').toLowerCase();
+    if (lang === 'python') {
+      return processorPyHandler;
+    }
+    return processorJsHandler;
+  }
+  
+  // 3. Fallback/legacy built-in FILE check
+  if (type === 'source' && name.includes('file')) {
+    return sourceFileHandler;
+  }
+  
+  // 4. Unknown/No-code node types are treated as passthrough
   return async (_n, p) => p.payload;
 }
 
@@ -106,34 +123,72 @@ async function executeNode(
   const handler = getHandler(node, nodeType);
   const startTime = Date.now();
 
+  console.log(`\n=================== START EXECUTE NODE: ${node.label} (${node.id}) ===================`);
+  console.log(`- Input Payload:\n`, JSON.stringify(pipeObj.payload, null, 2));
+  if (nodeType?.code && nodeType.code.trim() !== '') {
+    console.log(`- Executing Script (${nodeType.language || 'javascript'}):\n-------------------\n${nodeType.code}\n-------------------`);
+  } else {
+    console.log(`- Executing Built-in / Passthrough Handler`);
+  }
+
   pipeObj.metadata.nodeId = node.id;
-  // nodeType could be undefined for unknown node types - use empty object as fallback
-  const effectiveNodeType = nodeType ?? { id: '', code: '', name: '' };
-  const result = await handler(node, pipeObj, effectiveNodeType);
-  const duration_ms = Date.now() - startTime;
+  const effectiveNodeType = nodeType ?? { id: '', code: '', name: '', language: 'javascript' };
 
-  const nodeEvent = {
-    node_id: node.id,
-    node_name: node.data.label,
-    status: 'success' as const,
-    duration_ms,
-    input: pipeObj.payload,
-    output: result,
-    timestamp: new Date().toISOString(),
-  };
+  try {
+    const result = await handler(node, pipeObj, effectiveNodeType);
+    const duration_ms = Date.now() - startTime;
 
-  await appendRunLog(runId, nodeEvent);
-  await emitRunEvent(runId, { type: 'node_complete', ...nodeEvent });
+    console.log(`- Status: SUCCESS`);
+    console.log(`- Output Payload:\n`, JSON.stringify(result, null, 2));
+    console.log(`- Duration: ${duration_ms}ms`);
+    console.log(`================================================================================\n`);
 
-  // Create new pipeObj with merged payload for next nodes
-  const newPipeObj: PipeObject = {
-    ...pipeObj,
-    payload: result && typeof result === 'object'
-      ? { ...pipeObj.payload, ...(result as Record<string, unknown>) }
-      : pipeObj.payload,
-  };
+    const nodeEvent = {
+      node_id: node.id,
+      node_name: node.label,
+      status: 'success' as const,
+      duration_ms,
+      input: pipeObj.payload,
+      output: result,
+      code: nodeType?.code || null,
+      timestamp: new Date().toISOString(),
+    };
 
-  return { nodeId: node.id, result, pipeObj: newPipeObj };
+    await appendRunLog(runId, nodeEvent);
+    await emitRunEvent(runId, { type: 'node_complete', ...nodeEvent });
+
+    // Create new pipeObj with merged payload for next nodes
+    const newPipeObj: PipeObject = {
+      ...pipeObj,
+      payload: result && typeof result === 'object'
+        ? { ...pipeObj.payload, ...(result as Record<string, unknown>) }
+        : pipeObj.payload,
+    };
+
+    return { nodeId: node.id, result, pipeObj: newPipeObj };
+  } catch (err: any) {
+    const duration_ms = Date.now() - startTime;
+    console.error(`- Status: FAILED`);
+    console.error(`- Error: ${err.message}`);
+    if (err.stack) console.error(err.stack);
+    console.error(`- Duration: ${duration_ms}ms`);
+    console.error(`================================================================================\n`);
+
+    const nodeEvent = {
+      node_id: node.id,
+      node_name: node.label,
+      status: 'failed' as const,
+      duration_ms,
+      input: pipeObj.payload,
+      error: err.message,
+      code: nodeType?.code || null,
+      timestamp: new Date().toISOString(),
+    };
+
+    await appendRunLog(runId, nodeEvent);
+    await emitRunEvent(runId, { type: 'node_complete', ...nodeEvent });
+    throw err;
+  }
 }
 
 /**
@@ -161,7 +216,7 @@ export async function executeFlow(flowId: string, tenantId: string, runId: strin
   // Step 2: Load all node_types referenced by flow nodes
   const nodeTypeIds = [...new Set(graph.nodes.map((n) => n.node_type_id))];
   const nodeTypesResult = await pool.query<NodeType>(
-    'SELECT id, code, name FROM mia.node_types WHERE id = ANY($1)',
+    'SELECT id, code, name, language FROM mia.node_types WHERE id = ANY($1)',
     [nodeTypeIds]
   );
   const nodeTypeMap = new Map(nodeTypesResult.rows.map((nt) => [nt.id, nt]));
@@ -203,16 +258,6 @@ export async function executeFlow(flowId: string, tenantId: string, runId: strin
         const { result, pipeObj: newPipeObj } = await executeNode(node, pipeObj, nodeType, runId);
         pipeObj = newPipeObj;
       } catch (err: any) {
-        const nodeEvent = {
-          node_id: nodeId,
-          node_name: node.data.label,
-          status: 'failed' as const,
-          input: pipeObj.payload,
-          error: err.message,
-          timestamp: new Date().toISOString(),
-        };
-        await appendRunLog(runId, nodeEvent);
-        await emitRunEvent(runId, { type: 'node_complete', ...nodeEvent });
         await updateRunStatus(runId, 'failed', new Date());
         throw err;
       }

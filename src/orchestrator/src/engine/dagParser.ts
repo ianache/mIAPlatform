@@ -5,7 +5,10 @@ export interface FlowNode {
   id: string;
   type: string;
   node_type_id: string;
-  data: { label: string; config: Record<string, unknown> };
+  label: string;
+  config?: Record<string, unknown>;
+  position?: { x: number; y: number };
+  data?: { label: string; config: Record<string, unknown> };
 }
 export interface FlowEdge {
   id: string;

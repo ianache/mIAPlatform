@@ -1,17 +1,16 @@
 <template>
   <div
     class="sticky-note rounded-lg shadow-lg overflow-hidden"
-    :class="[`bg-${data.color || 'yellow'}`]"
-    :style="{ width: `${data.width || 200}px`, minHeight: `${data.height || 150}px`, zIndex: 0 }"
+    :class="[`bg-sticky-${data.color || 'yellow'}`]"
+    :style="{ width: `${data.width || 200}px`, minHeight: `${data.height || 150}px` }"
   >
-    <!-- Toolbar -->
-    <div class="flex items-center justify-between px-2 py-1 bg-black/10">
+    <!-- Toolbar — nodrag prevents VueFlow drag from starting here -->
+    <div class="nodrag flex items-center justify-between px-2 py-1 bg-black/10">
       <div class="flex items-center gap-1">
         <button
           v-for="color in colors"
           :key="color"
           class="w-4 h-4 rounded-full border border-black/20 hover:scale-110 transition-transform"
-          :class="`bg-${color}`"
           :style="{ backgroundColor: getColorValue(color) }"
           @click.stop="changeColor(color)"
           :title="`Change to ${color}`"
@@ -32,26 +31,28 @@
     <div class="p-3">
       <div
         v-if="!isEditing"
-        class="prose prose-sm max-w-none cursor-text"
-        :class="`prose-${data.color || 'yellow'}`"
-        @dblclick="startEditing"
+        class="prose-sticky max-w-none cursor-text min-h-[80px] text-sm"
+        :class="`prose-sticky-${data.color || 'yellow'}`"
+        @dblclick.stop="startEditing"
         v-html="renderedMarkdown"
       />
+      <!-- nodrag + nopan prevents VueFlow from interfering with text editing -->
       <textarea
         v-else
         ref="textareaRef"
+        class="nodrag nopan w-full bg-transparent resize-none outline-none text-sm font-body text-gray-800 min-h-[80px]"
         v-model="editContent"
-        class="w-full h-full min-h-[100px] bg-transparent resize-none outline-none text-sm font-body"
-        :class="`text-${data.color || 'yellow'}-text`"
         @blur="saveEdit"
         @keydown.esc="cancelEdit"
-        placeholder="Enter markdown text..."
+        @click.stop
+        @mousedown.stop
+        placeholder="Double-click to edit (markdown supported)…"
       />
     </div>
 
-    <!-- Resize handle -->
+    <!-- Resize handle — nodrag lets us handle it manually -->
     <div
-      class="absolute bottom-1 right-1 w-3 h-3 cursor-se-resize opacity-30 hover:opacity-60"
+      class="nodrag absolute bottom-1 right-1 w-3 h-3 cursor-se-resize opacity-30 hover:opacity-60"
       @mousedown.stop="startResize"
     >
       <svg viewBox="0 0 24 24" fill="currentColor" class="w-full h-full text-black/50">
@@ -76,7 +77,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const { updateNode, removeNodes } = useVueFlow();
+const { updateNode, removeNodes, viewport } = useVueFlow();
 
 const isEditing = ref(false);
 const editContent = ref('');
@@ -86,9 +87,9 @@ const colors = ['yellow', 'blue', 'green', 'pink', 'purple', 'orange'];
 
 const colorMap: Record<string, string> = {
   yellow: '#fef3c7',
-  blue: '#dbeafe',
-  green: '#dcfce7',
-  pink: '#fce7f3',
+  blue:   '#dbeafe',
+  green:  '#dcfce7',
+  pink:   '#fce7f3',
   purple: '#f3e8ff',
   orange: '#ffedd5',
 };
@@ -99,37 +100,30 @@ function getColorValue(color: string): string {
 
 const renderedMarkdown = computed(() => {
   const content = props.data.content || '';
-  // Simple markdown rendering
+  if (!content) return '<span class="opacity-40 italic">Double-click to edit…</span>';
   return content
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/^### (.*$)/gim, '<h3 class="text-sm font-bold mt-2 mb-1">$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2 class="text-base font-bold mt-2 mb-1">$1</h2>')
-    .replace(/^# (.*$)/gim, '<h1 class="text-lg font-bold mt-2 mb-1">$1</h1>')
+    .replace(/^## (.*$)/gim,  '<h2 class="text-base font-bold mt-2 mb-1">$1</h2>')
+    .replace(/^# (.*$)/gim,   '<h1 class="text-lg font-bold mt-2 mb-1">$1</h1>')
     .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/`(.*?)`/g, '<code class="bg-black/10 px-1 rounded text-xs">$1</code>')
-    .replace(/^- (.*$)/gim, '<li class="ml-3">$1</li>')
+    .replace(/\*(.*?)\*/g,     '<em>$1</em>')
+    .replace(/`(.*?)`/g,       '<code class="bg-black/10 px-1 rounded text-xs">$1</code>')
+    .replace(/^- (.*$)/gim,    '<li class="ml-3">$1</li>')
     .replace(/\n/g, '<br>');
 });
 
 function startEditing() {
   isEditing.value = true;
   editContent.value = props.data.content || '';
-  nextTick(() => {
-    textareaRef.value?.focus();
-  });
+  nextTick(() => textareaRef.value?.focus());
 }
 
 function saveEdit() {
-  updateNode(props.id, {
-    data: {
-      ...props.data,
-      content: editContent.value,
-    },
-  });
+  updateNode(props.id, { data: { ...props.data, content: editContent.value } });
   isEditing.value = false;
 }
 
@@ -139,12 +133,7 @@ function cancelEdit() {
 }
 
 function changeColor(color: string) {
-  updateNode(props.id, {
-    data: {
-      ...props.data,
-      color,
-    },
-  });
+  updateNode(props.id, { data: { ...props.data, color } });
 }
 
 function deleteNote() {
@@ -154,87 +143,43 @@ function deleteNote() {
 function startResize(event: MouseEvent) {
   event.preventDefault();
   event.stopPropagation();
-  
+
   const startX = event.clientX;
   const startY = event.clientY;
-  const startWidth = props.data.width || 200;
+  const startWidth  = props.data.width  || 200;
   const startHeight = props.data.height || 150;
 
   function onMouseMove(e: MouseEvent) {
-    const newWidth = Math.max(150, startWidth + (e.clientX - startX));
-    const newHeight = Math.max(100, startHeight + (e.clientY - startY));
-    
-    updateNode(props.id, {
-      data: {
-        ...props.data,
-        width: newWidth,
-        height: newHeight,
-      },
-    });
+    const zoom = viewport.value?.zoom ?? 1;
+    const newWidth  = Math.max(150, startWidth  + (e.clientX - startX) / zoom);
+    const newHeight = Math.max(100, startHeight + (e.clientY - startY) / zoom);
+    updateNode(props.id, { data: { ...props.data, width: newWidth, height: newHeight } });
   }
 
   function onMouseUp() {
     document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('mouseup', onMouseUp);
+    document.removeEventListener('mouseup',   onMouseUp);
   }
 
   document.addEventListener('mousemove', onMouseMove);
-  document.addEventListener('mouseup', onMouseUp);
+  document.addEventListener('mouseup',   onMouseUp);
 }
 </script>
 
 <style scoped>
-.sticky-note {
-  position: relative;
-}
+.sticky-note { position: relative; }
 
-.bg-yellow { background-color: #fef3c7; }
-.bg-blue { background-color: #dbeafe; }
-.bg-green { background-color: #dcfce7; }
-.bg-pink { background-color: #fce7f3; }
-.bg-purple { background-color: #f3e8ff; }
-.bg-orange { background-color: #ffedd5; }
+.bg-sticky-yellow { background-color: #fef3c7; }
+.bg-sticky-blue   { background-color: #dbeafe; }
+.bg-sticky-green  { background-color: #dcfce7; }
+.bg-sticky-pink   { background-color: #fce7f3; }
+.bg-sticky-purple { background-color: #f3e8ff; }
+.bg-sticky-orange { background-color: #ffedd5; }
 
-.text-yellow-text { color: #1f2937; }
-.text-blue-text { color: #1f2937; }
-.text-green-text { color: #1f2937; }
-.text-pink-text { color: #1f2937; }
-.text-purple-text { color: #1f2937; }
-.text-orange-text { color: #1f2937; }
-
-.prose-yellow :deep(h1),
-.prose-yellow :deep(h2),
-.prose-yellow :deep(h3) {
-  color: #92400e;
-}
-
-.prose-blue :deep(h1),
-.prose-blue :deep(h2),
-.prose-blue :deep(h3) {
-  color: #1e40af;
-}
-
-.prose-green :deep(h1),
-.prose-green :deep(h2),
-.prose-green :deep(h3) {
-  color: #166534;
-}
-
-.prose-pink :deep(h1),
-.prose-pink :deep(h2),
-.prose-pink :deep(h3) {
-  color: #9d174d;
-}
-
-.prose-purple :deep(h1),
-.prose-purple :deep(h2),
-.prose-purple :deep(h3) {
-  color: #6b21a8;
-}
-
-.prose-orange :deep(h1),
-.prose-orange :deep(h2),
-.prose-orange :deep(h3) {
-  color: #9a3412;
-}
+.prose-sticky-yellow { color: #92400e; }
+.prose-sticky-blue   { color: #1e40af; }
+.prose-sticky-green  { color: #166534; }
+.prose-sticky-pink   { color: #9d174d; }
+.prose-sticky-purple { color: #6b21a8; }
+.prose-sticky-orange { color: #9a3412; }
 </style>

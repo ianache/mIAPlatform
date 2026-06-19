@@ -180,10 +180,12 @@ async def execute_flow(
     redis_password = settings.REDIS_PASSWORD
 
     from bullmq import Queue
-    queue = Queue("execute_flow", connection={
-        "host": redis_host,
-        "port": redis_port,
-        "password": redis_password,
+    queue = Queue("execute_flow", opts={
+        "connection": {
+            "host": redis_host,
+            "port": redis_port,
+            "password": redis_password,
+        }
     })
     await queue.add("execute_flow", {
         "flowId": str(flow_id),
@@ -300,7 +302,7 @@ async def flow_run_websocket(
 
 
 async def subscribe_flow_run_events():
-    """Redis subscriber for flow_run:* channel events - relays to WebSocket clients."""
+    """Redis subscriber for flow_run:* channel events - relays to WebSocket clients (with auto-reconnect)."""
     import redis.asyncio as redis
 
     settings = get_settings()
@@ -309,53 +311,71 @@ async def subscribe_flow_run_events():
     redis_port = 6379
     redis_password = settings.REDIS_PASSWORD
 
-    pubsub_conn = redis.Redis(
-        host=redis_host,
-        port=redis_port,
-        password=redis_password,
-        decode_responses=True,
-    )
+    logger.info("Starting flow run subscriber task...")
 
-    pubsub = pubsub_conn.pubsub()
-    await pubsub.psubscribe("flow_run:*")
-    logger.info("Subscribed to flow_run:* channel")
+    while True:
+        try:
+            logger.info("Connecting to Redis for pub/sub...")
+            pubsub_conn = redis.Redis(
+                host=redis_host,
+                port=redis_port,
+                password=redis_password,
+                decode_responses=True,
+            )
 
-    try:
-        async for message in pubsub.listen():
-            if message["type"] == "pmessage":
-                channel = message["channel"]  # e.g., "flow_run:{run_id}"
+            pubsub = pubsub_conn.pubsub()
+            await pubsub.psubscribe("flow_run:*")
+            logger.info("Subscribed to flow_run:* channel successfully")
+
+            try:
+                async for message in pubsub.listen():
+                    if message["type"] == "pmessage":
+                        channel = message["channel"]  # e.g., "flow_run:{run_id}"
+                        try:
+                            event = json.loads(message["data"])
+                        except json.JSONDecodeError:
+                            logger.warning(f"Invalid JSON in flow_run event: {message['data']}")
+                            continue
+
+                        # Extract run_id from channel name
+                        if ":" in channel:
+                            run_id = channel.split(":", 1)[1]
+                            # Broadcast to WebSocket clients
+                            await event_manager.broadcast(f"run:{run_id}", event)
+
+                            # Update flow_runs status in DB if terminal event
+                            if event.get("type") in ("run_complete", "run_failed"):
+                                from src.backend.db.database import get_session_maker
+                                SessionLocal = get_session_maker()
+                                async with SessionLocal() as db:
+                                    result = await db.execute(
+                                        select(FlowRun).where(FlowRun.id == UUID(run_id))
+                                    )
+                                    flow_run = result.scalar_one_or_none()
+                                    if flow_run:
+                                        flow_run.status = "success" if event.get("type") == "run_complete" else "failed"
+                                        if event.get("finished_at"):
+                                            flow_run.finished_at = datetime.fromisoformat(event["finished_at"])
+                                        if event.get("final_output"):
+                                            flow_run.final_output = event["final_output"]
+                                        await db.commit()
+                        else:
+                            logger.warning(f"Unexpected channel format: {channel}")
+            finally:
                 try:
-                    event = json.loads(message["data"])
-                except json.JSONDecodeError:
-                    logger.warning(f"Invalid JSON in flow_run event: {message['data']}")
-                    continue
+                    await pubsub.unsubscribe("flow_run:*")
+                except Exception:
+                    pass
+                await pubsub_conn.close()
+                logger.info("Redis pub/sub connection closed")
 
-                # Extract run_id from channel name
-                if ":" in channel:
-                    run_id = channel.split(":", 1)[1]
-                    # Broadcast to WebSocket clients
-                    await event_manager.broadcast(f"run:{run_id}", event)
-
-                    # Update flow_runs status in DB if terminal event
-                    if event.get("type") in ("run_complete", "run_failed"):
-                        from src.backend.db.database import async_session_maker
-                        async with async_session_maker() as db:
-                            result = await db.execute(
-                                select(FlowRun).where(FlowRun.id == UUID(run_id))
-                            )
-                            flow_run = result.scalar_one_or_none()
-                            if flow_run:
-                                flow_run.status = "success" if event.get("type") == "run_complete" else "failed"
-                                if event.get("finished_at"):
-                                    flow_run.finished_at = datetime.fromisoformat(event["finished_at"])
-                                if event.get("final_output"):
-                                    flow_run.final_output = event["final_output"]
-                                await db.commit()
-                else:
-                    logger.warning(f"Unexpected channel format: {channel}")
-    except asyncio.CancelledError:
-        logger.info("Flow run subscriber cancelled")
-    finally:
-        await pubsub.unsubscribe("flow_run:*")
-        await pubsub_conn.close()
-        logger.info("Flow run subscriber closed")
+        except asyncio.CancelledError:
+            logger.info("Flow run subscriber task cancelled")
+            break
+        except Exception as e:
+            logger.error(f"Error in subscribe_flow_run_events: {e}. Retrying in 5 seconds...")
+            try:
+                await asyncio.sleep(5)
+            except asyncio.CancelledError:
+                logger.info("Flow run subscriber task cancelled during retry sleep")
+                break

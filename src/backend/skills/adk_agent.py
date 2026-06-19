@@ -13,6 +13,7 @@ import asyncio
 
 from src.backend.core.config import get_settings
 from src.backend.skills.loader import get_skills_loader, ToolDefinition
+from src.backend.services.api_key_service import APIKeyService
 
 log_format = "%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s"
 logging.basicConfig(
@@ -76,13 +77,15 @@ class GoogleADKAgent:
         system_prompt: Optional[str] = None,
         context: Optional[Dict[str, Any]] = None,
         metadata: Optional[Dict[str, Any]] = None,
-        event_callback: Optional[Callable[[str, Dict[str, Any]], None]] = None
+        event_callback: Optional[Callable[[str, Dict[str, Any]], None]] = None,
+        db: Optional[Any] = None
     ) -> AsyncGenerator[str, None]:
         """Stream chat response from the agent using an agentic tool-use loop.
         
         Args:
             event_callback: Optional callback for agent events (step_type, data).
                           Called with events like ('thinking', {...}), ('tool_call', {...}), etc.
+            db: Optional database session for retrieving API keys from database.
         """
         # Temporarily override step_callback if event_callback is provided
         original_callback = self.step_callback
@@ -90,6 +93,14 @@ class GoogleADKAgent:
             self.step_callback = event_callback
         
         try:
+            # If no API key configured, try to get from database using service
+            if not self.api_key and db:
+                provider = self.litellm_prefix or "groq"
+                api_key = await APIKeyService.get_api_key(provider, db)
+                if api_key:
+                    self.api_key = api_key
+                    logger.info(f"Retrieved API key for {provider} from service")
+            
             if not self.api_key:
                 logger.warning("No API key configured")
                 async for chunk in self._fallback_stream(message, system_prompt or "", metadata or {}):
@@ -130,10 +141,7 @@ class GoogleADKAgent:
                 for tool in self._tools if tool.get('handler')
             ]
 
-            #model_name = f"{self.litellm_prefix}/{self.model}" if self.litellm_prefix else self.model
-            model_name = "groq/openai/gpt-oss-120b"
-            settings = get_settings()
-            self.api_key = settings.GROQ_API_KEY
+            model_name = f"{self.litellm_prefix}/{self.model}" if self.litellm_prefix else self.model
             logger.info(f"Model name: {model_name}")
             await self._emit("llm_request", f"Consultando modelo: {model_name}", model=model_name)
 

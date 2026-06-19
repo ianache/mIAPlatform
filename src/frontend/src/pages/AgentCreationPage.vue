@@ -72,7 +72,7 @@
             <h2 class="text-lg font-headline font-semibold text-onSurface mb-5">Model Configuration</h2>
             <ModelConfigSection
               :provider="form.provider"
-              :registry-model-id="form.registry_model_id"
+              :registry-model-id="form.registry_model_id ?? ''"
               :temperature="form.temperature"
               @update:provider="form.provider = $event as typeof form.provider"
               @update:registry-model-id="form.registry_model_id = $event"
@@ -174,7 +174,7 @@ async function handleSubmit() {
       name: form.name.trim(),
       description: form.description || undefined,
       avatar_url: form.avatar_url || undefined,
-      registry_model_id: form.registry_model_id || undefined,
+      registry_model_id: form.registry_model_id || null,
       provider: form.provider,
       model: form.model,
       temperature: form.temperature,

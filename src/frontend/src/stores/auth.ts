@@ -32,6 +32,17 @@ export const useAuthStore = defineStore('auth', {
   getters: {
     isAuthenticated: (state) => !!state.accessToken,
     authHeader: (state) => state.accessToken ? `Bearer ${state.accessToken}` : null,
+    userSub: (state): string | null => {
+      if (!state.accessToken) return null;
+      try {
+        const payload = JSON.parse(
+          atob(state.accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
+        );
+        return (payload.sub as string) ?? null;
+      } catch {
+        return null;
+      }
+    },
   },
   actions: {
     async login() {
@@ -74,6 +85,7 @@ export const useAuthStore = defineStore('auth', {
       const tokens = await response.json()
       this.setTokens(tokens.access_token, tokens.refresh_token, tokens.id_token)
       sessionStorage.removeItem('pkce_verifier')
+      await this.fetchUserAvatar()
       return true
     },
 
@@ -88,7 +100,30 @@ export const useAuthStore = defineStore('auth', {
 
     setAvatarUrl(url: string) {
       this.avatarUrl = url
-      localStorage.setItem('mia_user_avatar_url', url)
+      if (url) {
+        localStorage.setItem('mia_user_avatar_url', url)
+      } else {
+        localStorage.removeItem('mia_user_avatar_url')
+      }
+    },
+
+    /** Fetch user avatar from DB (called after login / token refresh). */
+    async fetchUserAvatar() {
+      const sub = this.userSub
+      if (!sub || !this.accessToken) return
+      try {
+        const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8090'
+        const res = await fetch(
+          `${apiBase}/api/v1/avatars/entity/user/${encodeURIComponent(sub)}`,
+          { headers: { Authorization: `Bearer ${this.accessToken}` } },
+        )
+        if (res.ok) {
+          const data = await res.json()
+          this.setAvatarUrl(data.url)
+        }
+      } catch {
+        // keep localStorage value as fallback
+      }
     },
 
     async logout() {
@@ -138,6 +173,7 @@ export const useAuthStore = defineStore('auth', {
 
         const tokens = await response.json()
         this.setTokens(tokens.access_token, tokens.refresh_token || this.refreshToken, tokens.id_token)
+        await this.fetchUserAvatar()
         return true
       } catch (error) {
         console.error('Token refresh failed:', error)

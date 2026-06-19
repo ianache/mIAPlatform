@@ -7,31 +7,33 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Dark Theme Backgrounds
-        background: '#091421',
+        background: 'var(--color-background)',
         surface: {
-          low: '#121C2A',
-          DEFAULT: '#16202E',
-          high: '#212B39',
-          highest: '#2B3544',
+          low: 'var(--color-surface-low)',
+          DEFAULT: 'var(--color-surface-default)',
+          high: 'var(--color-surface-high)',
+          highest: 'var(--color-surface-highest)',
         },
         // Brand Colors
         primary: {
-          DEFAULT: '#ADC6FF',
-          container: '#4D8EFF',
+          DEFAULT: 'var(--color-primary-default)',
+          container: 'var(--color-primary-container)',
         },
-        secondary: '#B1C6F9',
+        secondary: 'var(--color-secondary)',
         tertiary: {
-          DEFAULT: '#FFB786',
-          container: '#DF7412',
+          DEFAULT: 'var(--color-tertiary-default)',
+          container: 'var(--color-tertiary-container)',
         },
-        error: '#FFB4AB',
+        error: 'var(--color-error)',
         // Text Colors
         onSurface: {
-          DEFAULT: '#D9E3F6',
-          variant: '#C2C6D6',
+          DEFAULT: 'var(--color-on-surface-default)',
+          variant: 'var(--color-on-surface-variant)',
         },
-        outline: '#8C909F',
+        outline: 'var(--color-outline)',
+        
+        // Custom Theme Colors
+        primarySelectedText: 'var(--primary-selected-text)',
       },
       fontFamily: {
         headline: ['Space Grotesk', 'sans-serif'],
@@ -39,7 +41,8 @@ export default {
         label: ['Inter', 'sans-serif'],
       },
       backgroundImage: {
-        'primary-gradient': 'linear-gradient(135deg, #ADC6FF 0%, #4D8EFF 100%)',
+        'primary-gradient': 'var(--primary-gradient)',
+        'primary-selected-item': 'var(--primary-selected-item)',
       },
       backdropBlur: {
         glass: '12px',

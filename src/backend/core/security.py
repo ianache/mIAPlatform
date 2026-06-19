@@ -102,17 +102,38 @@ async def verify_token(credentials: HTTPAuthorizationCredentials) -> dict:
             raise HTTPException(status_code=401, detail="Token not issued for this client")
         logger.info(f"Token verified successfully, sub={payload.get('sub')}")
         return payload
-    except JWTError as e:
-        logger.error(f"JWT Error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
     except Exception as e:
+        import traceback
+        try:
+            unverified_payload = jwt.decode(token, options={"verify_signature": False, "verify_aud": False})
+            unverified_header = jwt.get_unverified_header(token)
+        except Exception:
+            unverified_payload = None
+            unverified_header = None
+
+        debug_msg = (
+            f"=== JWT VERIFICATION FAILURE ===\n"
+            f"Timestamp: {datetime.utcnow().isoformat()}\n"
+            f"Error: {str(e)}\n"
+            f"Error Type: {type(e).__name__}\n"
+            f"Expected Client ID: {settings.KEYCLOAK_CLIENT_ID}\n"
+            f"Expected Issuer: {settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}\n"
+            f"Unverified Header: {unverified_header}\n"
+            f"Unverified Payload: {unverified_payload}\n"
+            f"Traceback:\n{traceback.format_exc()}\n"
+            f"================================\n"
+        )
+        try:
+            with open("security_debug.log", "a", encoding="utf-8") as f:
+                f.write(debug_msg)
+        except Exception as file_err:
+            logger.error(f"Failed to write security_debug.log: {file_err}")
+
         logger.error(f"Token verification error: {e}")
+        if isinstance(e, HTTPException):
+            raise e
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token verification failed",
+            detail=f"Token verification failed: {str(e)}",
             headers={"WWW-Authenticate": "Bearer"},
         )
